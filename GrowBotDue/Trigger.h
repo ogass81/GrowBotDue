@@ -12,10 +12,13 @@
 #include "CurrentTime.h"
 #include "Sensor.h"
 
+
 //Globals
 extern String debug;
 extern CurrentTime currenttime;
 extern Sensor *sensors[SENSNUMBER];
+extern long sensor_cycles;
+
 
 
 //Trigger is a pair of sensor values and thresholds linked by a boolean operator -> can be TRUE or FALSE, repeatly checked
@@ -40,12 +43,10 @@ public:
 	uint8_t end_month;
 	int end_year;
 
-
 	//Sensor and Thresholds
-	float average;
 	//Threshold
-	BoolOp boolop;
-	int treshhold;
+	RelOp relop;
+	int threshold;
 
 	//Trigger repeat interval or trigger time windows for average
 	Interval interval;
@@ -53,12 +54,10 @@ public:
 	//Constructor
 	Trigger();
 
-	//Ref
-	virtual void setReference(Sensor *senspt);
-
 	//Update Values or Validity
-	virtual void updateAverage();
 	virtual bool checkState();
+
+	virtual String getTitle();
 
 	//UI Interface
 	//Increase/Decrease Start / End Time
@@ -84,8 +83,8 @@ public:
 	void decInterval();
 
 	//Change Boolean Operator
-	void incBoolOp();
-	void decBoolOp();
+	void incRelOp();
+	void decRelOp();
 
 	//Change Threshold
 	void incThresh();
@@ -94,8 +93,8 @@ public:
 	//Toogle Activity
 	void changeActive();
 
+	
 	//Generate Output for UI
-	virtual String getTitle();
 	String getActive();
 
 	String getStartDay();
@@ -110,16 +109,14 @@ public:
 
 	String getInterval();
 
-	String getBoolOp();
+	String getRelOp();
 	String getThresh();
 };
 
 //Specialization of Trigger with predefined methods for RTC access
 class TimeTrigger : public Trigger {
 public:
-	CurrentTime *currenttime;
-
-	TimeTrigger(int id, CurrentTime *currenttime);
+	TimeTrigger(int id);
 	bool checkState();
 	String getTitle();
 };
@@ -132,7 +129,6 @@ public:
 	//Ref to Sensor Object
 	SensorTrigger(int id, Sensor *ptr);
 
-	void updateAverage();
 	bool checkState();
 	String getTitle();
 };

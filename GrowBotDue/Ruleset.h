@@ -16,16 +16,22 @@ extern Action *actions[ACTIONS];
 extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
 
 //Rulesets are Touples of Triggers, Boolean Operators. If the whole expression is true the assigned action (callback function) is executed
-class RulesSet {
+class RuleSet {
 public:
 	String title;
 	bool active;
 
+	uint8_t triggercat1_ptr, triggercat2_ptr, triggercat3_ptr;
+	uint8_t triggerset1_ptr, triggerset2_ptr, triggerset3_ptr;
+
+	uint8_t action1_ptr, action2_ptr;
+	
+
 	Trigger *assignedTrigger[3];
-	BoolOp *assignedBoolOp[3];
+	BoolOp assignedBoolOp[2];
 	Action *assignedAction[2];
 
-	RulesSet();
+	RuleSet(int count);
 
 	void changeRuleSetTrigger1();
 	void changeRuleSetTrigger2();
@@ -38,6 +44,12 @@ public:
 	void changeRuleAction2();
 
 	void changeRuleSetActive();
+	
+	String getTitle();
+
+	String getRuleSetCat1();
+	String getRuleSetCat2();
+	String getRuleSetCat3();
 
 	String getRuleSetTrigger1();
 	String getRuleSetTrigger2();
@@ -52,6 +64,7 @@ public:
 	String getRuleSetActive();
 
 	bool checkState();
+
 	void executeAction();
 };
 

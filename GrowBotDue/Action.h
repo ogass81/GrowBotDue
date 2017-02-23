@@ -18,6 +18,7 @@ public:
 	bool active;
 
 	virtual void execute();
+	String getTitle();
 };
 
 //Instance of Action Class: Used to wrap different callback functions from different classes -> template
@@ -27,7 +28,7 @@ public:
 	ActionType *actionObject = NULL;
 	void (ActionType::*callback)();
 
-	ActionWrapper(String tile, ActionType *actionObj, void (ActionType::*actionFunc)(), bool active = true);
+	ActionWrapper(String title, ActionType *actionObj, void (ActionType::*actionFunc)(), bool active = true);
 
 	void execute();
 };

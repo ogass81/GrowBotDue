@@ -4,33 +4,27 @@
 
 #include "Trigger.h"
 
+
 Trigger::Trigger() {
 	this->active = false;
 
-	this->start_day = 1;
-	this->start_month = 1;
-	this->start_hour = 12;
-	this->start_minute = 0;
-	this->start_year = 2017;
+	this->start_day = currenttime.current_day;
+	this->start_month = currenttime.current_month;
+	this->start_hour = currenttime.current_hour;
+	this->start_minute = currenttime.current_minute;
+	this->start_year = currenttime.current_year;
 
-	this->end_day = 1;
-	this->end_month = 1;
-	this->end_hour = 0;
-	this->end_minute = 0;
-	this->end_year = 2018;
+	this->end_day = currenttime.current_day;
+	this->end_month = currenttime.current_month;
+	this->end_hour = currenttime.current_hour;
+	this->end_minute = currenttime.current_minute;
+	this->end_year = currenttime.current_year+1;
 
-	this->interval = DAILY;
-	this->boolop = EQUAL;
-	this->treshhold = 0;
+	this->interval = FIVEMIN;
+	this->relop = EQUAL;
+	this->threshold = 0;
 }
 
-void Trigger::setReference(Sensor * senspt)
-{
-}
-
-void Trigger::updateAverage()
-{
-}
 
 bool Trigger::checkState()
 {
@@ -249,6 +243,15 @@ void Trigger::incInterval()
 {
 	switch (this->interval) {
 
+	case ONEMIN:
+		this->interval = TWOMIN;
+		break;
+	case TWOMIN:
+		this->interval = FIVEMIN;
+		break;
+	case FIVEMIN:
+		this->interval = QUARTER;
+		break;
 	case QUARTER:
 		this->interval = HALF;
 		break;
@@ -283,7 +286,7 @@ void Trigger::incInterval()
 		this->interval = BIWEEKLY;
 		break;
 	case BIWEEKLY:
-		this->interval = QUARTER;
+		this->interval = ONEMIN;
 		break;
 	}
 }
@@ -291,9 +294,18 @@ void Trigger::incInterval()
 void Trigger::decInterval()
 {
 	switch (this->interval) {
-
-	case QUARTER:
+	
+	case ONEMIN:
 		this->interval = BIWEEKLY;
+		break;	
+	case TWOMIN:
+		this->interval = ONEMIN;
+		break;
+	case FIVEMIN:
+		this->interval = TWOMIN;
+		break;
+	case QUARTER:
+		this->interval = FIVEMIN;
 		break;
 	case HALF:
 		this->interval = QUARTER;
@@ -331,46 +343,46 @@ void Trigger::decInterval()
 	}
 }
 
-void Trigger::incBoolOp()
+void Trigger::incRelOp()
 {
-	switch (this->boolop) {
+	switch (this->relop) {
 
 	case GREATER:
-		this->boolop = SMALLER;
+		this->relop = SMALLER;
 		break;
 	case SMALLER:
-		this->boolop = EQUAL;
+		this->relop = EQUAL;
 		break;
 	case EQUAL:
-		this->boolop = GREATER;
+		this->relop = GREATER;
 		break;
 	}
 }
 
-void Trigger::decBoolOp()
+void Trigger::decRelOp()
 {
-	switch (this->boolop) {
+	switch (this->relop) {
 
 	case GREATER:
-		this->boolop = EQUAL;
+		this->relop = EQUAL;
 		break;
 	case SMALLER:
-		this->boolop = GREATER;
+		this->relop = GREATER;
 		break;
 	case EQUAL:
-		this->boolop = SMALLER;
+		this->relop = SMALLER;
 		break;
 	}
 }
 
 void Trigger::incThresh()
 {
-	this->treshhold++;
+	this->threshold++;
 }
 
 void Trigger::decThresh()
 {
-	this->treshhold--;
+	this->threshold--;
 }
 
 void Trigger::changeActive()
@@ -435,6 +447,15 @@ String Trigger::getInterval()
 {
 	switch (this->interval) {
 
+	case ONEMIN:
+		return String("1 min");
+		break;
+	case TWOMIN:
+		return String("2 min");
+		break;
+	case FIVEMIN:
+		return String("5 min");
+		break;
 	case QUARTER:
 		return String("15 min");
 		break;
@@ -474,29 +495,57 @@ String Trigger::getInterval()
 	}
 }
 
-String Trigger::getBoolOp()
+String Trigger::getRelOp()
 {
-	if (this->boolop == SMALLER) return String("<");
-	else if (this->boolop == EQUAL) return String("=");
-	else if (this->boolop == GREATER) return String(">");
+	if (this->relop == SMALLER) return String("<");
+	else if (this->relop == EQUAL) return String("=");
+	else if (this->relop == GREATER) return String(">");
 	else return ("ND");
 }
 
 String Trigger::getThresh()
 {
-	return String(this->treshhold);
+	return String(this->threshold);
 }
 
-TimeTrigger::TimeTrigger(int id, CurrentTime *timeobject)
+TimeTrigger::TimeTrigger(int id)
 	: Trigger()
 {
 	this->id = id;
-	this->currenttime = timeobject;
 }
 
 bool TimeTrigger::checkState()
 {
-	return false;
+	int epoch_current =  0;
+	int epoch_start = 0;
+	int epoch_end = 0;
+	
+	bool state = false;
+	
+	epoch_current = CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, 0);
+	epoch_start = CurrentTime::epochTime(this->start_year, this->start_month, this->start_day, this->start_hour, this->start_minute, 0);
+	epoch_end = CurrentTime::epochTime(this->end_year, this->end_month, this->end_day, this->end_hour, this->end_minute, 0);
+
+	if (active == true) {
+		if (epoch_current > epoch_start && epoch_current < epoch_end) {
+			if (this->interval == ONEMIN) state = true;
+			else if (this->interval == TWOMIN && ((epoch_current - epoch_start) % 2 == 0)) state = true;
+			else if (this->interval == FIVEMIN && ((epoch_current - epoch_start) % 5 == 0)) state = true;
+			else if (this->interval == QUARTER && ((epoch_current - epoch_start) % 15 == 0)) state = true;
+			else if (this->interval == HALF && ((epoch_current - epoch_start) % 30 == 0)) state = true;
+			else if (this->interval == ONE && ((epoch_current - epoch_start) % 60 == 0)) state = true;
+			else if (this->interval == TWO && ((epoch_current - epoch_start) % 120 == 0)) state = true;
+			else if (this->interval == THREE && ((epoch_current - epoch_start) % 180 == 0)) state = true;
+			else if (this->interval == FOUR && ((epoch_current - epoch_start) % 240 == 0)) state = true;
+			else if (this->interval == SIX && ((epoch_current - epoch_start) % 360 == 0)) state = true;
+			else if (this->interval == TWELVE && ((epoch_current - epoch_start) % 720 == 0)) state = true;
+			else if (this->interval == DAILY && ((epoch_current - epoch_start) % 1440 == 0)) state = true;
+			else if (this->interval == BIDAILY && ((epoch_current - epoch_start) % 2880 == 0)) state = true;
+			else if (this->interval == WEEKLY && ((epoch_current - epoch_start) % 10080 == 0)) state = true;
+			else if (this->interval == BIWEEKLY && ((epoch_current - epoch_start) % 20160 == 0)) state = true;
+		}
+	}
+	return state;
 }
 
 String TimeTrigger::getTitle()
@@ -504,7 +553,13 @@ String TimeTrigger::getTitle()
 	String name;
 
 	name = String(this->id) + ':';
-	name += currenttime->getTitle();
+	name += currenttime.getTitle();
+	name += '(';
+	name += (String)this->start_hour;
+	name += ':';
+	name += (String)this->start_minute;
+	name += ')';
+
 	return String(name);
 }
 
@@ -517,13 +572,50 @@ SensorTrigger::SensorTrigger(int id, Sensor *ptr)
 }
 
 
-void SensorTrigger::updateAverage()
-{
-}
-
 bool SensorTrigger::checkState()
 {
-	return false;
+	int epoch_current, epoch_start, current_value;
+
+	epoch_current = CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, 0);
+	epoch_start = CurrentTime::epochTime(this->start_year, this->start_month, this->start_day, this->start_hour, this->start_minute, 0);
+	
+	if (this->active == true) {
+		if (epoch_current > epoch_start) {
+			Serial.print("Differenz:");
+			Serial.println(long(epoch_current-epoch_start));
+			
+			if (this->interval == ONEMIN) current_value = sens_ptr->getOneMinAvg();
+			else if (this->interval == TWOMIN && ((epoch_current - epoch_start) % 2 == 0)) current_value = sens_ptr->getTwoMinAvg();
+			else if (this->interval == FIVEMIN && ((epoch_current - epoch_start) % 5 == 0)) current_value = sens_ptr->getFiveMinAvg();
+			else if (this->interval == QUARTER && ((epoch_current - epoch_start) % 5 == 0)) current_value = sens_ptr->getQuarterAvg();
+			else if (this->interval == HALF && ((epoch_current - epoch_start) % 30 == 0)) current_value = sens_ptr->getHalfAvg();
+			else if (this->interval == ONE && ((epoch_current - epoch_start) % 60 == 0))  current_value = sens_ptr->getHourAvg();
+			else if (this->interval == TWO && ((epoch_current - epoch_start) % 120 == 0)) current_value = sens_ptr->getTwoHourAvg();
+			else if (this->interval == THREE && ((epoch_current - epoch_start) % 180 == 0)) current_value = sens_ptr->getThreeHourAvg();
+			else if (this->interval == FOUR && ((epoch_current - epoch_start) % 240 == 0)) current_value = sens_ptr->getFourHourAvg();
+			else if (this->interval == SIX && ((epoch_current - epoch_start) % 360 == 0)) current_value = sens_ptr->getSixHourAvg();
+			else if (this->interval == TWELVE && ((epoch_current - epoch_start) % 720 == 0)) current_value = sens_ptr->getTwelveHourAvg();
+			else if (this->interval == DAILY && ((epoch_current - epoch_start) % 1440 == 0)) current_value = sens_ptr->getDayAvg();
+			else if (this->interval == BIDAILY && ((epoch_current - epoch_start) % 2880 == 0)) current_value = sens_ptr->getTwoDayAvg();
+			else if (this->interval == WEEKLY && ((epoch_current - epoch_start) % 10080 == 0)) current_value = sens_ptr->getWeekAvg();
+			else if (this->interval == BIWEEKLY && ((epoch_current - epoch_start) % 20160 == 0)) current_value = sens_ptr->getTwoWeekAvg();
+			else return false;
+		}
+		else return false;
+
+		Serial.print("Sensor:");
+		Serial.println(current_value);
+		Serial.print("Bool:");
+		Serial.println(this->relop);
+		Serial.print("Threshold:");
+		Serial.println(this->threshold);
+
+		if (this->relop == EQUAL && current_value == this->threshold) return true;
+		else if (this->relop == GREATER && current_value > this->threshold) return true;
+		else if (this->relop == SMALLER && current_value < this->threshold) return true;
+		else return false;
+	}
+	else return false;
 }
 
 String SensorTrigger::getTitle()
@@ -532,6 +624,10 @@ String SensorTrigger::getTitle()
 
 	name = String(this->id) + ':';
 	name += sens_ptr->getTitle();
+	name += "(#";
+	name += (String)this->getRelOp();
+	name += (String)this->threshold;
+	name += ')';
 
 	return String(name);
 }

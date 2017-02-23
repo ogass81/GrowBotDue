@@ -8,7 +8,36 @@
 CurrentTime::CurrentTime(int source)
 	: RTCDue(source)
 {
-	this->source = "Internal RTC";
+	this->source = "RTC";
+}
+
+int CurrentTime::epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
+{
+	int seconds = 0;
+
+	// seconds from 1970 till 1 jan 00:00:00 of the given year
+	seconds = year * 365 * 24 * 60 * 60;
+	for (int i = 0; i < year; i++) {
+		if (LEAP_YEAR(i)) {
+			seconds += 24 * 60 * 60;   // add extra days for leap years
+		}
+	}
+
+	// add days for this year, months start from 1
+	for (int i = 1; i < month; i++) {
+		if ((i == 2) && LEAP_YEAR(year)) {
+			seconds += 24 * 60 * 60 * 29;
+		}
+		else {
+			seconds += 24 * 60 * 60* monthDays[i - 1];  //monthDay array starts from 0
+		}
+	}
+	seconds += (day - 1) * 24 * 60 * 60;
+	seconds += hour * 60 * 60;
+	seconds += minute * 60;
+	seconds += second;
+
+	return (int)seconds;
 }
 
 void CurrentTime::updateTimeObject() {
@@ -35,7 +64,6 @@ void CurrentTime::updateRTCdefault() {
 	for (monthIndex = 0; monthIndex < 12; monthIndex++) {
 		if (strcmp(month, monthName[monthIndex]) == 0) break;
 	}
-
 
 	setSeconds(second);
 	setMinutes(minute);
@@ -70,121 +98,121 @@ String CurrentTime::getTitle()
 }
 
 void CurrentTime::incMinute() {
-	if (current_minute < 59) {
-		current_minute++;
+	if (this->current_minute < 59) {
+		this->current_minute++;
 	}
-	else current_minute = 0;
+	else this->current_minute = 0;
 
-	setMinutes(current_minute);
+	setMinutes(this->current_minute);
 }
 void CurrentTime::decMinute() {
-	if (current_minute > 0) {
-		current_minute--;
+	if (this->current_minute > 0) {
+		this->current_minute--;
 	}
-	else current_minute = 59;
+	else this->current_minute = 59;
 
-	setMinutes(current_minute);
+	setMinutes(this->current_minute);
 }
 void CurrentTime::incHour() {
-	if (current_hour < 23) {
-		current_hour++;
+	if (this->current_hour < 23) {
+		this->current_hour++;
 	}
-	else current_hour = 0;
+	else this->current_hour = 0;
 
-	setHours(current_hour);
+	setHours(this->current_hour);
 }
 void CurrentTime::decHour() {
-	if (current_hour > 0) {
-		current_hour--;
+	if (this->current_hour > 0) {
+		this->current_hour--;
 	}
-	else current_hour = 23;
+	else this->current_hour = 23;
 
-	setHours(current_hour);
+	setHours(this->current_hour);
 }
 void CurrentTime::incYear() {
-	if (current_year < 2027) {
-		current_year++;
+	if (this->current_year < 2027) {
+		this->current_year++;
 	}
-	else current_year = 2017;
+	else this->current_year = 2017;
 
-	setYear(current_year);
+	setYear(this->current_year);
 }
 void CurrentTime::decYear() {
-	if (current_year > 2017) {
-		current_year--;
+	if (this->current_year > 2017) {
+		this->current_year--;
 	}
-	else current_year = 2027;
+	else this->current_year = 2027;
 
-	setYear(current_year);
+	setYear(this->current_year);
 }
 void CurrentTime::incMonth() {
-	if (current_month < 12) {
-		current_month++;
+	if (this->current_month < 12) {
+		this->current_month++;
 	}
-	else current_month = 1;
+	else this->current_month = 1;
 
-	setMonth(current_month);
+	setMonth(this->current_month);
 }
 void CurrentTime::decMonth() {
-	if (current_month > 1) {
-		current_month--;
+	if (this->current_month > 1) {
+		this->current_month--;
 	}
-	else current_month = 12;
+	else this->current_month = 12;
 
-	setMonth(current_month);
+	setMonth(this->current_month);
 }
 void CurrentTime::incDay() {
-	if (current_month == 1 || current_month == 3 || current_month == 5 || current_month == 7 || current_month == 8 || current_month == 10 || current_month == 12) {
-		if (current_day < 31) {
-			current_day++;
+	if (this->current_month == 1 || this->current_month == 3 || this->current_month == 5 || this->current_month == 7 || this->current_month == 8 || this->current_month == 10 || this->current_month == 12) {
+		if (this->current_day < 31) {
+			this->current_day++;
 		}
-		else current_day = 1;
+		else this->current_day = 1;
 	}
-	else if (current_month == 4 || current_month == 6 || current_month == 9 || current_month == 11) {
-		if (current_day < 30) {
-			current_day++;
+	else if (this->current_month == 4 || this->current_month == 6 || this->current_month == 9 || this->current_month == 11) {
+		if (this->current_day < 30) {
+			this->current_day++;
 		}
-		else current_day = 1;
+		else this->current_day = 1;
 	}
-	else if (current_month == 2 || (current_year % 4) == 0) {
-		if (current_day < 29) {
-			current_day++;
+	else if (this->current_month == 2 || (this->current_year % 4) == 0) {
+		if (this->current_day < 29) {
+			this->current_day++;
 		}
-		else current_day = 1;
+		else this->current_day = 1;
 	}
 	else {
-		if (current_day < 28) {
-			current_day++;
+		if (this->current_day < 28) {
+			this->current_day++;
 		}
-		else current_day = 1;
+		else this->current_day = 1;
 
 	}
-	setDay(current_day);
+	setDay(this->current_day);
 }
 void CurrentTime::decDay() {
-	if (current_month == 1 || current_month == 3 || current_month == 5 || current_month == 7 || current_month == 8 || current_month == 10 || current_month == 12) {
-		if (current_day > 1) {
-			current_day--;
+	if (this->current_month == 1 || this->current_month == 3 || this->current_month == 5 || this->current_month == 7 || this->current_month == 8 || this->current_month == 10 || this->current_month == 12) {
+		if (this->current_day > 1) {
+			this->current_day--;
 		}
-		else current_day = 31;
+		else this->current_day = 31;
 	}
-	else if (current_month == 4 || current_month == 6 || current_month == 9 || current_month == 11) {
-		if (current_day > 1) {
-			current_day--;
+	else if (this->current_month == 4 || this->current_month == 6 || this->current_month == 9 || this->current_month == 11) {
+		if (this->current_day > 1) {
+			this->current_day--;
 		}
-		else current_day = 30;
+		else this->current_day = 30;
 	}
-	else if (current_month == 2 || (current_year % 4) == 0) {
-		if (current_day > 1) {
-			current_day--;
+	else if (this->current_month == 2 || (this->current_year % 4) == 0) {
+		if (this->current_day > 1) {
+			this->current_day--;
 		}
-		else current_day = 29;
+		else this->current_day = 29;
 	}
 	else {
-		if (current_day > 1) {
-			current_day--;
+		if (this->current_day > 1) {
+			this->current_day--;
 		}
-		else current_day = 28;
+		else this->current_day = 28;
 	}
-	setDay(current_day);
+	setDay(this->current_day);
 }
