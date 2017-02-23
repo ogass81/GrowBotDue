@@ -11,11 +11,11 @@ AnalogSensor::AnalogSensor(String source, int pin, char unit, bool active) {
 	this->pin = pin;
 	this->active = active;
 
-	pinMode(pin, INPUT);
+	pinMode(pin, INPUT_PULLUP);
 }
 
 float AnalogSensor::readValue() {
-	return 150;
+	return analogRead(pin);
 }
 
 String AnalogSensor::getValue()
@@ -34,7 +34,7 @@ DigitalSensor::DigitalSensor(String source, int pin, char unit, bool active) {
 }
 
 float DigitalSensor::readValue() {
-	Serial.println(pin);
+	
 	return digitalRead(pin);
 }
 

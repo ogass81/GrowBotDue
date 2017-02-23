@@ -5,6 +5,11 @@
 #include "Relais.h"
 
 RelaisBoard::RelaisBoard() {
+	//Initialize Relais
+	pinMode(RELAY1, OUTPUT);
+	pinMode(RELAY2, OUTPUT);
+	pinMode(RELAY3, OUTPUT);
+	pinMode(RELAY4, OUTPUT);
 
 }
 

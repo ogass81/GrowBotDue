@@ -39,7 +39,7 @@ extern Sensor *sensors[SENSNUMBER];
 //Relais
 extern RelaisBoard relaisboard;
 
-extern ActionHandler *actionhandler;
+extern RulesEngine *rulesengine;
 
 class TouchInterface;
 

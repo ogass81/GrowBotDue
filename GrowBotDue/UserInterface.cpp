@@ -265,18 +265,18 @@ void TouchInterface::drawMenue(int nav) {
 
 		//Analog Trigger
 	case 22:
-		menueElements[0] = new MenueItem("Analog 1", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, true, 22, 220);
-		menueElements[1] = new MenueItem("Analog 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, true, 22, 221);
-		menueElements[2] = new MenueItem("Analog 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, true, 22, 222);
-		menueElements[3] = new MenueItem("Analog 4", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, true, 22, 223);
+		menueElements[0] = new MenueItem("Front 1", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, true, 22, 220);
+		menueElements[1] = new MenueItem("Front 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, true, 22, 221);
+		menueElements[2] = new MenueItem("Front 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, true, 22, 222);
+		menueElements[3] = new MenueItem("Front 4", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, true, 22, 223);
 		menueElements[4] = new MenueItem("<back>", VGA_WHITE, VGA_TEAL, VGA_WHITE, 4, this, true, 2, 1);
 		menueElements[5] = NULL;
 		break;
 	case 23:
-		menueElements[0] = new MenueItem("Digi. 1", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, true, 23, 230);
-		menueElements[1] = new MenueItem("Digi. 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, true, 23, 231);
-		menueElements[2] = new MenueItem("Digi. 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, true, 23, 232);
-		menueElements[3] = new MenueItem("Digi. 4", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, true, 23, 233);
+		menueElements[0] = new MenueItem("Top 1", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, true, 23, 230);
+		menueElements[1] = new MenueItem("Top 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, true, 23, 231);
+		menueElements[2] = new MenueItem("Top 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, true, 23, 232);
+		menueElements[3] = new MenueItem("Top 4", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, true, 23, 233);
 		menueElements[4] = new MenueItem("<back>", VGA_WHITE, VGA_TEAL, VGA_WHITE, 4, this, true, 2, 1);
 		menueElements[5] = NULL;
 		break;
@@ -302,7 +302,9 @@ void TouchInterface::drawMenue(int nav) {
 	}
 }
 void TouchInterface::drawFrame(int nav) {
-	current_frame = nav;
+		
+	if (nav != this->current_frame) rulesengine->setTriggerPointer(0);
+	this->current_frame = nav;
 
 
 	switch (nav) {
@@ -315,24 +317,24 @@ void TouchInterface::drawFrame(int nav) {
 		break;
 		// Internal Sensors
 	case 110:
-		frameElements[0] = new TextLabel("Interal Sensor Values:", 0, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[1] = new TextLabel("Temperature:", 2, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[2] = new TextBox(String(sensors[0]->getValue()), 2, 5, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[3] = new TextLabel("Humidity:", 3, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[4] = new TextBox(String(sensors[1]->getValue()), 3, 5, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[0] = new TextLabel("Interal Sensors:", 0, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel("I1:" + sensors[0]->getTitle(), 2, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[2] = new TextBox(String(sensors[0]->getValue()), 2, 6, 4, VGA_WHITE, VGA_WHITE, this);
+		frameElements[3] = new TextLabel("I2:" + sensors[1]->getTitle(), 3, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[4] = new TextBox(String(sensors[1]->getValue()), 3, 6, 4, VGA_WHITE, VGA_WHITE, this);
 		frameElements[5] = NULL;
 		break;
 		// Analog / Front
 	case 111:
-		frameElements[0] = new TextLabel("Analog Front Sensors:", 0, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[1] = new TextLabel("A1:", 2, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[2] = new TextBox(String(sensors[2]->readValue()), 2, 4, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[3] = new TextLabel("A2:", 3, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[4] = new TextBox(String(sensors[3]->getValue()), 3, 4, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new TextLabel("A3:", 4, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[6] = new TextBox(String(sensors[4]->getValue()), 4, 4, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[7] = new TextLabel("A4:", 5, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[8] = new TextBox(String(sensors[5]->getValue()), 5, 4, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[0] = new TextLabel("Front Sensors:", 0, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel("F1:" + sensors[2]->getTitle(), 2, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[2] = new TextBox(String(sensors[2]->getValue()), 2, 6, 4, VGA_WHITE, VGA_WHITE, this);
+		frameElements[3] = new TextLabel("F2:" + sensors[3]->getTitle(), 3, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[4] = new TextBox(String(sensors[3]->getValue()), 3, 6, 4, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new TextLabel("F3:" + sensors[4]->getTitle(), 4, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[6] = new TextBox(String(sensors[4]->getValue()), 4, 6, 4, VGA_WHITE, VGA_WHITE, this);
+		frameElements[7] = new TextLabel("F4:" + sensors[5]->getTitle(), 5, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[8] = new TextBox(String(sensors[5]->getValue()), 5, 6, 4, VGA_WHITE, VGA_WHITE, this);
 		frameElements[9] = NULL;
 		break;
 		//Relais Status
@@ -357,15 +359,15 @@ void TouchInterface::drawFrame(int nav) {
 		break;
 		//Digital Status
 	case 113:
-		frameElements[0] = new TextLabel("Digital Top Sensors:", 0, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[1] = new TextLabel("T1:", 2, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[2] = new TextBox(String(sensors[6]->getValue()), 2, 4, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[3] = new TextLabel("T2:", 3, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[4] = new TextBox(String(sensors[7]->getValue()), 3, 4, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new TextLabel("T3:", 4, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[6] = new TextBox(String(sensors[8]->getValue()), 4, 4, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[7] = new TextLabel("T4:", 5, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[8] = new TextBox(String(sensors[9]->getValue()), 5, 4, 3, VGA_WHITE, VGA_WHITE, this, true);
+		frameElements[0] = new TextLabel("Top Sensors:", 0, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel("T1:" + sensors[6]->getTitle(), 2, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[2] = new TextBox(String(sensors[6]->getValue()), 2, 6, 4, VGA_WHITE, VGA_WHITE, this);
+		frameElements[3] = new TextLabel("T2:" + sensors[7]->getTitle(), 3, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[4] = new TextBox(String(sensors[7]->getValue()), 3, 6, 4, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new TextLabel("T3:" + sensors[8]->getTitle(), 4, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[6] = new TextBox(String(sensors[8]->getValue()), 4, 6, 4, VGA_WHITE, VGA_WHITE, this);
+		frameElements[7] = new TextLabel("T4:" + sensors[9]->getTitle(), 5, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[8] = new TextBox(String(sensors[9]->getValue()), 5, 6, 4, VGA_WHITE, VGA_WHITE, this);
 		frameElements[9] = NULL;
 		break;
 
@@ -431,51 +433,51 @@ void TouchInterface::drawFrame(int nav) {
 
 		//Time
 	case 210:
-		actionhandler->setTriggerCatPointer(0);
+		rulesengine->setTriggerCatPointer(0);
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String(actionhandler->getCurrentTitle()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String(rulesengine->getCurrentTriggerTitle()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("From", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 1, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentStartDay, true, 21, 210);
-		frameElements[4] = new ControlButton<ActionHandler>("+", 1, 3, 1, 1, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentStartMonth, true, 21, 210);
-		frameElements[5] = new ControlButton<ActionHandler>("+", 1, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentStartYear, true, 21, 210);
-		frameElements[6] = new TextBox(String((actionhandler->getCurrentStartDay)()), 2, 2, 1, VGA_WHITE, VGA_WHITE, this);
-		frameElements[7] = new TextBox(String((actionhandler->getCurrentStartMonth)()), 2, 3, 1, VGA_WHITE, VGA_WHITE, this);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentStartYear)()), 2, 4, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 2, 1, 1, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentStartDay, true, 21, 210);
-		frameElements[10] = new ControlButton<ActionHandler>("-", 3, 3, 1, 1, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentStartMonth, true, 21, 210);
-		frameElements[11] = new ControlButton<ActionHandler>("-", 3, 4, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentStartYear, true, 21, 210);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 1, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerStartDay, true, 21, 210);
+		frameElements[4] = new ControlButton<RulesEngine>("+", 1, 3, 1, 1, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerStartMonth, true, 21, 210);
+		frameElements[5] = new ControlButton<RulesEngine>("+", 1, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerStartYear, true, 21, 210);
+		frameElements[6] = new TextBox(String((rulesengine->getCurrentTriggerStartDay)()), 2, 2, 1, VGA_WHITE, VGA_WHITE, this);
+		frameElements[7] = new TextBox(String((rulesengine->getCurrentTriggerStartMonth)()), 2, 3, 1, VGA_WHITE, VGA_WHITE, this);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerStartYear)()), 2, 4, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 2, 1, 1, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerStartDay, true, 21, 210);
+		frameElements[10] = new ControlButton<RulesEngine>("-", 3, 3, 1, 1, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerStartMonth, true, 21, 210);
+		frameElements[11] = new ControlButton<RulesEngine>("-", 3, 4, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerStartYear, true, 21, 210);
 
 		frameElements[12] = new TextLabel("to", 2, 6, 1, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("+", 1, 7, 1, 1, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentEndDay, true, 21, 210);
-		frameElements[14] = new ControlButton<ActionHandler>("+", 1, 8, 1, 1, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentEndMonth, true, 21, 210);
-		frameElements[15] = new ControlButton<ActionHandler>("+", 1, 9, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentEndYear, true, 21, 210);
-		frameElements[16] = new TextBox(String((actionhandler->getCurrentEndDay)()), 2, 7, 1, VGA_WHITE, VGA_WHITE, this);
-		frameElements[17] = new TextBox(String((actionhandler->getCurrentEndMonth)()), 2, 8, 1, VGA_WHITE, VGA_WHITE, this);
-		frameElements[18] = new TextBox(String((actionhandler->getCurrentEndYear)()), 2, 9, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[19] = new ControlButton<ActionHandler>("-", 3, 7, 1, 1, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentEndDay, true, 21, 210);
-		frameElements[20] = new ControlButton<ActionHandler>("-", 3, 8, 1, 1, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentEndMonth, true, 21, 210);
-		frameElements[21] = new ControlButton<ActionHandler>("-", 3, 9, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentEndYear, true, 21, 210);
+		frameElements[13] = new ControlButton<RulesEngine>("+", 1, 7, 1, 1, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerEndDay, true, 21, 210);
+		frameElements[14] = new ControlButton<RulesEngine>("+", 1, 8, 1, 1, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerEndMonth, true, 21, 210);
+		frameElements[15] = new ControlButton<RulesEngine>("+", 1, 9, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerEndYear, true, 21, 210);
+		frameElements[16] = new TextBox(String((rulesengine->getCurrentTriggerEndDay)()), 2, 7, 1, VGA_WHITE, VGA_WHITE, this);
+		frameElements[17] = new TextBox(String((rulesengine->getCurrentTriggerEndMonth)()), 2, 8, 1, VGA_WHITE, VGA_WHITE, this);
+		frameElements[18] = new TextBox(String((rulesengine->getCurrentTriggerEndYear)()), 2, 9, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[19] = new ControlButton<RulesEngine>("-", 3, 7, 1, 1, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerEndDay, true, 21, 210);
+		frameElements[20] = new ControlButton<RulesEngine>("-", 3, 8, 1, 1, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerEndMonth, true, 21, 210);
+		frameElements[21] = new ControlButton<RulesEngine>("-", 3, 9, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerEndYear, true, 21, 210);
 
 		frameElements[22] = new TextLabel("Time", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[23] = new ControlButton<ActionHandler>("+", 5, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentStartHour, true, 21, 210);
-		frameElements[24] = new ControlButton<ActionHandler>("+", 5, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentStartMinute, true, 21, 210);
-		frameElements[25] = new TextBox(String((actionhandler->getCurrentStartHour)()), 6, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[26] = new TextBox(String((actionhandler->getCurrentStartMinute)()), 6, 4, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[27] = new ControlButton<ActionHandler>("-", 7, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentStartHour, true, 21, 210);
-		frameElements[28] = new ControlButton<ActionHandler>("-", 7, 4, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentStartMinute, true, 21, 210);
+		frameElements[23] = new ControlButton<RulesEngine>("+", 5, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerStartHour, true, 21, 210);
+		frameElements[24] = new ControlButton<RulesEngine>("+", 5, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerStartMinute, true, 21, 210);
+		frameElements[25] = new TextBox(String((rulesengine->getCurrentTriggerStartHour)()), 6, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[26] = new TextBox(String((rulesengine->getCurrentTriggerStartMinute)()), 6, 4, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[27] = new ControlButton<RulesEngine>("-", 7, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerStartHour, true, 21, 210);
+		frameElements[28] = new ControlButton<RulesEngine>("-", 7, 4, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerStartMinute, true, 21, 210);
 
 		frameElements[29] = new TextLabel("Int.", 6, 6, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[30] = new ControlButton<ActionHandler>("+", 5, 8, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 21, 210);
-		frameElements[31] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 8, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[32] = new ControlButton<ActionHandler>("-", 7, 8, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 21, 210);
+		frameElements[30] = new ControlButton<RulesEngine>("+", 5, 8, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 21, 210);
+		frameElements[31] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 8, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[32] = new ControlButton<RulesEngine>("-", 7, 8, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 21, 210);
 
 		frameElements[33] = new TextLabel("Stat.", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[34] = new ControlButton<ActionHandler>((actionhandler->getCurrentActive)(), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 21, 210);
+		frameElements[34] = new ControlButton<RulesEngine>((rulesengine->getCurrentTriggerActive)(), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 21, 210);
 
-		frameElements[35] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 21, 210);
-		frameElements[36] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 21, 210);
+		frameElements[35] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 21, 210);
+		frameElements[36] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 21, 210);
 
 		frameElements[37] = NULL;
 		break;
@@ -483,66 +485,66 @@ void TouchInterface::drawFrame(int nav) {
 
 		//Temp. Trigger
 	case 211:
-		actionhandler->setTriggerCatPointer(1);
+		rulesengine->setTriggerCatPointer(1);
 
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String((actionhandler->getCurrentTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentBoolOp, true, 21, 211);
-		frameElements[4] = new TextBox(String((actionhandler->getCurrentBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<ActionHandler>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentBoolOp, true, 21, 211);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 21, 211);
+		frameElements[4] = new TextBox(String((rulesengine->getCurrentTriggerBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<RulesEngine>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerBoolOp, true, 21, 211);
 
 		frameElements[6] = new TextLabel("Celcius", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<ActionHandler>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentThresh, true, 21, 211);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentThresh, true, 21, 211);
+		frameElements[7] = new ControlButton<RulesEngine>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerThresh, true, 21, 211);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerThresh, true, 21, 211);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<ActionHandler>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 21, 211);
-		frameElements[12] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 21, 211);
+		frameElements[11] = new ControlButton<RulesEngine>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 21, 211);
+		frameElements[12] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RulesEngine>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 21, 211);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionHandler>(String((actionhandler->getCurrentActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 21, 211);
+		frameElements[15] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 21, 211);
 
-		frameElements[16] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 21, 211);
-		frameElements[17] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 21, 211);
+		frameElements[16] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 21, 211);
+		frameElements[17] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 21, 211);
 
 		frameElements[18] = NULL;
 		break;
 
 		//Hum. Trigger
 	case 212:
-		actionhandler->setTriggerCatPointer(2);
+		rulesengine->setTriggerCatPointer(2);
 
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String((actionhandler->getCurrentTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentBoolOp, true, 21, 212);
-		frameElements[4] = new TextBox(String((actionhandler->getCurrentBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<ActionHandler>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentBoolOp, true, 21, 212);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 21, 212);
+		frameElements[4] = new TextBox(String((rulesengine->getCurrentTriggerBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<RulesEngine>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerBoolOp, true, 21, 212);
 
 		frameElements[6] = new TextLabel("Celcius", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<ActionHandler>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentThresh, true, 21, 212);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentThresh, true, 21, 212);
+		frameElements[7] = new ControlButton<RulesEngine>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerThresh, true, 21, 212);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerThresh, true, 21, 212);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<ActionHandler>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 21, 212);
-		frameElements[12] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 21, 212);
+		frameElements[11] = new ControlButton<RulesEngine>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 21, 212);
+		frameElements[12] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RulesEngine>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 21, 212);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionHandler>(String((actionhandler->getCurrentActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 21, 212);
+		frameElements[15] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 21, 212);
 
-		frameElements[16] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 21, 212);
-		frameElements[17] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 21, 212);
+		frameElements[16] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 21, 212);
+		frameElements[17] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 21, 212);
 
 		frameElements[18] = NULL;
 		break;
@@ -550,268 +552,295 @@ void TouchInterface::drawFrame(int nav) {
 
 		//Analog Trigger 1
 	case 220:
-		actionhandler->setTriggerCatPointer(3);
+		rulesengine->setTriggerCatPointer(3);
 
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String((actionhandler->getCurrentTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentBoolOp, true, 22, 220);
-		frameElements[4] = new TextBox(String((actionhandler->getCurrentBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<ActionHandler>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentBoolOp, true, 22, 220);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 22, 220);
+		frameElements[4] = new TextBox(String((rulesengine->getCurrentTriggerBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<RulesEngine>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerBoolOp, true, 22, 220);
 
 		frameElements[6] = new TextLabel("Celcius", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<ActionHandler>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentThresh, true, 22, 220);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentThresh, true, 22, 220);
+		frameElements[7] = new ControlButton<RulesEngine>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerThresh, true, 22, 220);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerThresh, true, 22, 220);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<ActionHandler>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 22, 220);
-		frameElements[12] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 22, 220);
+		frameElements[11] = new ControlButton<RulesEngine>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 22, 220);
+		frameElements[12] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RulesEngine>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 22, 220);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionHandler>(String((actionhandler->getCurrentActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 22, 220);
+		frameElements[15] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 22, 220);
 
-		frameElements[16] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 22, 220);
-		frameElements[17] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 22, 220);
+		frameElements[16] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 22, 220);
+		frameElements[17] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 22, 220);
 
 		frameElements[18] = NULL;
 		break;
 
 		//Analog Trigger 2
 	case 221:
-		actionhandler->setTriggerCatPointer(4);
+		rulesengine->setTriggerCatPointer(4);
 
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String((actionhandler->getCurrentTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentBoolOp, true, 22, 221);
-		frameElements[4] = new TextBox(String((actionhandler->getCurrentBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<ActionHandler>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentBoolOp, true, 22, 221);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 22, 221);
+		frameElements[4] = new TextBox(String((rulesengine->getCurrentTriggerBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<RulesEngine>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerBoolOp, true, 22, 221);
 
 		frameElements[6] = new TextLabel("Celcius", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<ActionHandler>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentThresh, true, 22, 221);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentThresh, true, 22, 221);
+		frameElements[7] = new ControlButton<RulesEngine>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerThresh, true, 22, 221);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerThresh, true, 22, 221);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<ActionHandler>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 22, 221);
-		frameElements[12] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 22, 221);
+		frameElements[11] = new ControlButton<RulesEngine>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 22, 221);
+		frameElements[12] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RulesEngine>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 22, 221);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionHandler>(String((actionhandler->getCurrentActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 22, 221);
+		frameElements[15] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 22, 221);
 
-		frameElements[16] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 22, 221);
-		frameElements[17] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 22, 221);
+		frameElements[16] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 22, 221);
+		frameElements[17] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 22, 221);
 
 		frameElements[18] = NULL;
 		break;
 
 		//Analog Trigger 3
 	case 222:
-		actionhandler->setTriggerCatPointer(5);
+		rulesengine->setTriggerCatPointer(5);
 
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String((actionhandler->getCurrentTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentBoolOp, true, 22, 222);
-		frameElements[4] = new TextBox(String((actionhandler->getCurrentBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<ActionHandler>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentBoolOp, true, 22, 222);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 22, 222);
+		frameElements[4] = new TextBox(String((rulesengine->getCurrentTriggerBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<RulesEngine>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerBoolOp, true, 22, 222);
 
 		frameElements[6] = new TextLabel("Celcius", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<ActionHandler>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentThresh, true, 22, 222);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentThresh, true, 22, 222);
+		frameElements[7] = new ControlButton<RulesEngine>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerThresh, true, 22, 222);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerThresh, true, 22, 222);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<ActionHandler>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 22, 222);
-		frameElements[12] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 22, 222);
+		frameElements[11] = new ControlButton<RulesEngine>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 22, 222);
+		frameElements[12] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RulesEngine>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 22, 222);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionHandler>(String((actionhandler->getCurrentActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 22, 222);
+		frameElements[15] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 22, 222);
 
-		frameElements[16] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 22, 222);
-		frameElements[17] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 22, 222);
+		frameElements[16] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 22, 222);
+		frameElements[17] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 22, 222);
 
 		frameElements[18] = NULL;
 		break;
 
 		//Analog Trigger 4
 	case 223:
-		actionhandler->setTriggerCatPointer(6);
+		rulesengine->setTriggerCatPointer(6);
 
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String((actionhandler->getCurrentTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentBoolOp, true, 22, 223);
-		frameElements[4] = new TextBox(String((actionhandler->getCurrentBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<ActionHandler>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentBoolOp, true, 22, 223);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 22, 223);
+		frameElements[4] = new TextBox(String((rulesengine->getCurrentTriggerBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<RulesEngine>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerBoolOp, true, 22, 223);
 
 		frameElements[6] = new TextLabel("Celcius", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<ActionHandler>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentThresh, true, 22, 223);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentThresh, true, 22, 223);
+		frameElements[7] = new ControlButton<RulesEngine>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerThresh, true, 22, 223);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerThresh, true, 22, 223);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<ActionHandler>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 22, 223);
-		frameElements[12] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 22, 223);
+		frameElements[11] = new ControlButton<RulesEngine>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 22, 223);
+		frameElements[12] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RulesEngine>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 22, 223);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionHandler>(String((actionhandler->getCurrentActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 22, 223);
+		frameElements[15] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 22, 223);
 
-		frameElements[16] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 22, 223);
-		frameElements[17] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 22, 223);
+		frameElements[16] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 22, 223);
+		frameElements[17] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 22, 223);
 
 		frameElements[18] = NULL;
 		break;
 
 		//Digital Trigger 1
 	case 230:
-		actionhandler->setTriggerCatPointer(7);
+		rulesengine->setTriggerCatPointer(7);
 
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String((actionhandler->getCurrentTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentBoolOp, true, 23, 230);
-		frameElements[4] = new TextBox(String((actionhandler->getCurrentBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<ActionHandler>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentBoolOp, true, 23, 230);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 230);
+		frameElements[4] = new TextBox(String((rulesengine->getCurrentTriggerBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<RulesEngine>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerBoolOp, true, 23, 230);
 
 		frameElements[6] = new TextLabel("Celcius", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<ActionHandler>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentThresh, true, 23, 230);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentThresh, true, 23, 230);
+		frameElements[7] = new ControlButton<RulesEngine>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerThresh, true, 23, 230);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerThresh, true, 23, 230);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<ActionHandler>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 23, 230);
-		frameElements[12] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 23, 230);
+		frameElements[11] = new ControlButton<RulesEngine>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 23, 230);
+		frameElements[12] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RulesEngine>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 23, 230);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionHandler>(String((actionhandler->getCurrentActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 23, 230);
+		frameElements[15] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 23, 230);
 
-		frameElements[16] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 23, 230);
-		frameElements[17] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 23, 230);
+		frameElements[16] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 23, 230);
+		frameElements[17] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 23, 230);
 
 		frameElements[18] = NULL;
 		break;
 		//Digital Trigger 2
 	case 231:
-		actionhandler->setTriggerCatPointer(8);
+		rulesengine->setTriggerCatPointer(8);
 
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String((actionhandler->getCurrentTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentBoolOp, true, 23, 231);
-		frameElements[4] = new TextBox(String((actionhandler->getCurrentBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<ActionHandler>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentBoolOp, true, 23, 231);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 231);
+		frameElements[4] = new TextBox(String((rulesengine->getCurrentTriggerBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<RulesEngine>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerBoolOp, true, 23, 231);
 
 		frameElements[6] = new TextLabel("Celcius", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<ActionHandler>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentThresh, true, 23, 231);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentThresh, true, 23, 231);
+		frameElements[7] = new ControlButton<RulesEngine>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerThresh, true, 23, 231);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerThresh, true, 23, 231);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<ActionHandler>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 23, 231);
-		frameElements[12] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 23, 231);
+		frameElements[11] = new ControlButton<RulesEngine>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 23, 231);
+		frameElements[12] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RulesEngine>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 23, 231);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionHandler>(String((actionhandler->getCurrentActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 23, 231);
+		frameElements[15] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 23, 231);
 
-		frameElements[16] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 23, 231);
-		frameElements[17] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 23, 231);
+		frameElements[16] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 23, 231);
+		frameElements[17] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 23, 231);
 
 		frameElements[18] = NULL;
 		break;
 		//Digital Trigger 3
 	case 232:
-		actionhandler->setTriggerCatPointer(9);
+		rulesengine->setTriggerCatPointer(9);
 
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String((actionhandler->getCurrentTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentBoolOp, true, 23, 232);
-		frameElements[4] = new TextBox(String((actionhandler->getCurrentBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<ActionHandler>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentBoolOp, true, 23, 232);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 232);
+		frameElements[4] = new TextBox(String((rulesengine->getCurrentTriggerBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<RulesEngine>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerBoolOp, true, 23, 232);
 
 		frameElements[6] = new TextLabel("Celcius", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<ActionHandler>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentThresh, true, 23, 232);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentThresh, true, 23, 232);
+		frameElements[7] = new ControlButton<RulesEngine>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerThresh, true, 23, 232);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerThresh, true, 23, 232);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<ActionHandler>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 23, 232);
-		frameElements[12] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 23, 232);
+		frameElements[11] = new ControlButton<RulesEngine>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 23, 232);
+		frameElements[12] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RulesEngine>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 23, 232);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionHandler>(String((actionhandler->getCurrentActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 23, 232);
+		frameElements[15] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 23, 232);
 
-		frameElements[16] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 23, 232);
-		frameElements[17] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 23, 232);
+		frameElements[16] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 23, 232);
+		frameElements[17] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 23, 232);
 
 		frameElements[18] = NULL;
 		break;
 		//Digital Trigger 4
 	case 233:
-		actionhandler->setTriggerCatPointer(10);
+		rulesengine->setTriggerCatPointer(10);
 
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String((actionhandler->getCurrentTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionHandler>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentBoolOp, true, 23, 233);
-		frameElements[4] = new TextBox(String((actionhandler->getCurrentBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<ActionHandler>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentBoolOp, true, 23, 233);
+		frameElements[3] = new ControlButton<RulesEngine>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 233);
+		frameElements[4] = new TextBox(String((rulesengine->getCurrentTriggerBoolOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<RulesEngine>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerBoolOp, true, 23, 233);
 
 		frameElements[6] = new TextLabel("Celcius", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<ActionHandler>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentThresh, true, 23, 233);
-		frameElements[8] = new TextBox(String((actionhandler->getCurrentThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionHandler>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentThresh, true, 23, 233);
+		frameElements[7] = new ControlButton<RulesEngine>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerThresh, true, 23, 233);
+		frameElements[8] = new TextBox(String((rulesengine->getCurrentTriggerThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerThresh, true, 23, 233);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<ActionHandler>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::incCurrentInterval, true, 23, 233);
-		frameElements[12] = new TextBox(String((actionhandler->getCurrentInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<ActionHandler>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, actionhandler, &ActionHandler::decCurrentInterval, true, 23, 233);
+		frameElements[11] = new ControlButton<RulesEngine>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerInterval, true, 23, 233);
+		frameElements[12] = new TextBox(String((rulesengine->getCurrentTriggerInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RulesEngine>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::decCurrentTriggerInterval, true, 23, 233);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionHandler>(String((actionhandler->getCurrentActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, actionhandler, &ActionHandler::changeCurrentActive, true, 23, 233);
+		frameElements[15] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 23, 233);
 
-		frameElements[16] = new ControlButton<ActionHandler>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::decTriggerPointer, true, 23, 233);
-		frameElements[17] = new ControlButton<ActionHandler>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, actionhandler, &ActionHandler::incTriggerPointer, true, 23, 233);
+		frameElements[16] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 23, 233);
+		frameElements[17] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 23, 233);
 
 		frameElements[18] = NULL;
 		break;
 		//Rules Set
 	case 310:
-		frameElements[0] = new TextLabel("Define Rules Set", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[1] = NULL;
+		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+
+		frameElements[1] = new TextLabel(String((rulesengine->getCurrentTriggerTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+
+		frameElements[2] = new TextLabel("If", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[3] = new ControlButton<RulesEngine>("#NameTrigger#", 2, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 310);
+		frameElements[4] = new ControlButton<RulesEngine>("#BOOL#", 2, 9, 1, 2, VGA_BLUE, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 310);
+		
+		frameElements[5] = new TextLabel("If", 3, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[6] = new ControlButton<RulesEngine>("#NameTrigger#", 3, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 310);
+		frameElements[7] = new ControlButton<RulesEngine>("#BOOL#", 3, 9, 1, 2, VGA_BLUE, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 310);
+
+		frameElements[8] = new TextLabel("If", 4, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<RulesEngine>("#NameTrigger#", 4, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 310);
+		frameElements[10] = new ControlButton<RulesEngine>("#BOOL#", 4, 9, 1, 2, VGA_BLUE, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 310);
+
+		frameElements[11] = new TextLabel("Do", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[12] = new ControlButton<RulesEngine>("#NameAction#", 6, 2, 1, 6, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 310);
+		frameElements[13] = new TextLabel("and", 6, 9, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[14] = new TextLabel("Do", 7, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[15] = new ControlButton<RulesEngine>("#NameAction#", 7, 2, 1, 6, VGA_RED, VGA_BLACK, this, rulesengine, &RulesEngine::incCurrentTriggerBoolOp, true, 23, 310);
+		
+		frameElements[16] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[17] = new ControlButton<RulesEngine>(String((rulesengine->getCurrentTriggerActive)()), 9, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, rulesengine, &RulesEngine::changeCurrentTriggerActive, true, 23, 233);
+
+		frameElements[18] = new ControlButton<RulesEngine>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::decTriggerPointer, true, 23, 233);
+		frameElements[19] = new ControlButton<RulesEngine>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rulesengine, &RulesEngine::incTriggerPointer, true, 23, 233);
+
+		frameElements[20] = NULL;
 		break;
 
 	case 999:

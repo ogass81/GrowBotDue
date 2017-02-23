@@ -86,20 +86,26 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Action.h" />
     <ClInclude Include="CurrentTime.h" />
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="Relais.h" />
     <ClInclude Include="RulesEngine.h" />
+    <ClInclude Include="Ruleset.h" />
     <ClInclude Include="Sensor.h" />
+    <ClInclude Include="Trigger.h" />
     <ClInclude Include="UserInterface.h" />
     <ClInclude Include="__vm\.GrowBotDue.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Action.cpp" />
     <ClCompile Include="CurrentTime.cpp" />
     <ClCompile Include="Definitions.cpp" />
     <ClCompile Include="Relais.cpp" />
     <ClCompile Include="RulesEngine.cpp" />
+    <ClCompile Include="Ruleset.cpp" />
     <ClCompile Include="Sensor.cpp" />
+    <ClCompile Include="Trigger.cpp" />
     <ClCompile Include="UserInterface.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -24,10 +24,10 @@
 #define MOS4 A3
 
 //Top Panel
-#define TOP1 15
-#define TOP2 16
-#define TOP3 17
-#define TOP4 18
+#define TOP1 14
+#define TOP2 15
+#define TOP3 16
+#define TOP4 17
 
 #define BACKGROUNDCOLOR VGA_BLACK
 
@@ -46,24 +46,14 @@
 #define TRIGCAT 11
 #define TRIGNUMBER 16
 
-//Index of each Category
-#define TIMETRIGGER 0
-#define INTTEMPTRIGGER 1
-#define INTHUMTRIGGER 2
-#define ANALOGTRIGGER1 3
-#define ANALOGTRIGGER2 4
-#define ANALOGTRIGGER3 5
-#define ANALOGTRIGGER4 6
-#define DIGITALTRIGGER1 7
-#define DIGITALTRIGGER2 8
-#define DIGITALTRIGGER3 9
-#define DIGITALTRIGGER4 10
-
 //Number of Rulesssets
 #define RULES 32
 
 //Number of Actions
 #define ACTIONS 8
+
+enum BoolOp { SMALLER, EQUAL, GREATER };
+enum Interval { QUARTER, HALF, ONE, TWO, THREE, FOUR, SIX, TWELVE, DAILY, BIDAILY, WEEKLY, BIWEEKLY };
 
 #endif
 
