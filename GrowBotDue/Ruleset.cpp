@@ -26,8 +26,8 @@ RuleSet::RuleSet(int count)
 	triggerset2_ptr = TRIGNUMBER;
 	triggerset3_ptr = TRIGNUMBER;
 
-	action1_ptr = 0;
-	action2_ptr = 0;
+	action1_ptr = ACTIONS;
+	action2_ptr = ACTIONS;
 
 }
 
@@ -329,6 +329,60 @@ bool RuleSet::checkState()
 		}
 	}
 	return state;
+}
+
+void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)
+{
+	StaticJsonBuffer<500> jsonBuffer;
+
+	JsonObject& rules = jsonBuffer.createObject();
+
+	rules["type"] = "Rules";
+	rules["id"] = id;
+	rules["active"] = this->active;
+	rules["triggerset1_ptr"] = this->triggerset1_ptr;
+	rules["triggercat1_ptr"] = this->triggercat1_ptr;
+	rules["triggerset2_ptr"] = this->triggerset2_ptr;
+	rules["triggercat2_ptr"] = this->triggercat2_ptr;
+	rules["triggerset3_ptr"] = this->triggerset3_ptr;
+	rules["triggercat3_ptr"] = this->triggercat3_ptr;
+	rules["action1_ptr"] = this->action1_ptr;
+	rules["action2_ptr"] = this->action2_ptr;
+
+	JsonArray& boolop = rules.createNestedArray("Bool");
+	boolop.add(this->assignedBoolOp[0]);
+	boolop.add(this->assignedBoolOp[1]);
+
+	rules.prettyPrintTo(json, maxSize);
+}
+
+bool RuleSet::deserializeJSON(JsonObject & data)
+{
+	if (data.success() == true) {
+		this->active = data["active"];
+		this->triggerset1_ptr = data["triggerset1_ptr"];
+		this->triggercat1_ptr = data["triggercat1_ptr"];
+		this->triggerset2_ptr = data["triggerset2_ptr"];
+		this->triggercat2_ptr = data["triggercat2_ptr"];
+		this->triggerset3_ptr = data["triggerset3_ptr"];
+		this->triggercat3_ptr = data["triggercat3_ptr"];
+		this->action1_ptr = data["action1_ptr"];
+		this->action2_ptr = data["action2_ptr"];
+		
+		/*
+		this->assignedBoolOp[0] = data["Bool"][0];
+		this->assignedBoolOp[1] = data["Bool"][1];
+		*/
+
+
+		if (this->triggerset1_ptr != TRIGNUMBER && this->triggercat1_ptr != TRIGCAT) this->assignedTrigger[0] = trigger[triggercat1_ptr][triggerset1_ptr];
+		if (this->triggerset2_ptr != TRIGNUMBER && this->triggercat2_ptr != TRIGCAT) this->assignedTrigger[1] = trigger[triggercat2_ptr][triggerset2_ptr];
+		if (this->triggerset3_ptr != TRIGNUMBER && this->triggercat3_ptr != TRIGCAT) this->assignedTrigger[2] = trigger[triggercat3_ptr][triggerset3_ptr];
+		if (this->action1_ptr != ACTIONS) this->assignedAction[0] = actions[action1_ptr];
+		if (this->action2_ptr != ACTIONS) this->assignedAction[1] = actions[action2_ptr];
+	}
+
+	return data.success();
 }
 
 void RuleSet::executeAction()

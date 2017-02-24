@@ -59,7 +59,7 @@
 //Rules Enginge
 //Trigger Categories and number for each category
 #define TRIGCAT 11
-#define TRIGNUMBER 16
+#define TRIGNUMBER 8
 
 //Number of Rulesssets
 #define RULES 32

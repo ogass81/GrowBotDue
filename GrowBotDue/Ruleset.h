@@ -9,6 +9,7 @@
 	#include "WProgram.h"
 #endif
 #include "Definitions.h"
+#include <ArduinoJson.h>
 #include "Trigger.h"
 #include "Action.h"
 
@@ -64,6 +65,9 @@ public:
 	String getRuleSetActive();
 
 	bool checkState();
+
+	void serializeJSON(uint8_t id, char* json, size_t maxSize);
+	bool deserializeJSON(JsonObject& data);
 
 	void executeAction();
 };

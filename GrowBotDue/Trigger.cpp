@@ -508,6 +508,56 @@ String Trigger::getThresh()
 	return String(this->threshold);
 }
 
+void Trigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize)
+{
+	StaticJsonBuffer<500> jsonBuffer;
+
+	JsonObject& trigger = jsonBuffer.createObject();
+	
+	trigger["type"] = "Trigger";
+	trigger["cat"] = cat;
+	trigger["id"] = id;
+
+	trigger["active"] = this->active;
+	trigger["start_minute"] = this->start_minute;
+	trigger["start_hour"] = this->start_hour;
+	trigger["start_day"] = this->start_day;
+	trigger["start_month"] = this->start_month;
+	trigger["start_year"] = this->start_year;
+	trigger["end_minute"] = this->end_minute;
+	trigger["end_hour"] = this->end_hour;
+	trigger["end_day"] = this->end_day;
+	trigger["end_month"] = this->end_month;
+	trigger["end_year"] = this->end_year;
+	trigger["relop"] = this->relop;
+	trigger["threshold"] = this->threshold;
+	trigger["interval"] = this->interval;
+
+	trigger.prettyPrintTo(json, maxSize);
+}
+
+bool Trigger::deserializeJSON(JsonObject& data)
+{
+	if (data.success() == true) {
+		this->active = data["active"];
+		this->start_minute = data["start_minute"];
+		this->start_hour = data["start_hour"];
+		this->start_day = data["start_day"];
+		this->start_month = data["start_month"];
+		this->start_year = data["start_year"];
+		this->end_minute = data["end_minute"];
+		this->end_hour = data["end_hour"];
+		this->end_day = data["end_day"];
+		this->end_month = data["end_month"];
+		this->end_year = data["end_year"];
+		//this->relop = data["relop"];
+		this->threshold = data["threshold"];
+		//this->interval = data["interval"];
+	}
+
+	return data.success();
+}
+
 TimeTrigger::TimeTrigger(int id)
 	: Trigger()
 {

@@ -725,6 +725,52 @@ short Sensor::getTwoWeekAvg()
 	return round(result);
 }
 
+void Sensor::serializeJSON(uint8_t id, char* json, size_t maxSize)
+{
+	StaticJsonBuffer<1000> jsonBuffer;
+
+	JsonObject& sensor = jsonBuffer.createObject();
+
+	sensor["type"] = "Sensor";
+	sensor["id"] = id;
+	sensor["minute_ptr"] = this->minute_ptr;
+	sensor["hour_ptr"] = this->hour_ptr;
+	sensor["day_ptr"] = this->day_ptr;
+	sensor["month_ptr"] = this->month_ptr;
+	sensor["year_ptr"] = this->year_ptr;
+
+	JsonArray& minutes = sensor.createNestedArray("minute_values");
+	for (uint8_t j = 0; j < NUMMINUTE; j++) minutes.add(this->minute_values[j]);
+	JsonArray& hours = sensor.createNestedArray("hour_values");
+	for (uint8_t j = 0; j < NUMHOUR; j++) hours.add(this->hour_values[j]);
+	JsonArray& days = sensor.createNestedArray("day_values");
+	for (uint8_t j = 0; j < NUMDAY; j++) days.add(this->day_values[j]);
+	JsonArray& month = sensor.createNestedArray("month_values");
+	for (uint8_t j = 0; j < NUMMONTH; j++) month.add(this->month_values[j]);
+	JsonArray& year = sensor.createNestedArray("year_values");
+	for (uint8_t j = 0; j < NUMYEAR; j++) year.add(this->year_values[j]);
+	
+	sensor.prettyPrintTo(json, maxSize);
+}
+
+bool Sensor::deserializeJSON(JsonObject& data)
+{
+	if (data.success() == true) {
+		this->minute_ptr = data["minute_ptr"];
+		this->hour_ptr = data["hour_ptr"];
+		this->day_ptr = data["day_ptr"];
+		this->month_ptr = data["month_ptr"];
+		this->year_ptr = data["year_ptr"];
+
+		for (uint8_t j = 0; j < NUMMINUTE; j++) this->minute_values[j] = data["minute_values"][j];
+		for (uint8_t j = 0; j < NUMHOUR; j++) this->hour_values[j] = data["hour_values"][j];
+		for (uint8_t j = 0; j < NUMDAY; j++) this->day_values[j] = data["day_values"][j];
+		for (uint8_t j = 0; j < NUMMONTH; j++) this->month_values[j] = data["month_values"][j];
+		for (uint8_t j = 0; j < NUMYEAR; j++) this->year_values[j] = data["year_values"][j];
+	}
+
+	return data.success();
+}
 
 
 Sensor::Sensor()

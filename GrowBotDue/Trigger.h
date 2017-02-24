@@ -9,6 +9,7 @@
 	#include "WProgram.h"
 #endif
 #include "Definitions.h"
+#include <ArduinoJson.h>
 #include "CurrentTime.h"
 #include "Sensor.h"
 
@@ -111,6 +112,10 @@ public:
 
 	String getRelOp();
 	String getThresh();
+
+	//Serialization
+	void serializeJSON(uint8_t cat, uint8_t id, char* json, size_t maxSize);
+	bool deserializeJSON(JsonObject& data);
 };
 
 //Specialization of Trigger with predefined methods for RTC access

@@ -38,11 +38,11 @@ public:
 	short month_values[NUMMONTH]; //every 6h
 	short year_values[NUMYEAR]; //every month for three years
 
-	uint8_t minute_ptr = -1;
-	uint8_t hour_ptr = -1;
-	uint8_t day_ptr = -1;
-	uint8_t month_ptr = -1;
-	uint8_t year_ptr = -1;
+	int8_t minute_ptr = -1;
+	int8_t hour_ptr = -1;
+	int8_t day_ptr = -1;
+	int8_t month_ptr = -1;
+	int8_t year_ptr = -1;
 	
 	Sensor();
 	virtual float readValue();
@@ -68,6 +68,9 @@ public:
 	short getTwoDayAvg();
 	short getWeekAvg();
 	short getTwoWeekAvg();
+	
+	void serializeJSON(uint8_t id, char* json, size_t maxSize);
+	bool deserializeJSON(JsonObject& data);
 };
 
 class AnalogSensor : public Sensor {

@@ -8,7 +8,6 @@
 
 //Core Libaries
 
-
 #include <ArduinoJson.h>
 #include "DataStore.h"
 #include <memorysaver.h>
@@ -19,7 +18,6 @@
 
 #include <SD.h>
 #include <SPI.h>
-
 #include <RTCDue.h>
 #include <DHT_U.h>
 #include <DHT.h>
@@ -97,8 +95,7 @@ void setup() {
 	currenttime.updateTimeObject();
 
 	relaisboard = new RelaisBoard();
-
-
+	
 	//Initialize Sensors
 	sensors[0] = new	DHTTemperature("Temp.", 'C', true);
 	sensors[1] = new 	DHTHumidity("Humid.", '%', true);
