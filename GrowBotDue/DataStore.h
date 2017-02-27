@@ -31,7 +31,7 @@ extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
 extern RuleSet *rulesets[RULES];
 
 extern long sensor_cycles;
-#define ARDUINOJSON_ENABLE_PROGMEM 1
+
 
 class DataStore {
 public:

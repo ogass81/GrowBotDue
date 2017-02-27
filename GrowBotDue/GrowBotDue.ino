@@ -8,16 +8,12 @@
 
 //Core Libaries
 
-#include <ArduinoJson.h>
-#include "DataStore.h"
 #include <memorysaver.h>
 #include <UTouchCD.h>
 #include <UTouch.h>
 #include <UTFT.h>
 
 
-#include <SD.h>
-#include <SPI.h>
 #include <RTCDue.h>
 #include <DHT_U.h>
 #include <DHT.h>
@@ -31,7 +27,7 @@
 #include "Ruleset.h"
 #include "Trigger.h"
 #include "Action.h"
-
+#include "FileSystem.h"
 
 
 //Global Variables
@@ -63,11 +59,6 @@ DHT dht(DHTPIN, DHTTYPE);
 //RealTimeClock
 CurrentTime currenttime(RC);
 
-//SD Card
-Sd2Card card;
-SdVolume volume;
-SdFile root;
-
 //Relaisboard 
 RelaisBoard *relaisboard;
 
@@ -84,6 +75,9 @@ Trigger *trigger[TRIGCAT][TRIGNUMBER];
 //Rulesets: Trigger Action Bundles
 RuleSet *rulesets[RULES];
 
+//FileSystem
+FileSystem filesystem;
+
 //User Interface: TFT User Interface
 UserInterface myUI;
 
@@ -95,6 +89,8 @@ void setup() {
 	currenttime.updateTimeObject();
 
 	relaisboard = new RelaisBoard();
+
+	filesystem.init();
 	
 	//Initialize Sensors
 	sensors[0] = new	DHTTemperature("Temp.", 'C', true);
@@ -160,23 +156,6 @@ void setup() {
 	for (uint8_t i = 0; i < NUMDAY; i++) sensors[0]->day_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < NUMMONTH; i++) sensors[0]->month_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < NUMYEAR; i++) sensors[0]->year_values[i] = random(-25, 25);
-	
-	//SD Card
-	if (!card.init(SPI_HALF_SPEED, SDCS)) {
-		Serial.println("Error: Initialization of SD card failed.");
-	}
-	else {
-		Serial.println("OK: SD card found.");
-	}
-
-	if (!volume.init(card)) {
-		Serial.println("Could not find FAT16/FAT32 partition.\nMake sure you've formatted the card");
-		return;
-	}
-	else {
-		Serial.println("OK: Volume found ");
-	}
-	DataStore::serialize();
 }
 
 // the loop function runs over and over again until power down or reset

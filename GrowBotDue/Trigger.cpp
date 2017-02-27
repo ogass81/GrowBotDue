@@ -529,9 +529,9 @@ void Trigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize
 	trigger["end_day"] = this->end_day;
 	trigger["end_month"] = this->end_month;
 	trigger["end_year"] = this->end_year;
-	trigger["relop"] = this->relop;
+	trigger["relop"] = static_cast<int>(this->relop);
 	trigger["threshold"] = this->threshold;
-	trigger["interval"] = this->interval;
+	trigger["interval"] = static_cast<int>(this->interval);
 
 	trigger.prettyPrintTo(json, maxSize);
 }
@@ -550,9 +550,39 @@ bool Trigger::deserializeJSON(JsonObject& data)
 		this->end_day = data["end_day"];
 		this->end_month = data["end_month"];
 		this->end_year = data["end_year"];
-		//this->relop = data["relop"];
 		this->threshold = data["threshold"];
-		//this->interval = data["interval"];
+
+		if (data["relop"] == 0) this->relop = SMALLER;
+		else if (data["relop"] == 1) this->relop = EQUAL;
+		else if (data["relop"] == 2) this->relop = GREATER;
+		else {
+			this->relop = EQUAL;
+			this->active = false;
+		}
+
+		if (data["interval"] == 0) this->interval = REALTIME;
+		else if (data["interval"] == 1) this->interval = TENSEC;
+		else if (data["interval"] == 2) this->interval = TWENTYSEC;
+		else if (data["interval"] == 3) this->interval = THIRTYSEC;
+		else if (data["interval"] == 4) this->interval = ONEMIN;
+		else if (data["interval"] == 5) this->interval = TWOMIN;
+		else if (data["interval"] == 6) this->interval = FIVEMIN;
+		else if (data["interval"] == 7) this->interval = QUARTER;
+		else if (data["interval"] == 8) this->interval = HALF;
+		else if (data["interval"] == 9) this->interval = ONE;
+		else if (data["interval"] == 10) this->interval = TWO;
+		else if (data["interval"] == 11) this->interval = THREE;
+		else if (data["interval"] == 12) this->interval = FOUR;
+		else if (data["interval"] == 13) this->interval = SIX;
+		else if (data["interval"] == 14) this->interval = TWELVE;
+		else if (data["interval"] == 15) this->interval = DAILY;
+		else if (data["interval"] == 16) this->interval = BIDAILY;
+		else if (data["interval"] == 17) this->interval = WEEKLY;
+		else if (data["interval"] == 18) this->interval = BIWEEKLY;
+		else {
+			this->interval = FIVEMIN;
+			this->active = false;
+		}
 	}
 
 	return data.success();

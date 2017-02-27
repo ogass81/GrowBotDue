@@ -255,8 +255,8 @@ String RuleSet::getRuleSetBoolOp1()
 {
 	String label;
 	
-	if (assignedBoolOp[0] == NOT) label = "AND";
-	else if (assignedBoolOp[0] == AND) label = "OR";
+	if (assignedBoolOp[0] == AND) label = "AND";
+	else if (assignedBoolOp[0] == OR) label = "OR";
 	else label = "NOT";
 	
 	return(String(label));
@@ -266,8 +266,8 @@ String RuleSet::getRuleSetBoolOp2()
 {
 	String label;
 
-	if (assignedBoolOp[1] == NOT) label = "AND";
-	else if (assignedBoolOp[1] == AND) label = "OR";
+	if (assignedBoolOp[1] == AND) label = "AND";
+	else if (assignedBoolOp[1] == OR) label = "OR";
 	else label = "NOT";
 
 	return(String(label));
@@ -350,8 +350,8 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)
 	rules["action2_ptr"] = this->action2_ptr;
 
 	JsonArray& boolop = rules.createNestedArray("Bool");
-	boolop.add(this->assignedBoolOp[0]);
-	boolop.add(this->assignedBoolOp[1]);
+	boolop.add(static_cast<int>(this->assignedBoolOp[0]));
+	boolop.add(static_cast<int>(this->assignedBoolOp[1]));
 
 	rules.prettyPrintTo(json, maxSize);
 }
@@ -369,11 +369,22 @@ bool RuleSet::deserializeJSON(JsonObject & data)
 		this->action1_ptr = data["action1_ptr"];
 		this->action2_ptr = data["action2_ptr"];
 		
-		/*
-		this->assignedBoolOp[0] = data["Bool"][0];
-		this->assignedBoolOp[1] = data["Bool"][1];
-		*/
-
+		
+		if (data["Bool"][0] == 0) this->assignedBoolOp[0] = AND;
+		else if (data["Bool"][0] == 1) this->assignedBoolOp[0] = OR;
+		else if (data["Bool"][0] == 2) this->assignedBoolOp[0] = NOT;
+		else {
+			this->assignedBoolOp[0] = OR;
+			this->active = false;
+		}
+		
+		if (data["Bool"][1] == 0) this->assignedBoolOp[1] = AND;
+		else if (data["Bool"][1] == 1) this->assignedBoolOp[1] = OR;
+		else if (data["Bool"][1] == 2) this->assignedBoolOp[1] = NOT;
+		else {
+			this->assignedBoolOp[1] = OR;
+			this->active = false;
+		}
 
 		if (this->triggerset1_ptr != TRIGNUMBER && this->triggercat1_ptr != TRIGCAT) this->assignedTrigger[0] = trigger[triggercat1_ptr][triggerset1_ptr];
 		if (this->triggerset2_ptr != TRIGNUMBER && this->triggercat2_ptr != TRIGCAT) this->assignedTrigger[1] = trigger[triggercat2_ptr][triggerset2_ptr];
