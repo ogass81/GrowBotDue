@@ -32,6 +32,7 @@ public:
 
 	//Trigger valid timeframe
 
+	uint8_t start_second;
 	uint8_t start_minute;
 	uint8_t start_hour;
 	uint8_t start_day;

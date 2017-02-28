@@ -596,3 +596,4 @@ template class ControlButton<CurrentTime>;
 template class ControlButton<RuleSet>;
 template class ControlButton<UserInterface>;
 template class ControlButton<Trigger>;
+template class ControlButton<FileSystem>;

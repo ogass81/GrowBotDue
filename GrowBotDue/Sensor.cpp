@@ -731,7 +731,7 @@ void Sensor::serializeJSON(uint8_t id, char* json, size_t maxSize)
 
 	JsonObject& sensor = jsonBuffer.createObject();
 
-	sensor["type"] = "Sensor";
+	sensor["type"] = "SENSOR";
 	sensor["id"] = id;
 	sensor["minute_ptr"] = this->minute_ptr;
 	sensor["hour_ptr"] = this->hour_ptr;
@@ -750,7 +750,7 @@ void Sensor::serializeJSON(uint8_t id, char* json, size_t maxSize)
 	JsonArray& year = sensor.createNestedArray("year_values");
 	for (uint8_t j = 0; j < NUMYEAR; j++) year.add(this->year_values[j]);
 	
-	sensor.prettyPrintTo(json, maxSize);
+	sensor.printTo(json, maxSize);
 }
 
 bool Sensor::deserializeJSON(JsonObject& data)

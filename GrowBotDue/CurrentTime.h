@@ -29,10 +29,12 @@ public:
 	
 
 	CurrentTime(int source);
-	int static epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
+	long epochTime();
+	long static epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
 
 
 	void updateTimeObject();
+	void updateRTC(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
 	void updateRTCdefault();
 
 	String createDate();
@@ -50,9 +52,6 @@ public:
 	void decMonth();
 	void incDay();
 	void decDay();
-
-
-	
 	
 };
 

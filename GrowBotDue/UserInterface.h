@@ -19,6 +19,7 @@
 #include "Trigger.h"
 #include "Ruleset.h"
 #include "UserInterfaceElement.h"
+#include "FileSystem.h"
 
 //UI Variables
 extern int touch_x, touch_y;
@@ -33,6 +34,8 @@ extern bool unit;
 
 extern UTFT myGLCD;
 extern UTouch myTouch;
+
+extern FileSystem filesystem;
 
 //Time
 extern CurrentTime currenttime;

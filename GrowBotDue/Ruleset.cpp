@@ -337,7 +337,7 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)
 
 	JsonObject& rules = jsonBuffer.createObject();
 
-	rules["type"] = "Rules";
+	rules["type"] = "RULE";
 	rules["id"] = id;
 	rules["active"] = this->active;
 	rules["triggerset1_ptr"] = this->triggerset1_ptr;
@@ -353,7 +353,7 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)
 	boolop.add(static_cast<int>(this->assignedBoolOp[0]));
 	boolop.add(static_cast<int>(this->assignedBoolOp[1]));
 
-	rules.prettyPrintTo(json, maxSize);
+	rules.printTo(json, maxSize);
 }
 
 bool RuleSet::deserializeJSON(JsonObject & data)

@@ -9,24 +9,33 @@
 	#include "WProgram.h"
 #endif
 #include "Definitions.h"
-#include <SD.h>
+#include "SdFat.h"
 #include <SPI.h>
+#include <ArduinoJson.h>
+#include "CurrentTime.h"
+#include "Sensor.h"
+#include "Trigger.h"
+#include "Ruleset.h"
+
 
 extern long sensor_cycles;
+extern CurrentTime currenttime;
+extern Sensor *sensors[SENSNUMBER];
+extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
+extern RuleSet *rulesets[RULES];
 
 
 class FileSystem {
-	//SD Card
-	Sd2Card card;
-	SdVolume volume;
-	SdFile root;
+	SdFat sd;
+	// Log file.
+	File file;
 
 public:
 	FileSystem();
 
-	bool init();
-	bool savetoCard();
-
+	void init();
+	void savetoCard();
+	void readfromCard();
 
 };
 

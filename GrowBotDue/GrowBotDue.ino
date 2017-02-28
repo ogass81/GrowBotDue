@@ -46,8 +46,9 @@ long sensor_cycles = 0;
 int cpu_current = 0;
 int cpu_last = 0;
 
-int rtc_current = 0;
-int rtc_last = 0;
+long rtc_current = 0;
+long rtc_fast = 0;
+long rtc_slow = 0;
 
 //Hardware Handles
 //LCD, Touchscreen
@@ -127,7 +128,6 @@ void setup() {
 		rulesets[k] = new RuleSet(k);
 	}
 
-
 	// Initial LCD setup
 	myGLCD.InitLCD();
 	myGLCD.clrScr();
@@ -176,13 +176,16 @@ void loop() {
 
 		currenttime.updateTimeObject();
 		rtc_current = CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, currenttime.current_second);
+		
+		if (rtc_fast == 0) rtc_fast = rtc_current;
+		if (rtc_slow == 0) rtc_slow = rtc_current;
 
-
-		//Refresh Interval of Sensors, Triggers and Ruleset every 10sec based on RTC
-		if (rtc_current - rtc_last >= 10) {
-			rtc_last = rtc_current;
+		//Fast cycle
+		if (rtc_current - rtc_fast >= 10) {
+			rtc_fast = rtc_current;
 			sensor_cycles++;
-
+			Serial.print("Cycle: ");
+			Serial.println(sensor_cycles);
 
 			for (uint8_t i = 0; i < SENSNUMBER; i++) {
 				sensors[i]->update();
@@ -193,8 +196,10 @@ void loop() {
 			}
 
 		}
-		//Refresh Interval of Sensors, Triggers and Ruleset every 60sec based on RTC
-		if (rtc_current - rtc_last >= 60) {
+		//Slow Cycle
+		if (rtc_current - rtc_slow >= 60) {
+			rtc_slow = rtc_current;
+			filesystem.savetoCard();
 			myUI.draw();
 		}
 	}

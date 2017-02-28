@@ -182,9 +182,9 @@ void UserInterface::drawMenue(int nav) {
 		//Sub Menue Page 3: Settings
 	case 13:
 		menueElements[0] = new MenueButton("RTC", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, true, 13, 130);
-		menueElements[1] = new MenueButton("Func 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, true, 13, 131);
-		menueElements[2] = new MenueButton("Func 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, true, 13, 132);
-		menueElements[3] = new MenueButton("Func 4", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, true, 13, 133);
+		menueElements[1] = new MenueButton("Func 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, true, 13, 1);
+		menueElements[2] = new MenueButton("Func 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, true, 13, 1);
+		menueElements[3] = new MenueButton("Config", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, true, 13, 133);
 		menueElements[4] = new MenueButton("<back>", VGA_WHITE, VGA_TEAL, VGA_WHITE, 4, this, true, 1, 1);
 		menueElements[5] = NULL;
 		break;
@@ -345,7 +345,7 @@ void UserInterface::drawFrame(int nav) {
 		break;
 		//Set RTC
 	case 130:
-		frameElements[0] = new TextLabel("Settings", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[0] = new TextLabel("Real Time Clock", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[1] = new TextLabel("Date", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[2] = new ControlButton<CurrentTime>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incDay, true, 13, 130);
 		frameElements[3] = new ControlButton<CurrentTime>("+", 1, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incMonth, true, 13, 130);
@@ -365,6 +365,12 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[17] = new ControlButton<CurrentTime>("-", 7, 4, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decMinute, true, 13, 130);
 		frameElements[18] = new ControlButton<CurrentTime>("Default", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, &currenttime, &CurrentTime::updateRTCdefault, true, 13, 130);
 		frameElements[19] = NULL;
+		break;
+	case 133:
+		frameElements[0] = new TextLabel("Settings ", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new ControlButton<FileSystem>("Load", 2, 0, 1, 4, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::readfromCard, true, 13, 133);
+		frameElements[2] = new ControlButton<FileSystem>("Save", 4, 0, 1, 4, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::savetoCard, true, 13, 133);
+		frameElements[3] = NULL;
 		break;
 
 		//Time
