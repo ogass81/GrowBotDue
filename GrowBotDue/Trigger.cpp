@@ -6,26 +6,8 @@
 
 
 Trigger::Trigger() {
-	this->active = false;
-
-	this->start_second = currenttime.current_second;
-	this->start_day = currenttime.current_day;
-	this->start_month = currenttime.current_month;
-	this->start_hour = currenttime.current_hour;
-	this->start_minute = currenttime.current_minute;
-	this->start_year = currenttime.current_year;
-
-	this->end_day = currenttime.current_day;
-	this->end_month = currenttime.current_month;
-	this->end_hour = currenttime.current_hour;
-	this->end_minute = currenttime.current_minute;
-	this->end_year = currenttime.current_year+1;
-
-	this->interval = FIVEMIN;
-	this->relop = EQUAL;
-	this->threshold = 0;
+	this->reset();
 }
-
 
 bool Trigger::checkState()
 {
@@ -544,6 +526,28 @@ String Trigger::getRelOp()
 String Trigger::getThresh()
 {
 	return String(this->threshold);
+}
+
+void Trigger::reset()
+{
+	this->active = false;
+
+	this->start_second = currenttime.current_second;
+	this->start_day = currenttime.current_day;
+	this->start_month = currenttime.current_month;
+	this->start_hour = currenttime.current_hour;
+	this->start_minute = currenttime.current_minute;
+	this->start_year = currenttime.current_year;
+
+	this->end_day = currenttime.current_day;
+	this->end_month = currenttime.current_month;
+	this->end_hour = currenttime.current_hour;
+	this->end_minute = currenttime.current_minute;
+	this->end_year = currenttime.current_year + 1;
+
+	this->interval = TWOMIN;
+	this->relop = EQUAL;
+	this->threshold = 0;
 }
 
 void Trigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize)

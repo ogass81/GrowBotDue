@@ -370,7 +370,8 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[0] = new TextLabel("Settings ", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[1] = new ControlButton<FileSystem>("Load", 2, 0, 1, 4, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::readfromCard, true, 13, 133);
 		frameElements[2] = new ControlButton<FileSystem>("Save", 4, 0, 1, 4, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::savetoCard, true, 13, 133);
-		frameElements[3] = NULL;
+		frameElements[3] = new ControlButton<FileSystem>("Reset", 6, 0, 1, 4, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::reset, true, 13, 133);
+		frameElements[4] = NULL;
 		break;
 
 		//Time

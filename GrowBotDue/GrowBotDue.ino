@@ -86,12 +86,10 @@ void setup() {
 	Serial.begin(9600);
 
 	currenttime.begin(); // initialize RTC
-	currenttime.updateRTCdefault();
 	currenttime.updateTimeObject();
 
 	relaisboard = new RelaisBoard();
 
-	filesystem.init();
 	
 	//Initialize Sensors
 	sensors[0] = new	DHTTemperature("Temp.", 'C', true);
@@ -123,10 +121,15 @@ void setup() {
 		}
 	}
 
-		//Initialize Rulesets
+	//Initialize Rulesets
 	for (uint8_t k = 0; k < RULES; k++) {
 		rulesets[k] = new RuleSet(k);
 	}
+
+	//Initialize FileSystem / SD Card
+	filesystem.init();
+	filesystem.readfromCard();
+	
 
 	// Initial LCD setup
 	myGLCD.InitLCD();
@@ -140,6 +143,7 @@ void setup() {
 	myUI.drawMenue(1);
 	myUI.drawFrame(1);
 
+	/*
 	//Test Data
 	trigger[1][0]->threshold = 30;
 	trigger[1][0]->active = true;
@@ -156,6 +160,7 @@ void setup() {
 	for (uint8_t i = 0; i < NUMDAY; i++) sensors[0]->day_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < NUMMONTH; i++) sensors[0]->month_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < NUMYEAR; i++) sensors[0]->year_values[i] = random(-25, 25);
+	*/
 }
 
 // the loop function runs over and over again until power down or reset

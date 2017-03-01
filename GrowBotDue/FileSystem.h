@@ -37,6 +37,8 @@ public:
 	void savetoCard();
 	void readfromCard();
 
+	void reset();
+
 };
 
 

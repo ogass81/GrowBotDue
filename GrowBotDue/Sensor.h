@@ -69,6 +69,10 @@ public:
 	short getWeekAvg();
 	short getTwoWeekAvg();
 	
+	//Settings
+	void reset();;
+
+	//Serialize
 	void serializeJSON(uint8_t id, char* json, size_t maxSize);
 	bool deserializeJSON(JsonObject& data);
 };

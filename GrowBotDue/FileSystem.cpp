@@ -149,3 +149,26 @@ void FileSystem::readfromCard()
 		Serial.println("Error: Could not open file.");
 	}
 }
+
+void FileSystem::reset()
+{
+	//Initialize Trigger
+	for (int tcategory = 0; tcategory < TRIGCAT; tcategory++) {
+		for (int tset = 0; tset < TRIGNUMBER; tset++) {
+				trigger[tcategory][tset]->reset();
+			}
+		}
+	
+	//Initialize Rulesets
+	for (uint8_t k = 0; k < RULES; k++) {
+		rulesets[k]->reset();
+	}
+
+	//Initialize Rulesets
+	for (uint8_t j = 0; j < SENSNUMBER; j++) {
+		sensors[j]->reset();
+	}
+
+	sensor_cycles = 0;
+	currenttime.updateRTCdefault();
+}

@@ -82,7 +82,6 @@ TextBox::TextBox(String value, uint8_t row, uint8_t column, uint8_t column_sprea
 	this->navframe = navframe;
 
 	draw();
-
 }
 void TextBox::draw() {
 	myGLCD.setFont(SmallFont);
@@ -127,8 +126,6 @@ void MenueButton::draw() {
 	myGLCD.setFont(SmallFont);
 	myGLCD.print(this->value, this->x1 + 3, this->y1 + 3);
 }
-
-
 
 template<class ActionType>
 MenueControlButton<ActionType>::MenueControlButton(String value, word frame_color, word fill_color, word text_color, uint8_t row, UserInterface * touchmenue, ActionType * actionObj, void(ActionType::* actionFunc)(int), int par, bool active, int navmenue, int navframe)
@@ -227,7 +224,7 @@ void ControlButton<ActionType>::draw() {
 
 template <class ActionType>
 void ControlButton<ActionType>::executeAction() {
-	if (this->active == true && this->actionObject != NULL) {
+	if (this->active == true && this->actionObject != NULL && this->callback != NULL) {
 		(actionObject->*callback)();
 	}
 	else Serial.println("FAIL: Button has no action");

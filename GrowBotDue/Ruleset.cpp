@@ -7,28 +7,7 @@
 RuleSet::RuleSet(int count)
 {
 	title = String(count);
-	active = false;
-
-	assignedTrigger[0] = NULL;
-	assignedTrigger[1] = NULL;
-	assignedTrigger[2] = NULL;
-
-	assignedBoolOp[0] = AND;
-	assignedBoolOp[1] = AND;
-
-	assignedAction[0] = NULL;
-	assignedAction[1] = NULL;
-
-	triggercat1_ptr = TRIGCAT;
-	triggercat2_ptr = TRIGCAT;
-	triggercat3_ptr = TRIGCAT;
-	triggerset1_ptr = TRIGNUMBER;
-	triggerset2_ptr = TRIGNUMBER;
-	triggerset3_ptr = TRIGNUMBER;
-
-	action1_ptr = ACTIONS;
-	action2_ptr = ACTIONS;
-
+	this->reset();
 }
 
 void RuleSet::changeRuleSetTrigger1()
@@ -329,6 +308,31 @@ bool RuleSet::checkState()
 		}
 	}
 	return state;
+}
+
+void RuleSet::reset()
+{
+	active = false;
+
+	assignedTrigger[0] = NULL;
+	assignedTrigger[1] = NULL;
+	assignedTrigger[2] = NULL;
+
+	assignedBoolOp[0] = AND;
+	assignedBoolOp[1] = AND;
+
+	assignedAction[0] = NULL;
+	assignedAction[1] = NULL;
+
+	triggercat1_ptr = TRIGCAT;
+	triggercat2_ptr = TRIGCAT;
+	triggercat3_ptr = TRIGCAT;
+	triggerset1_ptr = TRIGNUMBER;
+	triggerset2_ptr = TRIGNUMBER;
+	triggerset3_ptr = TRIGNUMBER;
+
+	action1_ptr = ACTIONS;
+	action2_ptr = ACTIONS;
 }
 
 void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)

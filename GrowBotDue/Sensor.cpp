@@ -725,6 +725,15 @@ short Sensor::getTwoWeekAvg()
 	return round(result);
 }
 
+void Sensor::reset()
+{
+	for (uint8_t i = 0; i < NUMMINUTE; i++) this->minute_values[i] = -32768;
+	for (uint8_t i = 0; i < NUMHOUR; i++) this->hour_values[i] = -32768;
+	for (uint8_t i = 0; i < NUMDAY; i++) this->day_values[i] = -32768;
+	for (uint8_t i = 0; i < NUMMONTH; i++) this->month_values[i] = -32768;
+	for (uint8_t i = 0; i < NUMYEAR; i++) this->year_values[i] = -32768;
+}
+
 void Sensor::serializeJSON(uint8_t id, char* json, size_t maxSize)
 {
 	StaticJsonBuffer<1000> jsonBuffer;
@@ -775,9 +784,5 @@ bool Sensor::deserializeJSON(JsonObject& data)
 
 Sensor::Sensor()
 {
-	for (uint8_t i = 0; i < NUMMINUTE; i++) minute_values[i] = -32768;
-	for (uint8_t i = 0; i < NUMHOUR; i++) hour_values[i] = -32768;
-	for (uint8_t i = 0; i < NUMDAY; i++) day_values[i] = -32768;
-	for (uint8_t i = 0; i < NUMMONTH; i++) month_values[i] = -32768;
-	for (uint8_t i = 0; i < NUMYEAR; i++) year_values[i] = -32768;
+	this->reset();
 }

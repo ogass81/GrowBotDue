@@ -114,6 +114,9 @@ public:
 	String getRelOp();
 	String getThresh();
 
+	//Settings
+	void reset();
+
 	//Serialization
 	void serializeJSON(uint8_t cat, uint8_t id, char* json, size_t maxSize);
 	bool deserializeJSON(JsonObject& data);
