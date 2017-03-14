@@ -395,8 +395,6 @@ void Trigger::changeActive()
 {
 	if (this->active == true) this->active = false;
 	else this->active = true;
-
-	this->start_second = currenttime.current_second;
 }
 
 String Trigger::getTitle()
@@ -532,7 +530,6 @@ void Trigger::reset()
 {
 	this->active = false;
 
-	this->start_second = currenttime.current_second;
 	this->start_day = currenttime.current_day;
 	this->start_month = currenttime.current_month;
 	this->start_hour = currenttime.current_hour;
@@ -543,7 +540,7 @@ void Trigger::reset()
 	this->end_month = currenttime.current_month;
 	this->end_hour = currenttime.current_hour;
 	this->end_minute = currenttime.current_minute;
-	this->end_year = currenttime.current_year + 1;
+	this->end_year = this->start_year + 1;
 
 	this->interval = TWOMIN;
 	this->relop = EQUAL;
@@ -561,7 +558,6 @@ void Trigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize
 	trigger["id"] = id;
 
 	trigger["active"] = this->active;
-	trigger["start_second"] = this->start_second;
 	trigger["start_minute"] = this->start_minute;
 	trigger["start_hour"] = this->start_hour;
 	trigger["start_day"] = this->start_day;
@@ -583,7 +579,6 @@ bool Trigger::deserializeJSON(JsonObject& data)
 {
 	if (data.success() == true) {
 		this->active = data["active"];
-		this->start_second = data["start_second"];
 		this->start_minute = data["start_minute"];
 		this->start_hour = data["start_hour"];
 		this->start_day = data["start_day"];
@@ -651,26 +646,28 @@ bool TimeTrigger::checkState()
 	epoch_end = CurrentTime::epochTime(this->end_year, this->end_month, this->end_day, this->end_hour, this->end_minute, 0);
 
 	if (active == true) {
+		Serial.println("Trigger active");
 		if (epoch_current > epoch_start && epoch_current < epoch_end) {
+			Serial.println("Current Date > Start Date");
 			if (this->interval == REALTIME) state = true;
-			else if (this->interval == TENSEC && ((epoch_current - epoch_start) % 10 == 0)) state = true;
-			else if (this->interval == TWENTYSEC && ((epoch_current - epoch_start) % 20 == 0)) state = true;
-			else if (this->interval == THIRTYSEC && ((epoch_current - epoch_start) % 30 == 0)) state = true;
-			else if (this->interval == ONEMIN && ((epoch_current - epoch_start) % 60 == 0)) state = true;
-			else if (this->interval == TWOMIN && ((epoch_current - epoch_start) % 120 == 0)) state = true;
-			else if (this->interval == FIVEMIN && ((epoch_current - epoch_start) % 300 == 0)) state = true;
-			else if (this->interval == QUARTER && ((epoch_current - epoch_start) % 900 == 0)) state = true;
-			else if (this->interval == HALF && ((epoch_current - epoch_start) % 1800 == 0)) state = true;
-			else if (this->interval == ONE && ((epoch_current - epoch_start) % 3600 == 0))  state = true;
-			else if (this->interval == TWO && ((epoch_current - epoch_start) % 7200 == 0)) state = true;
-			else if (this->interval == THREE && ((epoch_current - epoch_start) % 10800 == 0)) state = true;
-			else if (this->interval == FOUR && ((epoch_current - epoch_start) % 14400 == 0)) state = true;
-			else if (this->interval == SIX && ((epoch_current - epoch_start) % 21600 == 0)) state = true;
-			else if (this->interval == TWELVE && ((epoch_current - epoch_start) % 43200 == 0)) state = true;
-			else if (this->interval == DAILY && ((epoch_current - epoch_start) % 86400 == 0)) state = true;
-			else if (this->interval == BIDAILY && ((epoch_current - epoch_start) % 172800 == 0)) state = true;
-			else if (this->interval == WEEKLY && ((epoch_current - epoch_start) % 604800 == 0)) state = true;
-			else if (this->interval == BIWEEKLY && ((epoch_current - epoch_start) % 1209600 == 0)) state = true;
+			else if (this->interval == TENSEC && (sensor_cycles % (10 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == TWENTYSEC && (sensor_cycles % (20 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == THIRTYSEC && (sensor_cycles % (30 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == ONEMIN && (sensor_cycles % (60 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == TWOMIN && (sensor_cycles % (120 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == FIVEMIN && (sensor_cycles % (300 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == QUARTER && (sensor_cycles % (900 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == HALF && (sensor_cycles % (1800 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == ONE && (sensor_cycles % (3600 / CLOCKFRQ)) == 0)  state = true;
+			else if (this->interval == TWO && (sensor_cycles % (7200 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == THREE && (sensor_cycles % (10800 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == FOUR && (sensor_cycles % (14400 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == SIX && (sensor_cycles % (21600 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == TWELVE && (sensor_cycles % (43200 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == DAILY && (sensor_cycles % (86400 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == BIDAILY && (sensor_cycles % (172800 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == WEEKLY && (sensor_cycles % (604800 / CLOCKFRQ)) == 0) state = true;
+			else if (this->interval == BIWEEKLY && (sensor_cycles % (1209600 / CLOCKFRQ)) == 0) state = true;
 		}
 	}
 	return state;
@@ -705,33 +702,31 @@ bool SensorTrigger::checkState()
 	long epoch_current, epoch_start;
 	short current_value;
 
-	epoch_current = CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, currenttime.current_minute);
+	epoch_current = CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, currenttime.current_second);
 	epoch_start = CurrentTime::epochTime(this->start_year, this->start_month, this->start_day, this->start_hour, this->start_minute, 0);
 	
 	if (this->active == true) {
 		if (epoch_current > epoch_start) {
-			Serial.print("Differenz:");
-			Serial.println(long(epoch_current-epoch_start));
 			
 			if (this->interval == REALTIME) current_value = sens_ptr->getLastValue();
-			else if (this->interval == TENSEC && ((epoch_current - epoch_start) % 10 == 0)) current_value = sens_ptr->getTenSecAvg();
-			else if (this->interval == TWENTYSEC && ((epoch_current - epoch_start) % 20 == 0)) current_value = sens_ptr->getTwentySecAvg();
-			else if (this->interval == THIRTYSEC && ((epoch_current - epoch_start) % 30 == 0)) current_value = sens_ptr->getThirtySecAvg();
-			else if (this->interval == ONEMIN && ((epoch_current - epoch_start) % 60 == 0)) current_value = sens_ptr->getOneMinAvg();
-			else if (this->interval == TWOMIN && ((epoch_current - epoch_start) % 120 == 0)) current_value = sens_ptr->getTwoMinAvg();
-			else if (this->interval == FIVEMIN && ((epoch_current - epoch_start) % 300 == 0)) current_value = sens_ptr->getFiveMinAvg();
-			else if (this->interval == QUARTER && ((epoch_current - epoch_start) % 900 == 0)) current_value = sens_ptr->getQuarterAvg();
-			else if (this->interval == HALF && ((epoch_current - epoch_start) % 1800 == 0)) current_value = sens_ptr->getHalfAvg();
-			else if (this->interval == ONE && ((epoch_current - epoch_start) % 3600 == 0))  current_value = sens_ptr->getHourAvg();
-			else if (this->interval == TWO && ((epoch_current - epoch_start) % 7200 == 0)) current_value = sens_ptr->getTwoHourAvg();
-			else if (this->interval == THREE && ((epoch_current - epoch_start) % 10800 == 0)) current_value = sens_ptr->getThreeHourAvg();
-			else if (this->interval == FOUR && ((epoch_current - epoch_start) % 14400 == 0)) current_value = sens_ptr->getFourHourAvg();
-			else if (this->interval == SIX && ((epoch_current - epoch_start) % 21600 == 0)) current_value = sens_ptr->getSixHourAvg();
-			else if (this->interval == TWELVE && ((epoch_current - epoch_start) % 43200 == 0)) current_value = sens_ptr->getTwelveHourAvg();
-			else if (this->interval == DAILY && ((epoch_current - epoch_start) % 86400 == 0)) current_value = sens_ptr->getDayAvg();
-			else if (this->interval == BIDAILY && ((epoch_current - epoch_start) % 172800 == 0)) current_value = sens_ptr->getTwoDayAvg();
-			else if (this->interval == WEEKLY && ((epoch_current - epoch_start) % 604800 == 0)) current_value = sens_ptr->getWeekAvg();
-			else if (this->interval == BIWEEKLY && ((epoch_current - epoch_start) % 1209600 == 0)) current_value = sens_ptr->getTwoWeekAvg();
+			else if (this->interval == TENSEC && (sensor_cycles % (10 / CLOCKFRQ)) == 0) current_value = sens_ptr->getTenSecAvg();
+			else if (this->interval == TWENTYSEC && (sensor_cycles % (20 / CLOCKFRQ)) == 0) current_value = sens_ptr->getTwentySecAvg();
+			else if (this->interval == THIRTYSEC && (sensor_cycles % (30 / CLOCKFRQ)) == 0) current_value = sens_ptr->getThirtySecAvg();
+			else if (this->interval == ONEMIN && (sensor_cycles % (60 / CLOCKFRQ)) == 0) current_value = sens_ptr->getOneMinAvg();
+			else if (this->interval == TWOMIN && (sensor_cycles % (120 / CLOCKFRQ)) == 0) current_value = sens_ptr->getTwoMinAvg();
+			else if (this->interval == FIVEMIN && (sensor_cycles % (300 / CLOCKFRQ)) == 0) current_value = sens_ptr->getFiveMinAvg();
+			else if (this->interval == QUARTER && (sensor_cycles % (900 / CLOCKFRQ)) == 0) current_value = sens_ptr->getQuarterAvg();
+			else if (this->interval == HALF && (sensor_cycles % (1800 / CLOCKFRQ)) == 0) current_value = sens_ptr->getHalfAvg();
+			else if (this->interval == ONE && (sensor_cycles % (3600 / CLOCKFRQ)) == 0)  current_value = sens_ptr->getHourAvg();
+			else if (this->interval == TWO && (sensor_cycles % (7200 / CLOCKFRQ)) == 0) current_value = sens_ptr->getTwoHourAvg();
+			else if (this->interval == THREE && (sensor_cycles % (10800 / CLOCKFRQ)) == 0) current_value = sens_ptr->getThreeHourAvg();
+			else if (this->interval == FOUR && (sensor_cycles % (14400 / CLOCKFRQ)) == 0) current_value = sens_ptr->getFourHourAvg();
+			else if (this->interval == SIX && (sensor_cycles % (21600 / CLOCKFRQ)) == 0) current_value = sens_ptr->getSixHourAvg();
+			else if (this->interval == TWELVE && (sensor_cycles % (43200 / CLOCKFRQ)) == 0) current_value = sens_ptr->getTwelveHourAvg();
+			else if (this->interval == DAILY && (sensor_cycles % (86400 / CLOCKFRQ)) == 0) current_value = sens_ptr->getDayAvg();
+			else if (this->interval == BIDAILY && (sensor_cycles % (172800 / CLOCKFRQ)) == 0) current_value = sens_ptr->getTwoDayAvg();
+			else if (this->interval == WEEKLY && (sensor_cycles % (604800 / CLOCKFRQ)) == 0) current_value = sens_ptr->getWeekAvg();
+			else if (this->interval == BIWEEKLY && (sensor_cycles % (1209600 / CLOCKFRQ)) == 0) current_value = sens_ptr->getTwoWeekAvg();
 			else return false;
 		}
 		else return false;

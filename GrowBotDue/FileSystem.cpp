@@ -9,8 +9,6 @@ FileSystem::FileSystem()
 	
 }
 
-
-
 void FileSystem::init()
 {
 	if (!sd.begin(SDCS, SPI_HALF_SPEED)) {
@@ -18,15 +16,48 @@ void FileSystem::init()
 	}
 }
 
-void FileSystem::savetoCard()
+void FileSystem::saveActiveConfig()
 {
+	this->savetoCard("DATALOG.TXT");
+}
+
+void FileSystem::saveBackupConfig()
+{
+	this->copy("DATALOG.TXT", "BACKUP.TXT"); 
+}
+
+void FileSystem::saveDefaultConfig()
+{
+	this->savetoCard("DEFAULT.TXT");
+}
+
+void FileSystem::readActiveConfig()
+{
+	this->readfromCard("DATALOG.TXT");
+}
+
+void FileSystem::readBackupConfig()
+{
+	this->readfromCard("BACKUP.TXT");
+}
+
+void FileSystem::readDefaultConfig()
+{
+	this->readfromCard("DEFAULT.TXT");
+}
+
+bool FileSystem::savetoCard(const char* filename)
+{
+	File file;
+
 	StaticJsonBuffer<500> jsonBuffer;
-	char json[2000];
+	char json[2500];
 	int bytes;
 	bool complete;
-	
-	if (file.open("DATALOG.TXT", O_CREAT | O_TRUNC | O_WRITE)) {
-		Serial.println("OK: File Open. Writing data ...");
+	bool success = true;
+		
+	if (file.open(filename, O_CREAT | O_TRUNC | O_WRITE)) {
+		Serial.println("OK: File Open. Writing data to " + String(filename));
 		JsonObject& root = jsonBuffer.createObject();
 		root["type"] = "SETTING";
 		root["cycles"] = sensor_cycles;
@@ -42,16 +73,16 @@ void FileSystem::savetoCard()
 
 		for (uint8_t i = 0; i < TRIGCAT; i++) {
 			for (uint8_t j = 0; j < TRIGNUMBER; j++) {
-				trigger[i][j]->serializeJSON(i, j, json, 2000);
+				trigger[i][j]->serializeJSON(i, j, json, 2500);
 				file.println(json);
 			}
 		}
 		for (uint8_t i = 0; i < RULES; i++) {
-			rulesets[i]->serializeJSON(i, json, 2000);
+			rulesets[i]->serializeJSON(i, json, 2500);
 			file.println(json);
 		}
 		for (uint8_t i = 0; i < SENSNUMBER; i++) {
-			sensors[i]->serializeJSON(i, json, 2000);
+			sensors[i]->serializeJSON(i, json, 2500);
 			file.println(json);
 		}
 		Serial.println("OK: Settings save to file");
@@ -60,25 +91,28 @@ void FileSystem::savetoCard()
 	else {
 		Serial.println("Error: Could not open file.");
 	}
+	return success;
 }
 
-void FileSystem::readfromCard()
+bool FileSystem::readfromCard(const char* filename)
 {
+	File file;
+	
 	String json;
 	long stored_time, rtc_time;
 	int cat = 0;
 	int id = 0;
 	int j = 0;
-	bool complete = false;
-
+	bool success = true;
+	
 	rtc_time = currenttime.epochTime();
 
-		if (file.open("DATALOG.TXT", O_READ)) {
-		Serial.println("OK: File Open. Reading data ...");
+		if (file.open(filename, O_READ)) {
+		Serial.println("OK: File Open. Reading data from " + String(filename));
 		
 		while (file.available()) {
 			//Buffer Needs to be here ...
-			StaticJsonBuffer<2000> jsonBuffer;
+			StaticJsonBuffer<5000> jsonBuffer;
 			
 			
 			json = file.readStringUntil('\n');
@@ -99,7 +133,6 @@ void FileSystem::readfromCard()
 						currenttime.updateRTC(node["year"], node["month"], node["day"], node["hour"], node["minute"], node["second"]);
 						currenttime.updateTimeObject();
 						Serial.println("Ok: Updated Time from SD Card");
-						complete = true;
 					}
 					else {
 						Serial.println("Ok: RTC newer than stored time. Not update.");
@@ -108,46 +141,99 @@ void FileSystem::readfromCard()
 				else if (node["type"] == "SENSOR") {
 					id = (int)node["id"];
 					if (id < SENSNUMBER) {
-						sensors[id]->deserializeJSON(node);
-						Serial.println("Ok: Deserialized sensor " + (String)id);
-						complete = true;
+						success = sensors[id]->deserializeJSON(node);
+						//Serial.println("Ok: Deserialized sensor " + (String)id);
 					}
-					else Serial.println("Error: Invalid sensor id " + (String)id);
+					else {
+						Serial.println("Error: Invalid sensor id " + (String)id);
+						success = false;
+					}
 				}
 				else if (node["type"] == "TRIGGER") {
 					id = (int)node["id"];
 					cat = (int)node["cat"];
 
 					if (id <= TRIGNUMBER && cat <= TRIGCAT) {
-						trigger[cat][id]->deserializeJSON(node);
-						Serial.print("Ok: Deserialized trigger " + (String)cat);
-						Serial.println("|" + (String)id);
-						complete = true;
+						success = trigger[cat][id]->deserializeJSON(node);
+						//Serial.print("Ok: Deserialized trigger " + (String)cat);
+						//Serial.println("|" + (String)id);
 					}
-					else Serial.println("Error: Invalid trigger cat/id");
+					else {
+						Serial.println("Error: Invalid trigger cat/id");
+						success = false;
+					}
 				}
 				else if (node["type"] == "RULE") {
 					id = (int)node["id"];
 					if (id < RULES) {
-						rulesets[id]->deserializeJSON(node);
-						Serial.println("Ok: Deserialized ruleset " + (String)id);
-						complete = true;
+						success = rulesets[id]->deserializeJSON(node);
+						//Serial.println("Ok: Deserialized ruleset " + (String)id);
 					}
-					else Serial.println("Error: Invalid ruleset id " + (String)id);
+					else {
+						Serial.println("Error: Invalid ruleset id " + (String)id);
+						success = false;
+					}
 				}
 			}
-			else Serial.println("Error: Parsing of JSON line " + (String)j);
-			
+			else {
+				Serial.println("Error: Parsing of JSON line " + (String)j);
+				success = false;
+			}
 			j++;
 		}
 		file.close();
 		Serial.println("Summary:");
 		Serial.println("Read Lines: " + (String)j);
-		Serial.println("Parsed JSON: " + (String)complete);
 	}
 	else {
 		Serial.println("Error: Could not open file.");
+		success = false;
 	}
+	return success;
+}
+
+bool FileSystem::copy(const char* source, const char* destination)
+{
+	File backup_file;
+	File current_file;
+
+	size_t n;
+	uint8_t buf[64];
+
+	short i = 0;
+	String output;
+	bool success = true;
+
+	Serial.println("OK: Creating Backup");
+	if (current_file.open(source, O_READ)) {
+		Serial.println("OK: Current File Open.");
+		
+		if (backup_file.open(destination, O_CREAT | O_TRUNC | O_WRITE)) {
+			Serial.println("OK: Back File Open.");
+			Serial.print("Copying [");
+
+			while ((current_file.read(buf, sizeof(buf))) > 0) {
+				backup_file.write(buf, n);
+				Serial.print(".");
+				i++;
+			}
+			output = String(i * 64);
+			Serial.println("]");
+			Serial.println("Summary: Bytes copied " + output);
+			current_file.close();
+			backup_file.close();
+		}
+		else {
+			Serial.println("Error: Could not open Destination file.");
+			success = false;
+		}
+	}
+	else {
+		Serial.println("Error: Could not open Source file.");
+		success = false;
+	}
+
+	return success;
 }
 
 void FileSystem::reset()
@@ -171,4 +257,5 @@ void FileSystem::reset()
 
 	sensor_cycles = 0;
 	currenttime.updateRTCdefault();
+	Serial.println("Ok: Factory Reset");
 }

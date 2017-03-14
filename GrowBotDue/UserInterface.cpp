@@ -368,10 +368,18 @@ void UserInterface::drawFrame(int nav) {
 		break;
 	case 133:
 		frameElements[0] = new TextLabel("Settings ", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[1] = new ControlButton<FileSystem>("Load", 2, 0, 1, 4, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::readfromCard, true, 13, 133);
-		frameElements[2] = new ControlButton<FileSystem>("Save", 4, 0, 1, 4, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::savetoCard, true, 13, 133);
-		frameElements[3] = new ControlButton<FileSystem>("Reset", 6, 0, 1, 4, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::reset, true, 13, 133);
-		frameElements[4] = NULL;
+		frameElements[1] = new TextLabel("Active", 2, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[2] = new ControlButton<FileSystem>("Load", 2, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::readActiveConfig, true, 13, 133);
+		frameElements[3] = new ControlButton<FileSystem>("Save", 2, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveActiveConfig, true, 13, 133);
+		frameElements[4] = new TextLabel("Backup", 4, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[5] = new ControlButton<FileSystem>("Load", 4, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::readBackupConfig, true, 13, 133);
+		frameElements[6] = new ControlButton<FileSystem>("Save", 4, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveBackupConfig, true, 13, 133);
+		frameElements[7] = new TextLabel("Default", 6, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[8] = new ControlButton<FileSystem>("Load", 6, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::readDefaultConfig, true, 13, 133);
+		frameElements[9] = new ControlButton<FileSystem>("Save", 6, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveDefaultConfig, true, 13, 133);
+		frameElements[10] = new TextLabel("System", 8, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[11] = new ControlButton<FileSystem>("Reset", 8, 3, 1, 3, VGA_RED, VGA_BLACK, this, &filesystem, &FileSystem::reset, true, 13, 133);
+		frameElements[12] = NULL;
 		break;
 
 		//Time

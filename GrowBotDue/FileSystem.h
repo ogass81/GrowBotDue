@@ -28,14 +28,22 @@ extern RuleSet *rulesets[RULES];
 class FileSystem {
 	SdFat sd;
 	// Log file.
-	File file;
 
 public:
 	FileSystem();
 
 	void init();
-	void savetoCard();
-	void readfromCard();
+	void saveActiveConfig();
+	void saveBackupConfig();
+	void saveDefaultConfig();
+
+	void readActiveConfig();
+	void readBackupConfig();
+	void readDefaultConfig();
+
+	bool readfromCard(const char* filename);
+	bool savetoCard(const char* filename);
+	bool copy(const char* source, const char* destination);
 
 	void reset();
 

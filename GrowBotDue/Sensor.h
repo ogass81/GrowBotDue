@@ -21,7 +21,8 @@ extern long sensor_cycles;
 
 class Sensor {
 private:
-
+	String toNAN(short i);
+	short fromNAN(String str);
 
 public:
 	String source;

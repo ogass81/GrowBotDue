@@ -391,10 +391,15 @@ bool RuleSet::deserializeJSON(JsonObject & data)
 		}
 
 		if (this->triggerset1_ptr != TRIGNUMBER && this->triggercat1_ptr != TRIGCAT) this->assignedTrigger[0] = trigger[triggercat1_ptr][triggerset1_ptr];
+		else this->assignedTrigger[0] = NULL;
 		if (this->triggerset2_ptr != TRIGNUMBER && this->triggercat2_ptr != TRIGCAT) this->assignedTrigger[1] = trigger[triggercat2_ptr][triggerset2_ptr];
+		else this->assignedTrigger[1] = NULL;
 		if (this->triggerset3_ptr != TRIGNUMBER && this->triggercat3_ptr != TRIGCAT) this->assignedTrigger[2] = trigger[triggercat3_ptr][triggerset3_ptr];
+		else this->assignedTrigger[2] = NULL;
 		if (this->action1_ptr != ACTIONS) this->assignedAction[0] = actions[action1_ptr];
+		else this->assignedAction[0] = NULL;
 		if (this->action2_ptr != ACTIONS) this->assignedAction[1] = actions[action2_ptr];
+		else this->assignedAction[1] = NULL;
 	}
 
 	return data.success();
