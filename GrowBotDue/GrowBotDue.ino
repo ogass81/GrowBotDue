@@ -9,16 +9,11 @@
 //Core Libaries
 
 
-#include <ArduinoJson.h>
-#include "DataStore.h"
+#include "Network.h"
 #include <memorysaver.h>
 #include <UTouchCD.h>
 #include <UTouch.h>
 #include <UTFT.h>
-
-
-#include <SD.h>
-#include <SPI.h>
 
 #include <RTCDue.h>
 #include <DHT_U.h>
@@ -33,7 +28,7 @@
 #include "Ruleset.h"
 #include "Trigger.h"
 #include "Action.h"
-
+#include "FileSystem.h"
 
 
 //Global Variables
@@ -52,8 +47,9 @@ long sensor_cycles = 0;
 int cpu_current = 0;
 int cpu_last = 0;
 
-int rtc_current = 0;
-int rtc_last = 0;
+long rtc_current = 0;
+long rtc_fast = 0;
+long rtc_slow = 0;
 
 //Hardware Handles
 //LCD, Touchscreen
@@ -65,10 +61,10 @@ DHT dht(DHTPIN, DHTTYPE);
 //RealTimeClock
 CurrentTime currenttime(RC);
 
-//SD Card
-Sd2Card card;
-SdVolume volume;
-SdFile root;
+//Wifi
+WebServer *webserver;
+char ssid[] = "wgempire";
+char wifipw[] = "ert456sdf233sa!!!";
 
 //Relaisboard 
 RelaisBoard *relaisboard;
@@ -86,19 +82,41 @@ Trigger *trigger[TRIGCAT][TRIGNUMBER];
 //Rulesets: Trigger Action Bundles
 RuleSet *rulesets[RULES];
 
+//FileSystem
+FileSystem filesystem;
+
 //User Interface: TFT User Interface
 UserInterface myUI;
 
 void setup() {
-	Serial.begin(9600);
+	// initialize serial for debugging
+	Serial.begin(115200);
 
-	currenttime.begin(); // initialize RTC
-	currenttime.updateRTCdefault();
+	// initialize RTC
+	currenttime.begin(); 
 	currenttime.updateTimeObject();
 
+	//Wifi ESP2866
+	pinMode(ESPPIN, OUTPUT);
+	digitalWrite(ESPPIN, HIGH);
+	Serial1.begin(115200);
+	WiFi.init(&Serial1);
+	
+	int status = WL_IDLE_STATUS;
+	while (status != WL_CONNECTED) {
+		Serial.print("Attempting to connect to WPA SSID: ");
+		Serial.println(ssid);
+		// Connect to WPA/WPA2 network
+		status = WiFi.begin(ssid, wifipw);
+	}
+
+	//Start Webserver
+	webserver = new WebServer();
+	webserver->begin();
+
+	//Initialize Relais Board
 	relaisboard = new RelaisBoard();
-
-
+			
 	//Initialize Sensors
 	sensors[0] = new	DHTTemperature("Temp.", 'C', true);
 	sensors[1] = new 	DHTHumidity("Humid.", '%', true);
@@ -129,12 +147,26 @@ void setup() {
 		}
 	}
 
-		//Initialize Rulesets
+	//Initialize Rulesets
 	for (uint8_t k = 0; k < RULES; k++) {
 		rulesets[k] = new RuleSet(k);
 	}
 
-
+	//Initialize FileSystem / SD Card
+	filesystem.init();
+	
+	if (filesystem.readfromCard("DATALOG.TXT") == false || HARDRESET == true) {
+		Serial.println("Error: Active Config damaged / Hardreset active");
+		if (filesystem.readfromCard("BACKUP.TXT") == false || HARDRESET == true) {
+			Serial.println("Error: Backup Config damaged / Hardreset active");
+			if (filesystem.readfromCard("DEFAULT.TXT") == false || HARDRESET == true) {
+				Serial.println("Error: Default Config damaged / Hardreset active");
+				filesystem.reset();
+				Serial.println("Ok: Hardreset");
+			}
+		}
+	}
+	
 	// Initial LCD setup
 	myGLCD.InitLCD();
 	myGLCD.clrScr();
@@ -147,6 +179,7 @@ void setup() {
 	myUI.drawMenue(1);
 	myUI.drawFrame(1);
 
+	/*
 	//Test Data
 	trigger[1][0]->threshold = 30;
 	trigger[1][0]->active = true;
@@ -163,23 +196,7 @@ void setup() {
 	for (uint8_t i = 0; i < NUMDAY; i++) sensors[0]->day_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < NUMMONTH; i++) sensors[0]->month_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < NUMYEAR; i++) sensors[0]->year_values[i] = random(-25, 25);
-	
-	//SD Card
-	if (!card.init(SPI_HALF_SPEED, SDCS)) {
-		Serial.println("Error: Initialization of SD card failed.");
-	}
-	else {
-		Serial.println("OK: SD card found.");
-	}
-
-	if (!volume.init(card)) {
-		Serial.println("Could not find FAT16/FAT32 partition.\nMake sure you've formatted the card");
-		return;
-	}
-	else {
-		Serial.println("OK: Volume found ");
-	}
-	DataStore::serialize();
+	*/
 }
 
 // the loop function runs over and over again until power down or reset
@@ -193,32 +210,43 @@ void loop() {
 		myUI.checkEvent(touch_x, touch_y);
 	}
 
+	webserver->checkConnection();
+	
 	//Refresh Interval of Clock every 5sec
 	cpu_current = millis();
-	if (cpu_current - cpu_last > 5000) {
+	if (cpu_current - cpu_last >= (CLOCKFRQ*1000)) {
 		cpu_last = cpu_current;
-
-		currenttime.updateTimeObject();
-		rtc_current = CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, currenttime.current_second);
-
-
-		//Refresh Interval of Sensors, Triggers and Ruleset every 10sec based on RTC
-		if (rtc_current - rtc_last >= 10) {
-			rtc_last = rtc_current;
-			sensor_cycles++;
-
-
-			for (uint8_t i = 0; i < SENSNUMBER; i++) {
-				sensors[i]->update();
-			}
-			
-			for (uint8_t i = 0; i < RULES; i++) {
-				rulesets[i]->executeAction();
-			}
-
+		
+		//Cycles
+		sensor_cycles++;
+		Serial.print("Cycle: ");
+		Serial.println(sensor_cycles);
+		
+		//Update Sensors
+		for (uint8_t i = 0; i < SENSNUMBER; i++) {
+			sensors[i]->update();
 		}
-		//Refresh Interval of Sensors, Triggers and Ruleset every 60sec based on RTC
-		if (rtc_current - rtc_last >= 60) {
+
+		//Check RuleSets
+		for (uint8_t i = 0; i < RULES; i++) {
+			rulesets[i]->executeAction();
+		}
+
+		//Update Clock
+		currenttime.updateTimeObject();
+		
+		//Save Settings to SD Card
+		if ((sensor_cycles % (5 * NUMMINUTE)) == 0) {
+			filesystem.saveActiveConfig();
+		}
+
+		//Backup
+		if ((sensor_cycles % (15 * NUMMINUTE)) == 0) {
+			filesystem.copy("DATALOG.TXT", "BACKUP.TXT");
+		}
+
+		//Refresh UI
+		if((sensor_cycles % NUMMINUTE) == 0) {
 			myUI.draw();
 		}
 	}

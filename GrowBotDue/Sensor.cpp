@@ -82,6 +82,18 @@ String DHTHumidity::getValue()
 	return String(readValue(), 2) + String(unit);
 }
 
+String Sensor::toNAN(short i)
+{
+	if(i == -32768)	return String("##");
+	else return String(i);
+}
+
+short Sensor::fromNAN(String str)
+{
+	if (str == "##") return -32768;
+	else return str.toInt();
+}
+
 String Sensor::getTitle()
 {
 	return String(this->source);
@@ -110,7 +122,7 @@ void Sensor::update()
 	
 	//Hour -> calculate average every MINUTE / (NUMHOUR/60)  -> Example: 1 Minute
 	if (sensor_cycles >= (NUMMINUTE * 60 / NUMHOUR) && sensor_cycles % (NUMMINUTE * 60 / NUMHOUR) == 0) {
-		if (hour_ptr < NUMHOUR) hour_ptr++;
+		if (hour_ptr < NUMHOUR - 1) hour_ptr++;
 		else hour_ptr = 0;
 
 		dividend = 0;
@@ -123,8 +135,8 @@ void Sensor::update()
 				dividend += minute_values[i];
 				divisor++;
 			}
-			hour_values[hour_ptr] = (int)round(dividend / divisor);
 		}
+		hour_values[hour_ptr] = (int)round(dividend / divisor);
 	}
 
 	//Day -> calculate average every HOUR / (NUMDAY/24)  -> Example: 1/4 Hour
@@ -144,11 +156,11 @@ void Sensor::update()
 				dividend += hour_values[i];
 				divisor++;
 			}
-			day_values[day_ptr] = (int)round(dividend / divisor);
 		}
+		day_values[day_ptr] = (int)round(dividend / divisor);
 	}
 	
-	//Month-> calculate average every DAY / (NUMMONTH/28)  -> Example: 1/4 Day
+	//Month-> calculate average every DAY / (NUMMONTH/28)  -> Example: 1/2 Day
 	if (sensor_cycles >= (NUMMINUTE * 60 * 24 * 28 / NUMMONTH) && sensor_cycles % (NUMMINUTE * 60 * 24 * 28 / NUMMONTH) == 0) {
 		if (month_ptr < NUMMONTH - 1) 	month_ptr++;
 		else month_ptr = 0;
@@ -163,8 +175,8 @@ void Sensor::update()
 				dividend += day_values[i];
 				divisor++;
 			}
-			month_values[month_ptr] = (int)round(dividend / divisor);
 		}
+		month_values[month_ptr] = (int)round(dividend / divisor);
 	}
 	//Year-> calculate average once a week -> Example: 7 Days
 	if (sensor_cycles >= (NUMMINUTE * 60 * 24 * 7 * 52 / NUMYEAR) && sensor_cycles % (NUMMINUTE * 60 * 24 * 7 * 52 / NUMYEAR) == 0) {
@@ -181,8 +193,8 @@ void Sensor::update()
 				dividend += month_values[i];
 				divisor++;
 			}
-			year_values[year_ptr] = (int)round(dividend / divisor);
 		}
+		year_values[year_ptr] = (int)round(dividend / divisor);
 	}
 }
 
@@ -385,11 +397,6 @@ short Sensor::getQuarterAvg()
 
 	for (int i = hour_ptr; i > low_boundry; i--) {
 		if (hour_values[i] != -32768) {
-
-			//Debug
-			Serial.print("15Min:" + i);
-			Serial.println(hour_values[i]);
-
 			dividend += (hour_values[i]);
 			divisor++;
 		}
@@ -416,11 +423,6 @@ short Sensor::getHalfAvg()
 
 	for (int i = hour_ptr; i > low_boundry; i--) {
 		if (hour_values[i] != -32768) {
-
-			//Debug
-			Serial.print("15Min:" + i);
-			Serial.println(hour_values[i]);
-
 			dividend += (hour_values[i]);
 			divisor++;
 		}
@@ -439,11 +441,6 @@ short Sensor::getHourAvg()
 
 	for (int i = 0; i < NUMHOUR; i++) {
 		if (hour_values[i] != -32768) {
-
-			//Debug
-			Serial.print("OneHour:" + i);
-			Serial.println(hour_values[i]);
-
 			dividend += (hour_values[i]);
 			divisor++;
 		}
@@ -470,11 +467,6 @@ short Sensor::getTwoHourAvg()
 
 	for (int i = day_ptr; i > low_boundry; i--) {
 		if (day_values[i] != -32768) {
-
-			//Debug
-			Serial.print("TwoHours:" + i);
-			Serial.println(day_values[i]);
-
 			dividend += (day_values[i]);
 			divisor++;
 		}
@@ -501,11 +493,6 @@ short Sensor::getThreeHourAvg()
 
 	for (int i = day_ptr; i > low_boundry; i--) {
 		if (day_values[i] != -32768) {
-
-			//Debug
-			Serial.print("TwoHours:" + i);
-			Serial.println(day_values[i]);
-
 			dividend += (day_values[i]);
 			divisor++;
 		}
@@ -532,11 +519,6 @@ short Sensor::getFourHourAvg()
 
 	for (int i = day_ptr; i > low_boundry; i--) {
 		if (day_values[i] != -32768) {
-
-			//Debug
-			Serial.print("FourHours:" + i);
-			Serial.println(day_values[i]);
-
 			dividend += (day_values[i]);
 			divisor++;
 		}
@@ -563,11 +545,6 @@ short Sensor::getSixHourAvg()
 
 	for (int i = day_ptr; i > low_boundry; i--) {
 		if (day_values[i] != -32768) {
-
-			//Debug
-			Serial.print("SixHours:" + i);
-			Serial.println(day_values[i]);
-
 			dividend += (day_values[i]);
 			divisor++;
 		}
@@ -594,11 +571,6 @@ short Sensor::getTwelveHourAvg()
 
 	for (int i = day_ptr; i > low_boundry; i--) {
 		if (day_values[i] != -32768) {
-
-			//Debug
-			Serial.print("TwelveHours:" + i);
-			Serial.println(day_values[i]);
-
 			dividend += (day_values[i]);
 			divisor++;
 		}
@@ -617,11 +589,6 @@ short Sensor::getDayAvg()
 
 	for (int i = 0; i < NUMDAY; i++) {
 		if (day_values[i] != -32768) {
-
-			//Debug
-			Serial.print("OneDay:" + i);
-			Serial.println(day_values[i]);
-
 			dividend += (day_values[i]);
 			divisor++;
 		}
@@ -648,11 +615,6 @@ short Sensor::getTwoDayAvg()
 
 	for (int i = month_ptr; i > low_boundry; i--) {
 		if (month_values[i] != -32768) {
-
-			//Debug
-			Serial.print("TwoDays:" + i);
-			Serial.println(month_values[i]);
-
 			dividend += (month_values[i]);
 			divisor++;
 		}
@@ -679,11 +641,6 @@ short Sensor::getWeekAvg()
 
 	for (int i = month_ptr; i > low_boundry; i--) {
 		if (month_values[i] != -32768) {
-
-			//Debug
-			Serial.print("Week:" + i);
-			Serial.println(month_values[i]);
-
 			dividend += (month_values[i]);
 			divisor++;
 		}
@@ -710,11 +667,6 @@ short Sensor::getTwoWeekAvg()
 
 	for (int i = month_ptr; i > low_boundry; i--) {
 		if (month_values[i] != -32768) {
-
-			//Debug
-			Serial.print("TwoWeek:" + i);
-			Serial.println(month_values[i]);
-
 			dividend += (month_values[i]);
 			divisor++;
 		}
@@ -725,13 +677,70 @@ short Sensor::getTwoWeekAvg()
 	return round(result);
 }
 
+void Sensor::reset()
+{
+	minute_ptr = -1;
+	hour_ptr = -1;
+	day_ptr = -1;
+	month_ptr = -1;
+	year_ptr = -1;
+	
+	for (uint8_t i = 0; i < NUMMINUTE; i++) this->minute_values[i] = -32768;
+	for (uint8_t i = 0; i < NUMHOUR; i++) this->hour_values[i] = -32768;
+	for (uint8_t i = 0; i < NUMDAY; i++) this->day_values[i] = -32768;
+	for (uint8_t i = 0; i < NUMMONTH; i++) this->month_values[i] = -32768;
+	for (uint8_t i = 0; i < NUMYEAR; i++) this->year_values[i] = -32768;
+}
+
+void Sensor::serializeJSON(uint8_t id, char* json, size_t maxSize)
+{
+	StaticJsonBuffer<5000> jsonBuffer;
+
+	JsonObject& sensor = jsonBuffer.createObject();
+
+	sensor["type"] = "SENSOR";
+	sensor["id"] = id;
+	sensor["minute_ptr"] = this->minute_ptr;
+	sensor["hour_ptr"] = this->hour_ptr;
+	sensor["day_ptr"] = this->day_ptr;
+	sensor["month_ptr"] = this->month_ptr;
+	sensor["year_ptr"] = this->year_ptr;
+
+	JsonArray& minutes = sensor.createNestedArray("minute_values");
+	for (uint8_t j = 0; j < NUMMINUTE; j++) minutes.add(toNAN(this->minute_values[j]));
+	JsonArray& hours = sensor.createNestedArray("hour_values");
+	for (uint8_t j = 0; j < NUMHOUR; j++) hours.add(toNAN(this->hour_values[j]));
+	JsonArray& days = sensor.createNestedArray("day_values");
+	for (uint8_t j = 0; j < NUMDAY; j++) days.add(toNAN(this->day_values[j]));
+	JsonArray& month = sensor.createNestedArray("month_values");
+	for (uint8_t j = 0; j < NUMMONTH; j++) month.add(toNAN(this->month_values[j]));
+	JsonArray& year = sensor.createNestedArray("year_values");
+	for (uint8_t j = 0; j < NUMYEAR; j++) year.add(toNAN(this->year_values[j]));
+	
+	sensor.printTo(json, maxSize);
+}
+
+bool Sensor::deserializeJSON(JsonObject& data)
+{
+	if (data.success() == true) {
+		this->minute_ptr = data["minute_ptr"];
+		this->hour_ptr = data["hour_ptr"];
+		this->day_ptr = data["day_ptr"];
+		this->month_ptr = data["month_ptr"];
+		this->year_ptr = data["year_ptr"];
+
+		for (uint8_t j = 0; j < NUMMINUTE; j++) this->minute_values[j] = fromNAN(data["minute_values"][j]);
+		for (uint8_t j = 0; j < NUMHOUR; j++) this->hour_values[j] = fromNAN(data["hour_values"][j]);
+		for (uint8_t j = 0; j < NUMDAY; j++) this->day_values[j] = fromNAN(data["day_values"][j]);
+		for (uint8_t j = 0; j < NUMMONTH; j++) this->month_values[j] = fromNAN(data["month_values"][j]);
+		for (uint8_t j = 0; j < NUMYEAR; j++) this->year_values[j] = fromNAN(data["year_values"][j]);
+	}
+
+	return data.success();
+}
 
 
 Sensor::Sensor()
 {
-	for (uint8_t i = 0; i < NUMMINUTE; i++) minute_values[i] = -32768;
-	for (uint8_t i = 0; i < NUMHOUR; i++) hour_values[i] = -32768;
-	for (uint8_t i = 0; i < NUMDAY; i++) day_values[i] = -32768;
-	for (uint8_t i = 0; i < NUMMONTH; i++) month_values[i] = -32768;
-	for (uint8_t i = 0; i < NUMYEAR; i++) year_values[i] = -32768;
+	this->reset();
 }

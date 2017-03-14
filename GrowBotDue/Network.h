@@ -1,43 +1,38 @@
-// DataStore.h
+// Network.h
 
-#ifndef _DATASTORE_h
-#define _DATASTORE_h
+#ifndef _NETWORK_h
+#define _NETWORK_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
 #else
 	#include "WProgram.h"
 #endif
-#include <SD.h>
-#include <ArduinoJson.h>
+#include <WiFiEsp.h>
 
-#include "Definitions.h"
+#include <ArduinoJson.h>
 #include "CurrentTime.h"
 #include "Sensor.h"
-#include "Relais.h"
 #include "Trigger.h"
 #include "Ruleset.h"
-#include "UserInterfaceElement.h"
 
-//Time
 extern CurrentTime currenttime;
-//Sensors
 extern Sensor *sensors[SENSNUMBER];
-//Relais
-extern RelaisBoard *relaisboard;
-
 extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
-
 extern RuleSet *rulesets[RULES];
 
-extern long sensor_cycles;
 
+class WebServer : public WiFiEspServer {
+private: 
+	String createPostRequest(char *json);
+	String createHtmlResponse(String code, String text);
 
-class DataStore {
 public:
-	static void serialize();
-	static void deserialize();
+	WebServer();
+	void checkConnection();
+
 };
+
 
 
 #endif

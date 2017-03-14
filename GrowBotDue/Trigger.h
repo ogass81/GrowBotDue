@@ -9,6 +9,7 @@
 	#include "WProgram.h"
 #endif
 #include "Definitions.h"
+#include <ArduinoJson.h>
 #include "CurrentTime.h"
 #include "Sensor.h"
 
@@ -30,7 +31,6 @@ public:
 	bool active;
 
 	//Trigger valid timeframe
-
 	uint8_t start_minute;
 	uint8_t start_hour;
 	uint8_t start_day;
@@ -111,6 +111,13 @@ public:
 
 	String getRelOp();
 	String getThresh();
+
+	//Settings
+	void reset();
+
+	//Serialization
+	void serializeJSON(uint8_t cat, uint8_t id, char* json, size_t maxSize);
+	bool deserializeJSON(JsonObject& data);
 };
 
 //Specialization of Trigger with predefined methods for RTC access

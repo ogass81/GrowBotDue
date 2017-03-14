@@ -11,10 +11,17 @@ CurrentTime::CurrentTime(int source)
 	this->source = "RTC";
 }
 
-int CurrentTime::epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
+long CurrentTime::epochTime()
 {
-	int seconds = 0;
+	return epochTime(current_year, current_month, current_day, current_hour, current_minute, current_second);
+}
 
+long CurrentTime::epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
+{
+	year -= 2000;
+
+	long seconds = 0;
+	
 	// seconds from 1970 till 1 jan 00:00:00 of the given year
 	seconds = year * 365 * 24 * 60 * 60;
 	for (int i = 0; i < year; i++) {
@@ -37,7 +44,7 @@ int CurrentTime::epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, u
 	seconds += minute * 60;
 	seconds += second;
 
-	return (int)seconds;
+	return (long)seconds;
 }
 
 void CurrentTime::updateTimeObject() {
@@ -47,6 +54,15 @@ void CurrentTime::updateTimeObject() {
 	this->current_day = getDay();
 	this->current_month = getMonth();
 	this->current_year = getYear();
+}
+
+void CurrentTime::updateRTC(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second) {
+	setSeconds(second);
+	setMinutes(minute);
+	setHours(hour);
+	setDay(day);
+	setMonth(month);
+	setYear(year);
 }
 
 

@@ -96,9 +96,10 @@ class ControlButton : public UserInterfaceElement {
 
 public:
 	ActionType *actionObject = NULL;
-	void (ActionType::*callback)();
+	void (ActionType::*callback)() = NULL;
 
 	ControlButton(String value, uint8_t row, uint8_t column, uint8_t row_spread, uint8_t column_spread, word fill_color, word text_color, UserInterface *touchmenue, ActionType *actionObj, void (ActionType::*actionFunc)(), bool active = true, int navmenue = 999, int navframe = 999);
+		
 	void draw();
 	void executeAction();
 };
@@ -109,8 +110,6 @@ public:
 	Sensor *sensor_ptr;
 	DateRange range;
 
-	
-	
 	short getMaxValue(DateRange range);
 	short getMinValue(DateRange range);
 	float getXMultiplier(DateRange range);
