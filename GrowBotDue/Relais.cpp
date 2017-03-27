@@ -63,6 +63,62 @@ void RelaisBoard::switchR4() {
 	}
 }
 
+void RelaisBoard::R1On()
+{
+	if (digitalRead(RELAY1) == 1) {
+		digitalWrite(RELAY1, LOW);
+	}
+}
+
+void RelaisBoard::R1Off()
+{
+	if (digitalRead(RELAY1) == 0) {
+		digitalWrite(RELAY1, HIGH);
+	}
+}
+
+void RelaisBoard::R2On()
+{
+	if (digitalRead(RELAY2) == 1) {
+		digitalWrite(RELAY2, LOW);
+	}
+}
+
+void RelaisBoard::R2Off()
+{
+	if (digitalRead(RELAY2) == 0) {
+		digitalWrite(RELAY2, HIGH);
+	}
+}
+
+void RelaisBoard::R3On()
+{
+	if (digitalRead(RELAY3) == 1) {
+		digitalWrite(RELAY3, LOW);
+	}
+}
+
+void RelaisBoard::R3Off()
+{
+	if (digitalRead(RELAY3) == 0) {
+		digitalWrite(RELAY3, HIGH);
+	}
+}
+
+void RelaisBoard::R4On()
+{
+	if (digitalRead(RELAY4) == 1) {
+		digitalWrite(RELAY4, LOW);
+	}
+}
+
+void RelaisBoard::R4Off()
+{
+	if (digitalRead(RELAY4) == 0) {
+		digitalWrite(RELAY4, HIGH);
+	}
+}
+
 void RelaisBoard::switchR1R2() {
 	switchR1();
 	switchR2();
