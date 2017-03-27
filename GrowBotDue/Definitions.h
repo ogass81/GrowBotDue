@@ -36,7 +36,6 @@
 
 //Tact
 #define CLOCKFRQ 5
-#define CLOCKMLT 2
 //Log
 #define NUMMINUTE (60 / CLOCKFRQ) //every 5 sec
 #define NUMHOUR 60 //every Minute
@@ -57,6 +56,12 @@
 
 //Number of Actions
 #define ACTIONS 8
+#define ACTIONCHAINS 16
+//Task Manager
+#define TASKBUFFER 120 //MAX 255!!!
+#define TASKSINCHAIN 6
+#define MAXTASKSECONDS (TASKBUFFER / TASKSINCHAIN)
+#define PARALLELTASKS TASKSINCHAIN
 
 //Internal Temperatur Sensor
 #define DHTPIN 53

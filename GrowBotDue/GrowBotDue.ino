@@ -8,7 +8,6 @@
 
 //Core Libaries
 
-
 #include "Network.h"
 #include <memorysaver.h>
 #include <UTouchCD.h>
@@ -28,6 +27,8 @@
 #include "Ruleset.h"
 #include "Trigger.h"
 #include "Action.h"
+#include "TaskManager.h"
+#include "ActionChain.h"
 #include "FileSystem.h"
 
 
@@ -75,6 +76,10 @@ Sensor *sensors[SENSNUMBER];
 
 //Actions: Abstraction of all Actors 
 Action *actions[ACTIONS];
+Action *actionchain[ACTIONCHAINS];
+
+//Task Manager
+TaskManager *taskmanager;
 
 //Trigger: Constraints for particular sensors
 Trigger *trigger[TRIGCAT][TRIGNUMBER];
@@ -136,6 +141,8 @@ void setup() {
 	actions[3] = new ActionWrapper<RelaisBoard>("Switch R4", relaisboard, &RelaisBoard::switchR4, true);
 	actions[4] = new ActionWrapper<RelaisBoard>("Relais All Off", relaisboard, &RelaisBoard::allOff, true);
 	actions[5] = new ActionWrapper<RelaisBoard>("Relais All On", relaisboard, &RelaisBoard::allOn, true);
+
+	taskmanager = new TaskManager();
 
 	//Initialize Trigger
 	for (int tcategory = 0; tcategory < TRIGCAT; tcategory++) {

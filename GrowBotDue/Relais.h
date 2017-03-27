@@ -21,6 +21,15 @@ public:
 	void switchR3();
 	void switchR4();
 
+	void R1On();
+	void R1Off();
+	void R2On();
+	void R2Off();
+	void R3On();
+	void R3Off();
+	void R4On();
+	void R4Off();
+
 	void switchR1R2();
 	void switchR1R3();
 	void switchR1R4();
