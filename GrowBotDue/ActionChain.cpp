@@ -4,8 +4,9 @@
 
 #include "ActionChain.h"
 
-ActionChain::ActionChain()
+ActionChain::ActionChain(int count)
 {
+	title = String(count);
 	reset();
 }
 
@@ -207,6 +208,12 @@ void ActionChain::changePar6()
 	else actionParameter[5] = 0;
 }
 
+void ActionChain::changeChainActive()
+{
+	if (active == true) active = false;
+	else active = true;
+}
+
 void ActionChain::reset()
 {
 	active = false;
@@ -296,4 +303,81 @@ bool ActionChain::deserializeJSON(JsonObject & data)
 void ActionChain::executeAction()
 {
 	taskmanager->addActions(this);
+}
+
+String ActionChain::getTitle()
+{
+	return String("AC #" + String(title));
+}
+
+String ActionChain::getChainAction1()
+{
+	if (assignedAction[0] != NULL) return String(assignedAction[0]->getTitle());
+	else return String("<disabled>");
+}
+
+String ActionChain::getChainAction2()
+{
+	if (assignedAction[1] != NULL) return String(assignedAction[1]->getTitle());
+	else return String("<disabled>");
+}
+
+String ActionChain::getChainAction3()
+{
+	if (assignedAction[2] != NULL) return String(assignedAction[2]->getTitle());
+	else return String("<disabled>");
+}
+
+String ActionChain::getChainAction4()
+{
+	if (assignedAction[3] != NULL) return String(assignedAction[3]->getTitle());
+	else return String("<disabled>");
+}
+
+String ActionChain::getChainAction5()
+{
+	if (assignedAction[4] != NULL) return String(assignedAction[4]->getTitle());
+	else return String("<disabled>");
+}
+
+String ActionChain::getChainAction6()
+{
+	if (assignedAction[5] != NULL) return String(assignedAction[5]->getTitle());
+	else return String("<disabled>");
+}
+
+String ActionChain::getChainPar1()
+{
+	return String(actionParameter[0]);
+}
+
+String ActionChain::getChainPar2()
+{
+	return String(actionParameter[1]);
+}
+
+String ActionChain::getChainPar3()
+{
+	return String(actionParameter[2]);
+}
+
+String ActionChain::getChainPar4()
+{
+	return String(actionParameter[3]);
+}
+
+String ActionChain::getChainPar5()
+{
+	return String(actionParameter[4]);
+}
+
+String ActionChain::getChainPar6()
+{
+	return String(actionParameter[5]);
+}
+
+String ActionChain::getChainActive()
+{
+	if (active == true) return String("On");
+	else return ("Off");
 }

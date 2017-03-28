@@ -143,7 +143,8 @@ void TaskManager::addActions(ActionChain *actionchain)
 							for (uint8_t k = 0; k < PARALLELTASKS; k++) {
 								if (queue[current_ptr][k] == NULL) {
 									Serial.println("OK: Found a spot assigning complex action End" + String(current_ptr));
-									queue[current_ptr][k] = actionchain->assignedAction[i];
+									if(actionchain->assignedAction[i]->antaObject != NULL) queue[current_ptr][k] = actionchain->assignedAction[i]->antaObject;
+									else Serial.println("Error: No Antagonist Defined");
 									current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
 									break;
 								}

@@ -18,6 +18,7 @@
 #include "Relais.h"
 #include "Trigger.h"
 #include "Ruleset.h"
+#include "ActionChain.h"
 #include "UserInterfaceElement.h"
 #include "FileSystem.h"
 
@@ -47,6 +48,8 @@ extern RelaisBoard *relaisboard;
 extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
 
 extern RuleSet *rulesets[RULES];
+
+extern ActionChain *actionchains[ACTIONCHAINS];
 
 
 //Vordeklariert

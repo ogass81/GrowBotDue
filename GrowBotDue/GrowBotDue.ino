@@ -4,11 +4,10 @@
  Author:	ogass
 */
 
-// the setup function runs once when you press reset or power the board
+//Contants
+#include "Definitions.h"
 
-//Core Libaries
-
-#include "Network.h"
+//Hardware Libaries
 #include <memorysaver.h>
 #include <UTouchCD.h>
 #include <UTouch.h>
@@ -19,17 +18,18 @@
 #include <DHT.h>
 
 //Modules
-#include "UserInterface.h"
-#include "Relais.h"
 #include "CurrentTime.h"
-#include "Definitions.h"
+#include "Relais.h"
+#include "DigitalSwitch.h"
+#include "FileSystem.h"
+#include "Network.h"
 #include "Sensor.h"
-#include "Ruleset.h"
 #include "Trigger.h"
 #include "Action.h"
-#include "TaskManager.h"
 #include "ActionChain.h"
-#include "FileSystem.h"
+#include "Ruleset.h"
+#include "TaskManager.h"
+#include "UserInterface.h"
 
 
 //Global Variables
@@ -69,6 +69,8 @@ char wifipw[] = "ert456sdf233sa!!!";
 
 //Relaisboard 
 RelaisBoard *relaisboard;
+//Digital Switches
+DigitalSwitch *digitalswitches;
 
 //Modules
 //Sensors: Abstraction of all Sensors
@@ -76,7 +78,7 @@ Sensor *sensors[SENSNUMBER];
 
 //Actions: Abstraction of all Actors 
 Action *actions[ACTIONS];
-Action *actionchain[ACTIONCHAINS];
+ActionChain *actionchains[ACTIONCHAINS];
 
 //Task Manager
 TaskManager *taskmanager;
@@ -121,6 +123,8 @@ void setup() {
 
 	//Initialize Relais Board
 	relaisboard = new RelaisBoard();
+	//Initialize Digital Switches
+	digitalswitches = new DigitalSwitch();
 			
 	//Initialize Sensors
 	sensors[0] = new	DHTTemperature("Temp.", 'C', true);
@@ -134,14 +138,56 @@ void setup() {
 	sensors[8] = new 	DigitalSensor("TBD", TOP3, 'B', true);
 	sensors[9] = new 	DigitalSensor("TBD", TOP4, 'B', true);
 
-	//Intialize Actors
-	actions[0] = new ActionWrapper<RelaisBoard>("Switch R1", relaisboard, &RelaisBoard::switchR1, true);
-	actions[1] = new ActionWrapper<RelaisBoard>("Switch R2", relaisboard, &RelaisBoard::switchR2, true);
-	actions[2] = new ActionWrapper<RelaisBoard>("Switch R3", relaisboard, &RelaisBoard::switchR3, true);
-	actions[3] = new ActionWrapper<RelaisBoard>("Switch R4", relaisboard, &RelaisBoard::switchR4, true);
-	actions[4] = new ActionWrapper<RelaisBoard>("Relais All Off", relaisboard, &RelaisBoard::allOff, true);
-	actions[5] = new ActionWrapper<RelaisBoard>("Relais All On", relaisboard, &RelaisBoard::allOn, true);
+	//Intialize Actions
+	actions[0] = new SimpleAction<RelaisBoard>("R1 On", relaisboard, &RelaisBoard::R1On, true);
+	actions[1] = new SimpleAction<RelaisBoard>("R1 Off", relaisboard, &RelaisBoard::R1Off, true);
+	actions[2] = new SimpleAction<RelaisBoard>("R2 On", relaisboard, &RelaisBoard::R2On, true);
+	actions[3] = new SimpleAction<RelaisBoard>("R2 Off", relaisboard, &RelaisBoard::R2Off, true);
+	actions[4] = new SimpleAction<RelaisBoard>("R3 On", relaisboard, &RelaisBoard::R3On, true);
+	actions[5] = new SimpleAction<RelaisBoard>("R3 Off", relaisboard, &RelaisBoard::R3Off, true);
+	actions[6] = new SimpleAction<RelaisBoard>("R4 On", relaisboard, &RelaisBoard::R4On, true);
+	actions[7] = new SimpleAction<RelaisBoard>("R4 Off", relaisboard, &RelaisBoard::R4Off, true);
+	actions[8] = new SimpleAction<DigitalSwitch>("T1 On", digitalswitches, &DigitalSwitch::S1On, true);
+	actions[9] = new SimpleAction<DigitalSwitch>("T1 Off", digitalswitches, &DigitalSwitch::S1Off, true);
+	actions[10] = new SimpleAction<DigitalSwitch>("T2 On", digitalswitches, &DigitalSwitch::S2On, true);
+	actions[11] = new SimpleAction<DigitalSwitch>("T2 Off", digitalswitches, &DigitalSwitch::S2Off, true);
+	actions[12] = new SimpleAction<DigitalSwitch>("T3 On", digitalswitches, &DigitalSwitch::S3On, true);
+	actions[13] = new SimpleAction<DigitalSwitch>("T3 Off", digitalswitches, &DigitalSwitch::S3Off, true);
+	actions[14] = new SimpleAction<DigitalSwitch>("T4 On", digitalswitches, &DigitalSwitch::S4On, true);
+	actions[15] = new SimpleAction<DigitalSwitch>("T4 Off", digitalswitches, &DigitalSwitch::S4Off, true);
 
+	//Define Opposite Action / Antagonist
+	//R1
+	actions[0]->setAntagonist(actions[1]);
+	actions[1]->setAntagonist(actions[0]);
+	//R2
+	actions[2]->setAntagonist(actions[3]);
+	actions[3]->setAntagonist(actions[2]);
+	//R3
+	actions[4]->setAntagonist(actions[5]);
+	actions[5]->setAntagonist(actions[4]);
+	//R4
+	actions[6]->setAntagonist(actions[7]);
+	actions[7]->setAntagonist(actions[6]);
+	//T1
+	actions[8]->setAntagonist(actions[9]);
+	actions[9]->setAntagonist(actions[8]);
+	//T2
+	actions[10]->setAntagonist(actions[11]);
+	actions[11]->setAntagonist(actions[10]);
+	//T3
+	actions[12]->setAntagonist(actions[13]);
+	actions[13]->setAntagonist(actions[12]);
+	//T4
+	actions[14]->setAntagonist(actions[15]);
+	actions[15]->setAntagonist(actions[14]);
+
+	//Initialize ActionChains
+	for (uint8_t i = 0; i < ACTIONCHAINS; i++) {
+		actionchains[i] = new ActionChain(i);
+	}
+
+	//Start Taskmanager
 	taskmanager = new TaskManager();
 
 	//Initialize Trigger
@@ -197,13 +243,13 @@ void setup() {
 	trigger[1][1]->active = true;
 	trigger[1][1]->relop = GREATER;
 	trigger[1][1]->interval = QUARTER;
-
-	for (uint8_t i = 0; i < NUMMINUTE; i++) sensors[0]->minute_values[i] = random(-25, 25);
+	*/
+	for (uint8_t i = 0; i < NUMMINUTE; i++) sensors[0]->minute_values[i] = random(-25, 30);
 	for (uint8_t i = 0; i < NUMHOUR; i++) sensors[0]->hour_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < NUMDAY; i++) sensors[0]->day_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < NUMMONTH; i++) sensors[0]->month_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < NUMYEAR; i++) sensors[0]->year_values[i] = random(-25, 25);
-	*/
+
 }
 
 // the loop function runs over and over again until power down or reset

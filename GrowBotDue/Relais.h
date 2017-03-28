@@ -30,13 +30,6 @@ public:
 	void R4On();
 	void R4Off();
 
-	void switchR1R2();
-	void switchR1R3();
-	void switchR1R4();
-	void switchR2R3();
-	void switchR2R4();
-	void switchR3R4();
-
 	String getStatusR1();
 	String getStatusR2();
 	String getStatusR3();

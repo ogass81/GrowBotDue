@@ -10,27 +10,34 @@
 #endif
 
 #include "Relais.h"
+#include "DigitalSwitch.h"
 
 //Abstract Class for Actions
+
 class Action {
 public:
 	String title;
 	bool active;
 
-	virtual void execute();
+	Action *antaObject = NULL;
+	
 	String getTitle();
-};
+	void setAntagonist(Action *aObject);
+	virtual void execute();
 
-//Instance of Action Class: Used to wrap different callback functions from different classes -> template
+};
+// Wrapper for Simple Actions that include only one Callback Function
 template <class ActionType>
-class ActionWrapper : public Action {
+class SimpleAction : public Action {
 public:
 	ActionType *actionObject = NULL;
 	void (ActionType::*callback)();
+	
+	SimpleAction(String title, ActionType *actionObj, void (ActionType::*cFunct)(), bool active = true);
 
-	ActionWrapper(String title, ActionType *actionObj, void (ActionType::*actionFunc)(), bool active = true);
 
 	void execute();
 };
-#endif
 
+
+#endif

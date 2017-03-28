@@ -399,7 +399,7 @@ void SensorGraph::drawValue(uint8_t counter, short value, float x_multiplier, fl
 	Serial.println(value);
 
 	
-	if (value < 0 && value > -3768) {
+	if (value < 0 && value > -32768) {
 		x1 = (X_DIVIDER + 2 * PADDING) + (short)(counter * x_multiplier);
 		y1 = base;
 		x2 = (X_DIVIDER + 2 * PADDING) + (short)((counter + 1) * x_multiplier);
@@ -467,10 +467,10 @@ void SensorGraph::drawGraph(DateRange range)
 			myGLCD.setBackColor(VGA_TRANSPARENT);
 
 			if (base > 120) {
-				if (i > 0) myGLCD.print((String)(i + 1), X_DIVIDER + 5 * PADDING + i * x_multiplier, base - 12);
+				if (i > 0) myGLCD.print(String(i*5), X_DIVIDER + 5 * PADDING + i * x_multiplier, base - 12);
 			}
 			else {
-				if (i > 0) myGLCD.print((String)(i + 1), X_DIVIDER + 5 * PADDING + i * x_multiplier, base + 12);
+				if (i > 0) myGLCD.print(String(i*5), X_DIVIDER + 5 * PADDING + i * x_multiplier, base + 12);
 			}
 		}
 		
@@ -485,10 +485,10 @@ void SensorGraph::drawGraph(DateRange range)
 			myGLCD.setBackColor(VGA_TRANSPARENT);
 
 			if (base > 120) {
-				if (i  % 4 == 0) myGLCD.print((String)((i + 1)/4), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
+				if (i  % 15 == 0) myGLCD.print(String(i), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
 			}
 			else {
-				if (i %  4 == 0) myGLCD.print((String)((i + 1)/ 4), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base + 12);
+				if (i %  15 == 0) myGLCD.print(String(i), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base + 12);
 			}
 		}
 		break;
@@ -503,10 +503,10 @@ void SensorGraph::drawGraph(DateRange range)
 			myGLCD.setBackColor(VGA_TRANSPARENT);
 
 			if (base > 120) {
-				if (i % 4 == 0) myGLCD.print((String)((i + 1) / 8), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
+				if (i % 8 == 0) myGLCD.print(String(i/4), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
 			}
 			else {
-				if (i % 4 == 0) myGLCD.print((String)((i + 1) / 8), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base + 12);
+				if (i % 8 == 0) myGLCD.print(String(i/4), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base + 12);
 			}
 		}
 		break;
@@ -520,10 +520,10 @@ void SensorGraph::drawGraph(DateRange range)
 			myGLCD.setBackColor(VGA_TRANSPARENT);
 
 			if (base > 120) {
-				if (i % 28 == 0) myGLCD.print((String)((i + 1) / 28), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
+				if (i % 14 == 0) myGLCD.print(String(i / 14), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
 			}
 			else {
-				if (i % 28 == 0) myGLCD.print((String)((i + 1) / 28), X_DIVIDER + 5 * PADDING + (i-1) * x_multiplier, base + 12);
+				if (i % 14 == 0) myGLCD.print(String(i / 14), X_DIVIDER + 5 * PADDING + (i-1) * x_multiplier, base + 12);
 			}
 		}
 		break;
@@ -537,10 +537,10 @@ void SensorGraph::drawGraph(DateRange range)
 			myGLCD.setBackColor(VGA_TRANSPARENT);
 
 			if (base > 120) {
-				if (i % 12 == 0) myGLCD.print((String)((i + 1) / 12), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
+				if (i % 12 == 0) myGLCD.print(String(i / 12), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
 			}
 			else {
-				if (i % 12 == 0) myGLCD.print((String)((i + 1) / 12), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base + 12);
+				if (i % 12 == 0) myGLCD.print(String(i / 12), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base + 12);
 			}
 		
 		}
@@ -594,3 +594,4 @@ template class ControlButton<RuleSet>;
 template class ControlButton<UserInterface>;
 template class ControlButton<Trigger>;
 template class ControlButton<FileSystem>;
+template class ControlButton<ActionChain>;

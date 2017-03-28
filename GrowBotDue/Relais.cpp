@@ -119,68 +119,27 @@ void RelaisBoard::R4Off()
 	}
 }
 
-void RelaisBoard::switchR1R2() {
-	switchR1();
-	switchR2();
-}
-void RelaisBoard::switchR1R3() {
-	switchR1();
-	switchR3();
-}
-void RelaisBoard::switchR1R4() {
-	switchR1();
-	switchR4();
-}
-void RelaisBoard::switchR2R3() {
-	switchR2();
-	switchR3();
-}
-void RelaisBoard::switchR2R4() {
-	switchR2();
-	switchR4();
-}
-void RelaisBoard::switchR3R4() {
-	switchR3();
-	switchR4();
-}
-
 String RelaisBoard::getStatusR1() {
-	String tmp;
 	if (digitalRead(RELAY1) == 1) {
-		tmp = "Off";
+		return String("OFF");
 	}
-	else {
-		tmp = "On";
-	}
-	return tmp;
+	return String("ON");
 }
 String RelaisBoard::getStatusR2() {
-	String tmp;
 	if (digitalRead(RELAY2) == 1) {
-		tmp = "Off";
+		return String("OFF");
 	}
-	else {
-		tmp = "On";
-	}
-	return tmp;
+	return String("ON");
 }
 String RelaisBoard::getStatusR3() {
-	String tmp;
 	if (digitalRead(RELAY3) == 1) {
-		tmp = "Off";
+		return String("OFF");
 	}
-	else {
-		tmp = "On";
-	}
-	return tmp;
+	return String("ON");
 }
 String RelaisBoard::getStatusR4() {
-	String tmp;
 	if (digitalRead(RELAY4) == 1) {
-		tmp = "Off";
+		return String("OFF");
 	}
-	else {
-		tmp = "On";
-	}
-	return tmp;
+	return String("ON");
 }
