@@ -230,16 +230,11 @@ void UserInterface::drawMenue(int nav) {
 		//Page 3
 	case 3:
 		menueElements[0] = new MenueButton("<Page 2>", VGA_WHITE, VGA_TEAL, VGA_WHITE, 0, this, true, 2, 1);
-		menueElements[1] = new MenueButton("Rules", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, true, 31, 310);
-		menueElements[2] = NULL;
+		menueElements[1] = new MenueButton("Actions", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, true, 3, 310);
+		menueElements[2] = new MenueButton("Rules", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, true, 3, 311);
+		menueElements[3] = NULL;
 		break;
 	
-		//Rules Set
-	case 31:
-		menueElements[0] = new MenueButton("Rules Set", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, true, 31, 310);
-		menueElements[1] = new MenueButton("<back>", VGA_WHITE, VGA_TEAL, VGA_WHITE, 4, this, true, 3, 1);
-		menueElements[2] = NULL;
-		break;
 
 	case 999:
 		menueElements[0] = new MenueButton("<Back>", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, true, 1, 1);
@@ -253,8 +248,8 @@ void UserInterface::drawFrame(int nav) {
 	switch (nav) {
 		// Home
 	case 1:
-		frameElements[0] = new TextLabel("Welcome to GrowRobot V0.5", 0, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[1] = new TextLabel("(c) Oliver Gass - 2016", 1, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[0] = new TextLabel("GrowRobot V1.0", 0, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel("(c) Oliver Gass - 2017", 1, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[2] = NULL;
 		break;
 		// Internal Sensors
@@ -464,9 +459,72 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[18] = NULL;
 		break;
 
+		//Actionchains
+	case 310:
+		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+
+		frameElements[1] = new TextLabel(String(actionchains[action_ptr]->getTitle()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+
+		//Only three Actions for Testing on small display
+		frameElements[2] = new TextLabel("1:", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[3] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction1()), 2, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction1, true, current_menue, current_frame);
+		frameElements[4] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar1()), 2, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar1, true, current_menue, current_frame);
+
+		frameElements[5] = new TextLabel("2:", 4, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[6] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction2()), 4, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction2, true, current_menue, current_frame);
+		frameElements[7] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar2()), 4, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar2, true, current_menue, current_frame);
+
+		frameElements[8] = new TextLabel("3:", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction3()), 6, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction3, true, current_menue, current_frame);
+		frameElements[10] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar3()), 6, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar3, true, current_menue, current_frame);
+
+		frameElements[11] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[12] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetActive, true, current_menue, current_frame);
+
+		frameElements[13] = new ControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decActionPtr, true, current_menue, current_frame);
+		frameElements[14] = new ControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incActionPtr, true, current_menue, current_frame);
+
+		frameElements[15] = NULL;
+
+		/*
+		frameElements[2] = new TextLabel("1:", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[3] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction1()), 2, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction1, true, current_menue, current_frame);
+		frameElements[4] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar1()), 2, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar1, true, current_menue, current_frame);
+
+		frameElements[5] = new TextLabel("2:", 3, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[6] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction2()), 3, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction2, true, current_menue, current_frame);
+		frameElements[7] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar2()), 3, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar2, true, current_menue, current_frame);
+
+		frameElements[8] = new TextLabel("3:", 4, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[9] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction3()), 4, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction3, true, current_menue, current_frame);
+		frameElements[10] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar3()), 4, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar3, true, current_menue, current_frame);
+
+
+		frameElements[11] = new TextLabel("4:", 5, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[12] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction4()), 5, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction4, true, current_menue, current_frame);
+		frameElements[13] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar4()), 5, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar4, true, current_menue, current_frame);
+
+		frameElements[14] = new TextLabel("5:", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[15] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction5()), 6, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction5, true, current_menue, current_frame);
+		frameElements[16] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar5()), 6, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar5, true, current_menue, current_frame);
+
+		frameElements[17] = new TextLabel("6:", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[18] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction6()), 7, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction6, true, current_menue, current_frame);
+		frameElements[19] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar6()), 7, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar6, true, current_menue, current_frame);
+
+		frameElements[20] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[21] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetActive, true, current_menue, current_frame);
+
+		frameElements[22] = new ControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decActionPtr, true, current_menue, current_frame);
+		frameElements[23] = new ControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incActionPtr, true, current_menue, current_frame);
+
+		frameElements[24] = NULL;
+		*/
+		break;
+
 
 		//Rules Set
-	case 310:
+	case 311:
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[1] = new TextLabel(String(rulesets[ruleset_ptr]->getTitle()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);

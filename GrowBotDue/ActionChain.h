@@ -9,9 +9,10 @@
 	#include "WProgram.h"
 #endif
 #include "Definitions.h"
+#include <ArduinoJson.h>
 #include "Action.h"
 #include "TaskManager.h"
-#include <ArduinoJson.h>
+
 class TaskManager;
 
 extern TaskManager *taskmanager;
@@ -22,6 +23,7 @@ extern Action *actions[ACTIONS];
 class ActionChain {
 public:
 	bool active;
+	String title;
 
 	uint8_t action1_ptr;
 	uint8_t action2_ptr;
@@ -33,7 +35,26 @@ public:
 	Action *assignedAction[5];
 	uint8_t actionParameter[5];
 
-	ActionChain();
+	ActionChain(int count);
+
+	//UI
+	String getTitle();
+
+	String getChainAction1();
+	String getChainAction2();
+	String getChainAction3();
+	String getChainAction4();
+	String getChainAction5();
+	String getChainAction6();
+	
+	String getChainPar1();
+	String getChainPar2();
+	String getChainPar3();
+	String getChainPar4();
+	String getChainPar5();
+	String getChainPar6();
+	
+	String getChainActive();
 
 	void changeAction1();
 	void changeAction2();
@@ -49,6 +70,8 @@ public:
 	void changePar5();	
 	void changePar6();
 
+	void changeChainActive();
+
 	//Settings
 	void reset();
 
@@ -57,6 +80,8 @@ public:
 	bool deserializeJSON(JsonObject& data);
 
 	void executeAction();
+
+
 };
 
 #endif

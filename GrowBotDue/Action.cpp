@@ -7,21 +7,23 @@
 
 //ActionWrapper
 template<class ActionType>
-ActionWrapper<ActionType>::ActionWrapper(String title, ActionType * actionObj, void(ActionType::*actionFunc)(), bool active)
+SimpleAction<ActionType>::SimpleAction(String title, ActionType * actionObj, void(ActionType::*cFunct)(), bool active)
 {
 	this->title = title;
 	this->actionObject = actionObj;
-	this->callback = actionFunc;
+	this->callback = cFunct;
 	this->active = active;
 }
 
+
 template<class ActionType>
-void ActionWrapper<ActionType>::execute()
+void SimpleAction<ActionType>::execute()
 {
-	if (this->active == true && this->actionObject != NULL) {
+	if (this->active == true && this->actionObject != NULL && this->callback != NULL) {
 		(actionObject->*callback)();
 	}
 }
+
 
 void Action::execute()
 {
@@ -32,5 +34,11 @@ String Action::getTitle()
 	return String(title);
 }
 
+void Action::setAntagonist(Action * aObject)
+{
+	this->antaObject = aObject;
+}
+
 //All Types of Templates used:
-template class ActionWrapper<RelaisBoard>;
+template class SimpleAction<RelaisBoard>;
+template class SimpleAction<DigitalSwitch>;

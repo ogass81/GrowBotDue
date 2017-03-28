@@ -9,18 +9,19 @@
 	#include "WProgram.h"
 #endif
 #include "Definitions.h"
+#include "Action.h"
 #include "ActionChain.h"
 
 class ActionChain;
 
 class TaskManager {
-public:
+private:
 	uint8_t task_ptr;
 	Action *queue[TASKBUFFER][PARALLELTASKS];
 	uint8_t getNextPosition(uint8_t delay);
 	uint8_t getNextPositionFrom(uint8_t current_pos, uint8_t delay);
 	uint8_t getOffSet(ActionChain *actionchain);
-
+public:
 	TaskManager();
 	void next();
 	void prev();

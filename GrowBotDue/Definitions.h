@@ -55,7 +55,7 @@
 #define RULES 32
 
 //Number of Actions
-#define ACTIONS 8
+#define ACTIONS 16
 #define ACTIONCHAINS 16
 //Task Manager
 #define TASKBUFFER 120 //MAX 255!!!
