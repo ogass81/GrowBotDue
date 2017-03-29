@@ -15,11 +15,13 @@
 #include "Sensor.h"
 #include "Trigger.h"
 #include "Ruleset.h"
+#include "ActionChain.h"
 
 extern CurrentTime currenttime;
 extern Sensor *sensors[SENSNUMBER];
 extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
 extern RuleSet *rulesets[RULES];
+extern ActionChain *actionchains[ACTIONCHAINS];
 
 
 class WebServer : public WiFiEspServer {

@@ -129,54 +129,29 @@ void RuleSet::changeRuleSetBoolOp2()
 	else assignedBoolOp[1] = NOT;
 }
 
-void RuleSet::changeRuleAction1()
+void RuleSet::changeRuleChain()
 {
-	uint8_t action = action1_ptr;
+	uint8_t action = chain_ptr;
 
-	//Cycle through actions
+	//Cycle through actionchains
 	while (true) {
-		if (action == ACTIONS) {
+		if (action == ACTIONCHAINS) {
 			action = 0;
 		}
 		else {
 			action++;
 		}
 
-		if (action == ACTIONS) {
-			assignedAction[0] = NULL;
+		if (action == ACTIONCHAINS) {
+			assignedChain = NULL;
 			break;
 		}
-		else if (actions[action]->active == true) {
-			assignedAction[0] = actions[action];
-			break;
-		}
-	}
-	action1_ptr = action;
-}
-
-void RuleSet::changeRuleAction2()
-{
-	uint8_t action = action1_ptr;
-
-	//Cycle through actions
-	while (true) {
-		if (action == ACTIONS) {
-			action = 0;
-		}
-		else {
-			action++;
-		}
-
-		if (action == ACTIONS) {
-			assignedAction[1] = NULL;
-			break;
-		}
-		else if (actions[action]->active == true) {
-			assignedAction[1] = actions[action];
+		else if (actionchains[action]->active == true) {
+			assignedChain = actionchains[action];
 			break;
 		}
 	}
-	action1_ptr = action;
+	chain_ptr = action;
 }
 
 void RuleSet::changeRuleSetActive()
@@ -252,17 +227,12 @@ String RuleSet::getRuleSetBoolOp2()
 	return(String(label));
 }
 
-String RuleSet::getRuleSetAction1()
+String RuleSet::getRuleSetChain()
 {
-	if (assignedAction[0] != NULL) return String(assignedAction[0]->getTitle());
+	if (assignedChain != NULL) return String(assignedChain->getTitle());
 	else return String("<disabled>");
 }
 
-String RuleSet::getRuleSetAction2()
-{
-	if (assignedAction[1] != NULL) return String(assignedAction[1]->getTitle());
-	else return String("<disabled>");
-}
 
 String RuleSet::getRuleSetActive()
 {
@@ -321,8 +291,7 @@ void RuleSet::reset()
 	assignedBoolOp[0] = AND;
 	assignedBoolOp[1] = AND;
 
-	assignedAction[0] = NULL;
-	assignedAction[1] = NULL;
+	assignedChain = NULL;
 
 	triggercat1_ptr = TRIGCAT;
 	triggercat2_ptr = TRIGCAT;
@@ -331,8 +300,8 @@ void RuleSet::reset()
 	triggerset2_ptr = TRIGNUMBER;
 	triggerset3_ptr = TRIGNUMBER;
 
-	action1_ptr = ACTIONS;
-	action2_ptr = ACTIONS;
+	chain_ptr = ACTIONCHAINS;
+
 }
 
 void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)
@@ -350,8 +319,7 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)
 	rules["triggercat2_ptr"] = this->triggercat2_ptr;
 	rules["triggerset3_ptr"] = this->triggerset3_ptr;
 	rules["triggercat3_ptr"] = this->triggercat3_ptr;
-	rules["action1_ptr"] = this->action1_ptr;
-	rules["action2_ptr"] = this->action2_ptr;
+	rules["chain_ptr"] = this->chain_ptr;
 
 	JsonArray& boolop = rules.createNestedArray("Bool");
 	boolop.add(static_cast<int>(this->assignedBoolOp[0]));
@@ -370,8 +338,7 @@ bool RuleSet::deserializeJSON(JsonObject & data)
 		this->triggercat2_ptr = data["triggercat2_ptr"];
 		this->triggerset3_ptr = data["triggerset3_ptr"];
 		this->triggercat3_ptr = data["triggercat3_ptr"];
-		this->action1_ptr = data["action1_ptr"];
-		this->action2_ptr = data["action2_ptr"];
+		this->chain_ptr = data["chain_ptr"];
 		
 		
 		if (data["Bool"][0] == 0) this->assignedBoolOp[0] = AND;
@@ -396,23 +363,18 @@ bool RuleSet::deserializeJSON(JsonObject & data)
 		else this->assignedTrigger[1] = NULL;
 		if (this->triggerset3_ptr != TRIGNUMBER && this->triggercat3_ptr != TRIGCAT) this->assignedTrigger[2] = trigger[triggercat3_ptr][triggerset3_ptr];
 		else this->assignedTrigger[2] = NULL;
-		if (this->action1_ptr != ACTIONS) this->assignedAction[0] = actions[action1_ptr];
-		else this->assignedAction[0] = NULL;
-		if (this->action2_ptr != ACTIONS) this->assignedAction[1] = actions[action2_ptr];
-		else this->assignedAction[1] = NULL;
+		if (this->chain_ptr != ACTIONCHAINS) this->assignedChain = actionchains[chain_ptr];
+		else this->assignedChain = NULL;
 	}
 
 	return data.success();
 }
 
-void RuleSet::executeAction()
+void RuleSet::execute()
 {
-	int i = 0;
-
 	if (this->checkState() == true) {
-		while (assignedAction[i] != 0) {
-			assignedAction[i]->execute();
-			i++;
+		if(assignedChain != NULL) {
+			assignedChain->execute();
 		}
 	}
 }

@@ -345,17 +345,17 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[2] = new ControlButton<CurrentTime>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incDay, true, 13, 130);
 		frameElements[3] = new ControlButton<CurrentTime>("+", 1, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incMonth, true, 13, 130);
 		frameElements[4] = new ControlButton<CurrentTime>("+", 1, 6, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incYear, true, 13, 130);
-		frameElements[5] = new TextBox(String(currenttime.getDay()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[6] = new TextBox(String(currenttime.getMonth()), 2, 4, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[7] = new TextBox(String(currenttime.getYear()), 2, 6, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[5] = new TextBox(String(currenttime.current_day), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[6] = new TextBox(String(currenttime.current_month), 2, 4, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[7] = new TextBox(String(currenttime.current_year), 2, 6, 2, VGA_WHITE, VGA_WHITE, this);
 		frameElements[8] = new ControlButton<CurrentTime>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decDay, true, 13, 130);
 		frameElements[9] = new ControlButton<CurrentTime>("-", 3, 4, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decMonth, true, 13, 130);
 		frameElements[10] = new ControlButton<CurrentTime>("-", 3, 6, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decYear, true, 13, 130);
 		frameElements[11] = new TextLabel("Time", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[12] = new ControlButton<CurrentTime>("+", 5, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incHour, true, 13, 130);
 		frameElements[13] = new ControlButton<CurrentTime>("+", 5, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incMinute, true, 13, 130);
-		frameElements[14] = new TextBox(String(currenttime.getHours()), 6, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[15] = new TextBox(String(currenttime.getMinutes()), 6, 4, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[14] = new TextBox(String(currenttime.current_hour), 6, 2, 2, VGA_WHITE, VGA_WHITE, this);
+		frameElements[15] = new TextBox(String(currenttime.current_minute), 6, 4, 2, VGA_WHITE, VGA_WHITE, this);
 		frameElements[16] = new ControlButton<CurrentTime>("-", 7, 2, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decHour, true, 13, 130);
 		frameElements[17] = new ControlButton<CurrentTime>("-", 7, 4, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decMinute, true, 13, 130);
 		frameElements[18] = new ControlButton<CurrentTime>("Default", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, &currenttime, &CurrentTime::updateRTCdefault, true, 13, 130);
@@ -364,13 +364,13 @@ void UserInterface::drawFrame(int nav) {
 	case 133:
 		frameElements[0] = new TextLabel("Settings ", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[1] = new TextLabel("Active", 2, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[2] = new ControlButton<FileSystem>("Load", 2, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::readActiveConfig, true, 13, 133);
+		frameElements[2] = new ControlButton<FileSystem>("Load", 2, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::loadActiveConfig, true, 13, 133);
 		frameElements[3] = new ControlButton<FileSystem>("Save", 2, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveActiveConfig, true, 13, 133);
 		frameElements[4] = new TextLabel("Backup", 4, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<FileSystem>("Load", 4, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::readBackupConfig, true, 13, 133);
+		frameElements[5] = new ControlButton<FileSystem>("Load", 4, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::loadBackupConfig, true, 13, 133);
 		frameElements[6] = new ControlButton<FileSystem>("Save", 4, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveBackupConfig, true, 13, 133);
 		frameElements[7] = new TextLabel("Default", 6, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[8] = new ControlButton<FileSystem>("Load", 6, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::readDefaultConfig, true, 13, 133);
+		frameElements[8] = new ControlButton<FileSystem>("Load", 6, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::loadDefaultConfig, true, 13, 133);
 		frameElements[9] = new ControlButton<FileSystem>("Save", 6, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveDefaultConfig, true, 13, 133);
 		frameElements[10] = new TextLabel("System", 8, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[11] = new ControlButton<FileSystem>("Reset", 8, 3, 1, 3, VGA_RED, VGA_BLACK, this, &filesystem, &FileSystem::reset, true, 13, 133);
@@ -479,7 +479,7 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[10] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar3()), 6, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar3, true, current_menue, current_frame);
 
 		frameElements[11] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[12] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetActive, true, current_menue, current_frame);
+		frameElements[12] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changeChainActive, true, current_menue, current_frame);
 
 		frameElements[13] = new ControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decActionPtr, true, current_menue, current_frame);
 		frameElements[14] = new ControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incActionPtr, true, current_menue, current_frame);
@@ -540,19 +540,16 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[8] = new TextLabel("If", 4, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[9] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetTrigger3()), 4, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetTrigger3, true, current_menue, current_frame);
 		
-		frameElements[10] = new TextLabel("Do", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetAction1()), 6, 2, 1, 6, VGA_RED, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleAction1, true, current_menue, current_frame);
-		frameElements[12] = new TextLabel("and", 6, 9, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[13] = new TextLabel("Do", 7, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[14] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetAction2()), 7, 2, 1, 6, VGA_RED, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleAction2, true, current_menue, current_frame);
+		frameElements[10] = new TextLabel("Run", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[11] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetChain()), 6, 2, 1, 6, VGA_RED, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleChain, true, current_menue, current_frame);
 		
-		frameElements[15] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[16] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetActive, true, current_menue, current_frame);
+		frameElements[12] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[13] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetActive, true, current_menue, current_frame);
 
-		frameElements[17] = new ControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decRulesetPtr, true, current_menue, current_frame);
-		frameElements[18] = new ControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incRulesetPtr, true, current_menue, current_frame);
+		frameElements[14] = new ControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decRulesetPtr, true, current_menue, current_frame);
+		frameElements[15] = new ControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incRulesetPtr, true, current_menue, current_frame);
 
-		frameElements[19] = NULL;
+		frameElements[16] = NULL;
 		break;
 
 	}

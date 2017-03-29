@@ -79,7 +79,7 @@ public:
 	void serializeJSON(uint8_t id, char* json, size_t maxSize);
 	bool deserializeJSON(JsonObject& data);
 
-	void executeAction();
+	void execute();
 
 
 };

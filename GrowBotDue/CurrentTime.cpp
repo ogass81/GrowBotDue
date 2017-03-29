@@ -47,17 +47,30 @@ long CurrentTime::epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, 
 	return (long)seconds;
 }
 
-void CurrentTime::updateTimeObject() {
-	this->current_second = getSeconds();
-	this->current_minute = getMinutes();
-	this->current_hour = getHours();
-	this->current_day = getDay();
-	this->current_month = getMonth();
-	this->current_year = getYear();
+void CurrentTime::syncTimeObject() {
+	if (user_update == true) {
+		setSeconds(15);
+		setMinutes(current_minute);
+		setHours(current_hour);
+		setDay(current_day);
+		setMonth(current_month);
+		setYear(current_year);
+		user_update = false;
+
+		sensor_cycles = (CurrentTime::epochTime(current_year, current_month,current_day, current_hour, current_minute, 0)) / SENSORFRQ;
+	}
+	else {
+		current_second = getSeconds();
+		current_minute = getMinutes();
+		current_hour = getHours();
+		current_day = getDay();
+		current_month = getMonth();
+		current_year = getYear();
+	}
 }
 
 void CurrentTime::updateRTC(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second) {
-	setSeconds(second);
+	setSeconds(15);
 	setMinutes(minute);
 	setHours(hour);
 	setDay(day);
@@ -81,7 +94,7 @@ void CurrentTime::updateRTCdefault() {
 		if (strcmp(month, monthName[monthIndex]) == 0) break;
 	}
 
-	setSeconds(second);
+	setSeconds(15);
 	setMinutes(minute);
 	setHours(hour);
 	setDay(day);
@@ -91,18 +104,12 @@ void CurrentTime::updateRTCdefault() {
 
 
 String CurrentTime::createDate() {
-
-	updateTimeObject();
-
 	char timeStr[11];
 	snprintf(timeStr, sizeof(timeStr), "%02d.%02d.%4d", current_day, current_month, current_year);
 	return timeStr;
 }
 
 String CurrentTime::createTime() {
-
-	updateTimeObject();
-
 	char timeStr[6];
 	snprintf(timeStr, sizeof(timeStr), "%02d:%02d", current_hour, current_minute);
 	return timeStr;
@@ -119,15 +126,15 @@ void CurrentTime::incMinute() {
 	}
 	else this->current_minute = 0;
 
-	setMinutes(this->current_minute);
+	user_update = true;
 }
 void CurrentTime::decMinute() {
 	if (this->current_minute > 0) {
 		this->current_minute--;
 	}
 	else this->current_minute = 59;
-
-	setMinutes(this->current_minute);
+	
+	user_update = true;
 }
 void CurrentTime::incHour() {
 	if (this->current_hour < 23) {
@@ -135,7 +142,7 @@ void CurrentTime::incHour() {
 	}
 	else this->current_hour = 0;
 
-	setHours(this->current_hour);
+	user_update = true;
 }
 void CurrentTime::decHour() {
 	if (this->current_hour > 0) {
@@ -143,7 +150,7 @@ void CurrentTime::decHour() {
 	}
 	else this->current_hour = 23;
 
-	setHours(this->current_hour);
+	user_update = true;
 }
 void CurrentTime::incYear() {
 	if (this->current_year < 2027) {
@@ -151,7 +158,7 @@ void CurrentTime::incYear() {
 	}
 	else this->current_year = 2017;
 
-	setYear(this->current_year);
+	user_update = true;
 }
 void CurrentTime::decYear() {
 	if (this->current_year > 2017) {
@@ -159,7 +166,7 @@ void CurrentTime::decYear() {
 	}
 	else this->current_year = 2027;
 
-	setYear(this->current_year);
+	user_update = true;
 }
 void CurrentTime::incMonth() {
 	if (this->current_month < 12) {
@@ -167,7 +174,7 @@ void CurrentTime::incMonth() {
 	}
 	else this->current_month = 1;
 
-	setMonth(this->current_month);
+	user_update = true;
 }
 void CurrentTime::decMonth() {
 	if (this->current_month > 1) {
@@ -175,7 +182,7 @@ void CurrentTime::decMonth() {
 	}
 	else this->current_month = 12;
 
-	setMonth(this->current_month);
+	user_update = true;
 }
 void CurrentTime::incDay() {
 	if (this->current_month == 1 || this->current_month == 3 || this->current_month == 5 || this->current_month == 7 || this->current_month == 8 || this->current_month == 10 || this->current_month == 12) {
@@ -203,7 +210,7 @@ void CurrentTime::incDay() {
 		else this->current_day = 1;
 
 	}
-	setDay(this->current_day);
+	user_update = true;
 }
 void CurrentTime::decDay() {
 	if (this->current_month == 1 || this->current_month == 3 || this->current_month == 5 || this->current_month == 7 || this->current_month == 8 || this->current_month == 10 || this->current_month == 12) {
@@ -230,5 +237,7 @@ void CurrentTime::decDay() {
 		}
 		else this->current_day = 28;
 	}
-	setDay(this->current_day);
+	user_update = true;
 }
+
+
