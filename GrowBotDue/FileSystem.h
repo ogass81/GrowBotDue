@@ -16,13 +16,18 @@
 #include "Sensor.h"
 #include "Trigger.h"
 #include "Ruleset.h"
+#include "ActionChain.h"
 
+extern String wifi_ssid;
+extern String wifi_pw;
+extern String api_secret;
 
 extern long sensor_cycles;
 extern CurrentTime currenttime;
 extern Sensor *sensors[SENSNUMBER];
 extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
 extern RuleSet *rulesets[RULES];
+extern ActionChain *actionchains[ACTIONCHAINS];
 
 
 class FileSystem {
@@ -37,13 +42,13 @@ public:
 	void saveBackupConfig();
 	void saveDefaultConfig();
 
-	void readActiveConfig();
-	void readBackupConfig();
-	void readDefaultConfig();
+	void loadActiveConfig();
+	void loadBackupConfig();
+	void loadDefaultConfig();
 
-	bool readfromCard(const char* filename);
-	bool savetoCard(const char* filename);
-	bool copy(const char* source, const char* destination);
+	bool loadSettings(const char* filename);
+	bool saveSettings(const char* filename);
+	bool copyFile(const char* source, const char* destination);
 
 	void reset();
 

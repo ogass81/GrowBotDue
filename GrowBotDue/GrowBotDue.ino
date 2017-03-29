@@ -46,11 +46,17 @@ bool unit = true;
 //Tact Generator
 long sensor_cycles = 0;
 int cpu_current = 0;
-int cpu_last = 0;
+int sensor_last = 0;
+int task_last = 0;
 
 long rtc_current = 0;
 long rtc_fast = 0;
 long rtc_slow = 0;
+
+//Wifi and Auth
+String wifi_ssid;
+String wifi_pw;
+String api_secret;
 
 //Hardware Handles
 //LCD, Touchscreen
@@ -64,8 +70,6 @@ CurrentTime currenttime(RC);
 
 //Wifi
 WebServer *webserver;
-char ssid[] = "wgempire";
-char wifipw[] = "ert456sdf233sa!!!";
 
 //Relaisboard 
 RelaisBoard *relaisboard;
@@ -101,25 +105,9 @@ void setup() {
 
 	// initialize RTC
 	currenttime.begin(); 
-	currenttime.updateTimeObject();
-
-	//Wifi ESP2866
-	pinMode(ESPPIN, OUTPUT);
-	digitalWrite(ESPPIN, HIGH);
-	Serial1.begin(115200);
-	WiFi.init(&Serial1);
-	
-	int status = WL_IDLE_STATUS;
-	while (status != WL_CONNECTED) {
-		Serial.print("Attempting to connect to WPA SSID: ");
-		Serial.println(ssid);
-		// Connect to WPA/WPA2 network
-		status = WiFi.begin(ssid, wifipw);
-	}
-
-	//Start Webserver
-	webserver = new WebServer();
-	webserver->begin();
+	currenttime.syncTimeObject();
+	//Initialize Tact Generator
+	sensor_cycles = (CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, 0)) / SENSORFRQ;
 
 	//Initialize Relais Board
 	relaisboard = new RelaisBoard();
@@ -208,17 +196,44 @@ void setup() {
 	//Initialize FileSystem / SD Card
 	filesystem.init();
 	
-	if (filesystem.readfromCard("DATALOG.TXT") == false || HARDRESET == true) {
+	if (filesystem.loadSettings("DATALOG.TXT") == false || HARDRESET == true) {
 		Serial.println("Error: Active Config damaged / Hardreset active");
-		if (filesystem.readfromCard("BACKUP.TXT") == false || HARDRESET == true) {
+		if (filesystem.loadSettings("BACKUP.TXT") == false || HARDRESET == true) {
 			Serial.println("Error: Backup Config damaged / Hardreset active");
-			if (filesystem.readfromCard("DEFAULT.TXT") == false || HARDRESET == true) {
+			if (filesystem.loadSettings("DEFAULT.TXT") == false || HARDRESET == true) {
 				Serial.println("Error: Default Config damaged / Hardreset active");
 				filesystem.reset();
 				Serial.println("Ok: Hardreset");
 			}
 		}
 	}
+
+	//Wifi ESP2866
+	pinMode(ESPPIN, OUTPUT);
+	digitalWrite(ESPPIN, HIGH);
+	Serial1.begin(115200);
+	WiFi.init(&Serial1);
+
+	//Convert SSID and PW to char[]
+	char ssid[wifi_ssid.length()+1];
+	wifi_ssid.toCharArray(ssid, wifi_ssid.length()+1);
+
+	char pw[wifi_pw.length()+1];
+	wifi_pw.toCharArray(pw, wifi_pw.length()+1);
+
+	int status = WL_IDLE_STATUS;
+	uint8_t failed = 0;
+	while (status != WL_CONNECTED && failed < 5) {
+		Serial.print("Attempting to connect to WPA SSID: ");
+		Serial.println(wifi_ssid);
+		// Connect to WPA/WPA2 network
+		status = WiFi.begin(ssid, pw);
+		failed++;
+	}
+
+	//Start Webserver
+	webserver = new WebServer();
+	webserver->begin();
 	
 	// Initial LCD setup
 	myGLCD.InitLCD();
@@ -265,10 +280,17 @@ void loop() {
 
 	webserver->checkConnection();
 	
-	//Refresh Interval of Clock every 5sec
+	//Get Millis
 	cpu_current = millis();
-	if (cpu_current - cpu_last >= (CLOCKFRQ*1000)) {
-		cpu_last = cpu_current;
+
+	if (cpu_current - task_last >= (TASKFRQ * 1000)) {
+		task_last = cpu_current;
+		taskmanager->execute();
+	}
+
+	//Refresh Sensor and Logic every 5sec
+	if (cpu_current - sensor_last >= (SENSORFRQ*1000)) {
+		sensor_last = cpu_current;
 		
 		//Cycles
 		sensor_cycles++;
@@ -282,12 +304,9 @@ void loop() {
 
 		//Check RuleSets
 		for (uint8_t i = 0; i < RULES; i++) {
-			rulesets[i]->executeAction();
+			rulesets[i]->execute();
 		}
 
-		//Update Clock
-		currenttime.updateTimeObject();
-		
 		//Save Settings to SD Card
 		if ((sensor_cycles % (5 * NUMMINUTE)) == 0) {
 			filesystem.saveActiveConfig();
@@ -295,11 +314,14 @@ void loop() {
 
 		//Backup
 		if ((sensor_cycles % (15 * NUMMINUTE)) == 0) {
-			filesystem.copy("DATALOG.TXT", "BACKUP.TXT");
+			filesystem.copyFile("DATALOG.TXT", "BACKUP.TXT");
 		}
 
 		//Refresh UI
 		if((sensor_cycles % NUMMINUTE) == 0) {
+			//Update Clock
+			currenttime.syncTimeObject();
+			//Draw UI
 			myUI.draw();
 		}
 	}

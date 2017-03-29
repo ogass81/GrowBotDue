@@ -18,35 +18,35 @@ void FileSystem::init()
 
 void FileSystem::saveActiveConfig()
 {
-	this->savetoCard("DATALOG.TXT");
+	this->saveSettings("DATALOG.TXT");
 }
 
 void FileSystem::saveBackupConfig()
 {
-	this->copy("DATALOG.TXT", "BACKUP.TXT"); 
+	this->copyFile("DATALOG.TXT", "BACKUP.TXT"); 
 }
 
 void FileSystem::saveDefaultConfig()
 {
-	this->savetoCard("DEFAULT.TXT");
+	this->saveSettings("DEFAULT.TXT");
 }
 
-void FileSystem::readActiveConfig()
+void FileSystem::loadActiveConfig()
 {
-	this->readfromCard("DATALOG.TXT");
+	this->loadSettings("DATALOG.TXT");
 }
 
-void FileSystem::readBackupConfig()
+void FileSystem::loadBackupConfig()
 {
-	this->readfromCard("BACKUP.TXT");
+	this->loadSettings("BACKUP.TXT");
 }
 
-void FileSystem::readDefaultConfig()
+void FileSystem::loadDefaultConfig()
 {
-	this->readfromCard("DEFAULT.TXT");
+	this->loadSettings("DEFAULT.TXT");
 }
 
-bool FileSystem::savetoCard(const char* filename)
+bool FileSystem::saveSettings(const char* filename)
 {
 	File file;
 
@@ -60,7 +60,9 @@ bool FileSystem::savetoCard(const char* filename)
 		Serial.println("OK: File Open. Writing data to " + String(filename));
 		JsonObject& root = jsonBuffer.createObject();
 		root["type"] = "SETTING";
-		root["cycles"] = sensor_cycles;
+		root["wifi_SSID"] = wifi_ssid;
+		root["wifi_pw"] = wifi_pw;
+		root["api_secret"] = api_secret;
 		root["second"] = currenttime.current_second;
 		root["minute"] = currenttime.current_minute;
 		root["hour"] = currenttime.current_hour;
@@ -81,6 +83,10 @@ bool FileSystem::savetoCard(const char* filename)
 			rulesets[i]->serializeJSON(i, json, 2500);
 			file.println(json);
 		}
+		for (uint8_t i = 0; i < ACTIONCHAINS; i++) {
+			actionchains[i]->serializeJSON(i, json, 2500);
+			file.println(json);
+		}
 		for (uint8_t i = 0; i < SENSNUMBER; i++) {
 			sensors[i]->serializeJSON(i, json, 2500);
 			file.println(json);
@@ -94,7 +100,7 @@ bool FileSystem::savetoCard(const char* filename)
 	return success;
 }
 
-bool FileSystem::readfromCard(const char* filename)
+bool FileSystem::loadSettings(const char* filename)
 {
 	File file;
 	
@@ -125,18 +131,21 @@ bool FileSystem::readfromCard(const char* filename)
 
 			if (node.success()) {
 				if (node["type"] == "SETTING") {
-					sensor_cycles = (long)node["cycles"];
-
+					wifi_ssid = node["wifi_SSID"].asString();
+					wifi_pw = node["wifi_pw"].asString();
+					api_secret = node["api_secret"].asString();
+		
 					stored_time = CurrentTime::epochTime(node["year"], node["month"], node["day"], node["hour"], node["minute"], node["second"]);
 
 					if (stored_time > rtc_time) {
 						currenttime.updateRTC(node["year"], node["month"], node["day"], node["hour"], node["minute"], node["second"]);
-						currenttime.updateTimeObject();
+						currenttime.syncTimeObject();
 						Serial.println("Ok: Updated Time from SD Card");
 					}
 					else {
 						Serial.println("Ok: RTC newer than stored time. Not update.");
 					}
+					sensor_cycles = (CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, 0)) / SENSORFRQ;
 				}
 				else if (node["type"] == "SENSOR") {
 					id = (int)node["id"];
@@ -174,6 +183,17 @@ bool FileSystem::readfromCard(const char* filename)
 						success = false;
 					}
 				}
+				else if (node["type"] == "CHAIN") {
+					id = (int)node["id"];
+					if (id < ACTIONCHAINS) {
+						success = actionchains[id]->deserializeJSON(node);
+						//Serial.println("Ok: Deserialized actionchain " + (String)id);
+					}
+					else {
+						Serial.println("Error: Invalid actionchain id " + (String)id);
+						success = false;
+					}
+				}
 			}
 			else {
 				Serial.println("Error: Parsing of JSON line " + (String)j);
@@ -192,7 +212,7 @@ bool FileSystem::readfromCard(const char* filename)
 	return success;
 }
 
-bool FileSystem::copy(const char* source, const char* destination)
+bool FileSystem::copyFile(const char* source, const char* destination)
 {
 	File backup_file;
 	File current_file;
@@ -244,7 +264,6 @@ void FileSystem::reset()
 				trigger[tcategory][tset]->reset();
 			}
 		}
-	
 	//Initialize Rulesets
 	for (uint8_t k = 0; k < RULES; k++) {
 		rulesets[k]->reset();
@@ -255,7 +274,17 @@ void FileSystem::reset()
 		sensors[j]->reset();
 	}
 
-	sensor_cycles = 0;
+	//Initialize Rulesets
+	for (uint8_t j = 0; j < ACTIONCHAINS; j++) {
+		actionchains[j]->reset();
+	}
+
 	currenttime.updateRTCdefault();
+	sensor_cycles = (CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, 0)) / SENSORFRQ;
+	
+	wifi_ssid = "wgempire";
+	wifi_pw = "ert456sdf233sa!!!";
+	api_secret = "schnitzel";
+
 	Serial.println("Ok: Factory Reset");
 }

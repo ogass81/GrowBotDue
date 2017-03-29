@@ -12,7 +12,10 @@
 #define LEAP_YEAR(Y)     ( (Y>0) && !(Y%4) && ( (Y%100) || !(Y%400) ) )
 static  const uint8_t monthDays[] = { 31,28,31,30,31,30,31,31,30,31,30,31 }; // API starts months from 1, this array starts from 0
 
+#include "Definitions.h"
 #include <RTCDue.h>
+
+extern long sensor_cycles;
 
 class CurrentTime : public RTCDue {
 
@@ -27,13 +30,15 @@ public:
 	uint8_t current_month;
 	int current_year;
 	
+	bool user_update = false;
 
 	CurrentTime(int source);
 	long epochTime();
 	long static epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
 
 
-	void updateTimeObject();
+	void syncTimeObject();
+
 	void updateRTC(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
 	void updateRTCdefault();
 
@@ -52,6 +57,8 @@ public:
 	void decMonth();
 	void incDay();
 	void decDay();
+
+
 	
 };
 

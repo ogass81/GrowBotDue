@@ -47,7 +47,7 @@ uint8_t TaskManager::getOffSet(ActionChain *actionchain)
 	uint8_t offset = 0;
 
 	while (offset < TASKBUFFER) {
-		current_ptr += offset;
+		Serial.println("####: Starting Search Round with Task Pointer Position >" + String(current_ptr));
 		for (uint8_t i = 0; i < TASKSINCHAIN; i++) { //Iterate all Tasks in Chain
 			if (actionchain->assignedAction[i] != NULL) {
 				if (actionchain->actionParameter[i] == 0) {  //Simple Action - only Start, no End
@@ -55,7 +55,7 @@ uint8_t TaskManager::getOffSet(ActionChain *actionchain)
 					for (uint8_t j = 0; j < PARALLELTASKS; j++) {
 						if (queue[current_ptr][j] == NULL) {
 							empty_spot = true;
-							Serial.println("OK: Found a sport for simple action" + String(current_ptr));
+							Serial.println("Search: Found a spot for simple action >" + String(current_ptr));
 							current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
 							break;
 						}
@@ -72,12 +72,13 @@ uint8_t TaskManager::getOffSet(ActionChain *actionchain)
 							for (uint8_t k = 0; k < PARALLELTASKS; k++) {
 								if (queue[current_ptr][k] == NULL) {
 									empty_spot = true;
-									Serial.println("OK: Found a sport for complex action start and end" + String(current_ptr));
+									Serial.println("Search: Found a spot for complex action start and end >" + String(current_ptr));
 									current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
 									break;
 								}
 								else empty_spot = false;
 							}
+							break;
 						}
 						else empty_spot = false;
 					}
@@ -87,8 +88,9 @@ uint8_t TaskManager::getOffSet(ActionChain *actionchain)
 
 			if (empty_spot == false) { //Last Task didnt find spot - bad -> start over with different offset
 				Serial.println("Info: No place for Task " + String(i));
-				offset++;
 				Serial.println("Info: Raising Offset " + String(offset));
+				offset++;
+				current_ptr++;
 				break;
 			}
 		}
@@ -108,23 +110,28 @@ TaskManager::TaskManager()
 			queue[i][j] = NULL;
 		}
 	}
+	task_ptr = 0;
 }
 
 void TaskManager::addActions(ActionChain *actionchain)
 {
 	uint8_t current_ptr = task_ptr;
-
 	uint8_t offset = 0;
-	if ((offset = getOffSet(actionchain)) < TASKBUFFER) {
+
+	Serial.println("Task: GETTING OFFSET############################################");
+	offset = getOffSet(actionchain);
+
+	if (offset < TASKBUFFER) {
 		current_ptr = getNextPositionFrom(task_ptr, offset);
 
 		for (uint8_t i = 0; i < TASKSINCHAIN; i++) { //Iterate all Tasks in Chain
+			Serial.println("Task: Processings Task >" + String(i));
 			if (actionchain->assignedAction[i] != NULL) {
 				if (actionchain->actionParameter[i] == 0) {  //Simple Action - only Start, no End
 															 //Empty Spot for Start of Action
 					for (uint8_t j = 0; j < PARALLELTASKS; j++) {
 						if (queue[current_ptr][j] == NULL) {
-							Serial.println("OK: Found a spot assigning simple action" + String(current_ptr));
+							Serial.println("Task: Found a spot assigning simple action" + String(current_ptr));
 							queue[current_ptr][j] = actionchain->assignedAction[i];
 							current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
 							break;
@@ -136,19 +143,20 @@ void TaskManager::addActions(ActionChain *actionchain)
 						//Start
 					for (uint8_t j = 0; j < PARALLELTASKS; j++) {
 						if (queue[current_ptr][j] == NULL) {
-							Serial.println("OK: Found a spot assigning complex action Start" + String(current_ptr));
+							Serial.println("Task: Found a spot assigning complex action START" + String(current_ptr));
 							queue[current_ptr][j] = actionchain->assignedAction[i];
 							current_ptr = getNextPositionFrom(current_ptr, actionchain->actionParameter[i]);
 							//End
 							for (uint8_t k = 0; k < PARALLELTASKS; k++) {
 								if (queue[current_ptr][k] == NULL) {
-									Serial.println("OK: Found a spot assigning complex action End" + String(current_ptr));
+									Serial.println("Task: Found a spot assigning complex action END" + String(current_ptr));
 									if(actionchain->assignedAction[i]->antaObject != NULL) queue[current_ptr][k] = actionchain->assignedAction[i]->antaObject;
 									else Serial.println("Error: No Antagonist Defined");
 									current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
 									break;
 								}
 							}
+							break;
 						}
 					}
 				}
@@ -163,8 +171,12 @@ void TaskManager::addActions(ActionChain *actionchain)
 
 void TaskManager::execute()
 {
+	Serial.println("OK: Task Pointer" + String(task_ptr));
 	for (uint8_t i = 0; i < PARALLELTASKS; i++) {
 		if (queue[task_ptr][i] != NULL) {
+			Serial.print("OK: Executing Task at " + String(task_ptr));
+			Serial.print("| " + String(i));
+			Serial.println("| " + String(queue[task_ptr][i]->getTitle()));
 			queue[task_ptr][i]->execute();
 			queue[task_ptr][i] = NULL;
 		}

@@ -35,9 +35,10 @@
 #define HARDRESET false
 
 //Tact
-#define CLOCKFRQ 5
+#define TASKFRQ 1
+#define SENSORFRQ 5
 //Log
-#define NUMMINUTE (60 / CLOCKFRQ) //every 5 sec
+#define NUMMINUTE (60 / SENSORFRQ) //every 5 sec
 #define NUMHOUR 60 //every Minute
 #define NUMDAY 96 // every 15 Minutes
 #define NUMMONTH 56// every 12 Hours
@@ -61,7 +62,7 @@
 #define TASKBUFFER 120 //MAX 255!!!
 #define TASKSINCHAIN 6
 #define MAXTASKSECONDS (TASKBUFFER / TASKSINCHAIN)
-#define PARALLELTASKS TASKSINCHAIN
+#define PARALLELTASKS 6
 
 //Internal Temperatur Sensor
 #define DHTPIN 53

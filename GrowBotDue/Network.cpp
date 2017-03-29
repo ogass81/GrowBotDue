@@ -133,7 +133,26 @@ void WebServer::checkConnection()
 						}
 						else if (node["action"] == "SET") {
 							success = rulesets[id]->deserializeJSON(node);
-							Serial.print("Ok: Deserialized ruleset " + (String)cat);
+							Serial.print("Ok: Deserialized ruleset " + (String)id);
+							Serial.println("|" + (String)id);
+							client.print(createHtmlResponse("200 OK", "JSON received"));
+						}
+						else Serial.println("Error: No Action Method");
+						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+					}
+				}
+				else if (node["type"] == "Chain" && node["id"] != "") {
+					id = (int)node["id"];
+
+					if (id < ACTIONCHAINS) {
+						if (node["action"] == "GET") {
+							actionchains[id]->serializeJSON(id, json, 2500);
+							Serial.println("Ok: Sending data via POST");
+							client.print(createPostRequest(json));
+						}
+						else if (node["action"] == "SET") {
+							success = actionchains[id]->deserializeJSON(node);
+							Serial.print("Ok: Deserialized actionchain " + (String)id);
 							Serial.println("|" + (String)id);
 							client.print(createHtmlResponse("200 OK", "JSON received"));
 						}

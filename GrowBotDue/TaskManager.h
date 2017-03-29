@@ -16,7 +16,7 @@ class ActionChain;
 
 class TaskManager {
 private:
-	uint8_t task_ptr;
+	uint8_t task_ptr = 0;
 	Action *queue[TASKBUFFER][PARALLELTASKS];
 	uint8_t getNextPosition(uint8_t delay);
 	uint8_t getNextPositionFrom(uint8_t current_pos, uint8_t delay);

@@ -251,10 +251,10 @@ void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize)
 	actions["active"] = active;
 	actions["action1_ptr"] = action1_ptr;
 	actions["action2_ptr"] = action2_ptr;
-	actions["action1_ptr"] = action3_ptr;
-	actions["action2_ptr"] = action4_ptr;
-	actions["action1_ptr"] = action5_ptr;
-	actions["action2_ptr"] = action6_ptr;
+	actions["action3_ptr"] = action3_ptr;
+	actions["action4_ptr"] = action4_ptr;
+	actions["action5_ptr"] = action5_ptr;
+	actions["action6_ptr"] = action6_ptr;
 	actions["action1_par"] = actionParameter[0];
 	actions["action2_par"] = actionParameter[1];
 	actions["action3_par"] = actionParameter[2];
@@ -300,14 +300,14 @@ bool ActionChain::deserializeJSON(JsonObject & data)
 	return data.success();
 }
 
-void ActionChain::executeAction()
+void ActionChain::execute()
 {
 	taskmanager->addActions(this);
 }
 
 String ActionChain::getTitle()
 {
-	return String("AC #" + String(title));
+	return String("Action Chain #" + String(title));
 }
 
 String ActionChain::getChainAction1()

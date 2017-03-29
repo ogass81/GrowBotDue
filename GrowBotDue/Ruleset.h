@@ -11,26 +11,26 @@
 #include "Definitions.h"
 #include <ArduinoJson.h>
 #include "Trigger.h"
-#include "Action.h"
+#include "ActionChain.h"
 
-extern Action *actions[ACTIONS];
+extern ActionChain *actionchains[ACTIONCHAINS];
 extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
 
 //Rulesets are Touples of Triggers, Boolean Operators. If the whole expression is true the assigned action (callback function) is executed
 class RuleSet {
 public:
 	String title;
-	bool active;
+	bool active = false;
 
 	uint8_t triggercat1_ptr, triggercat2_ptr, triggercat3_ptr;
 	uint8_t triggerset1_ptr, triggerset2_ptr, triggerset3_ptr;
 
-	uint8_t action1_ptr, action2_ptr;
+	uint8_t chain_ptr;
 	
 
 	Trigger *assignedTrigger[3];
 	BoolOp assignedBoolOp[2];
-	Action *assignedAction[2];
+	ActionChain *assignedChain;
 
 	RuleSet(int count);
 
@@ -41,8 +41,8 @@ public:
 	void changeRuleSetBoolOp1();
 	void changeRuleSetBoolOp2();
 
-	void changeRuleAction1();
-	void changeRuleAction2();
+	void changeRuleChain();
+
 
 	void changeRuleSetActive();
 	
@@ -59,8 +59,8 @@ public:
 	String getRuleSetBoolOp1();
 	String getRuleSetBoolOp2();
 
-	String getRuleSetAction1();
-	String getRuleSetAction2();
+	String getRuleSetChain();
+
 
 	String getRuleSetActive();
 
@@ -73,7 +73,7 @@ public:
 	void serializeJSON(uint8_t id, char* json, size_t maxSize);
 	bool deserializeJSON(JsonObject& data);
 
-	void executeAction();
+	void execute();
 };
 
 #endif
