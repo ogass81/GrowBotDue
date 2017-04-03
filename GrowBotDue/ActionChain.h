@@ -25,6 +25,7 @@ public:
 	bool active;
 	String title;
 
+	//Pointer Values for Serialization
 	uint8_t action1_ptr;
 	uint8_t action2_ptr;
 	uint8_t action3_ptr;
@@ -32,12 +33,14 @@ public:
 	uint8_t action5_ptr;
 	uint8_t action6_ptr;
 
+	//Pointer to Action Objects
 	Action *assignedAction[5];
+	//Parameter for Action Objects
 	uint8_t actionParameter[5];
 
 	ActionChain(int count);
 
-	//UI
+	//UI Output
 	String getTitle();
 
 	String getChainAction1();
@@ -56,6 +59,7 @@ public:
 	
 	String getChainActive();
 
+	//UI Controls
 	void changeAction1();
 	void changeAction2();
 	void changeAction3();
@@ -79,9 +83,8 @@ public:
 	void serializeJSON(uint8_t id, char* json, size_t maxSize);
 	bool deserializeJSON(JsonObject& data);
 
+	//Execute all Actions in Chain
 	void execute();
-
-
 };
 
 #endif

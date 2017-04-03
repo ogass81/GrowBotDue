@@ -26,7 +26,9 @@ extern ActionChain *actionchains[ACTIONCHAINS];
 
 class WebServer : public WiFiEspServer {
 private: 
+	//Create POST Request with JSON in HTTP body
 	String createPostRequest(char *json);
+	//Create HTTP Response with HTML Body
 	String createHtmlResponse(String code, String text);
 
 public:
@@ -34,8 +36,6 @@ public:
 	void checkConnection();
 
 };
-
-
 
 #endif
 

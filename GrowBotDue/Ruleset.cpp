@@ -167,18 +167,18 @@ String RuleSet::getTitle()
 
 String RuleSet::getRuleSetCat1()
 {
-	return String("<disabled>");
+	return String(F("<NONE>"));
 }
 
 String RuleSet::getRuleSetCat2()
 {
 
- return String("<disabled>");
+ return String(F("<NONE>"));
 }
 
 String RuleSet::getRuleSetCat3()
 {
-	return String("<disabled>");
+	return String(F("<NONE>"));
 }
 
 String RuleSet::getRuleSetTrigger1()
@@ -186,7 +186,7 @@ String RuleSet::getRuleSetTrigger1()
 	if (assignedTrigger[0] != NULL) {
 		return String(assignedTrigger[0]->getTitle());
 	}
-	else return String("<disabled>");
+	else return String(F("<NONE>"));
 }
 
 String RuleSet::getRuleSetTrigger2()
@@ -194,7 +194,7 @@ String RuleSet::getRuleSetTrigger2()
 	if (assignedTrigger[1] != NULL) {
 		return String(assignedTrigger[1]->getTitle());
 	}
-	else return String("<disabled>");
+	else return String(F("<NONE>"));
 }
 
 String RuleSet::getRuleSetTrigger3()
@@ -202,7 +202,7 @@ String RuleSet::getRuleSetTrigger3()
 	if (assignedTrigger[2] != NULL) {
 		return String(assignedTrigger[2]->getTitle());
 	}
-	else return String("<disabled>");
+	else return String(F("<NONE>"));
 }
 
 String RuleSet::getRuleSetBoolOp1()
@@ -230,7 +230,7 @@ String RuleSet::getRuleSetBoolOp2()
 String RuleSet::getRuleSetChain()
 {
 	if (assignedChain != NULL) return String(assignedChain->getTitle());
-	else return String("<disabled>");
+	else return String(F("<NONE>"));
 }
 
 

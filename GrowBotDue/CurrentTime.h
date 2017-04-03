@@ -20,6 +20,7 @@ extern long sensor_cycles;
 class CurrentTime : public RTCDue {
 
 public:
+	//Name
 	String source;
 	
 	//Current Date
@@ -30,23 +31,26 @@ public:
 	uint8_t current_month;
 	int current_year;
 	
+	//User Changed TimeObject
 	bool user_update = false;
 
-	CurrentTime(int source);
+	CurrentTime(int src);
+	
+	//Unix Timestamp
 	long epochTime();
 	long static epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
-
-
+	
+	//Synch Time Object or update RTC
 	void syncTimeObject();
-
 	void updateRTC(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
 	void updateRTCdefault();
 
+	//UI Output
 	String createDate();
 	String createTime();
 	String getTitle();
 
-
+	//UI Controls
 	void incMinute();
 	void decMinute();
 	void incHour();
@@ -57,10 +61,6 @@ public:
 	void decMonth();
 	void incDay();
 	void decDay();
-
-
-	
 };
-
 #endif
 

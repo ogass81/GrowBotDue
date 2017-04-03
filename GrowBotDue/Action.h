@@ -13,18 +13,18 @@
 #include "DigitalSwitch.h"
 
 //Abstract Class for Actions
-
 class Action {
 public:
 	String title;
 	bool active;
-
+	//Pointer to Action that does the opposite
 	Action *antaObject = NULL;
-	
-	String getTitle();
+
 	void setAntagonist(Action *aObject);
 	virtual void execute();
-
+	
+	//UI Output
+	String getTitle();
 };
 // Wrapper for Simple Actions that include only one Callback Function
 template <class ActionType>
@@ -38,6 +38,4 @@ public:
 
 	void execute();
 };
-
-
 #endif

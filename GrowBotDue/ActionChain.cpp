@@ -263,6 +263,7 @@ void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize)
 	actions["action6_par"] = actionParameter[5];
 	
 	actions.printTo(json, maxSize);
+	LOGDEBUG(F("[ActionChain]"), F("serializeJSON()"), F("OK: Serialized Members"), F("Buffersize"), String(maxSize), "");
 }
 
 bool ActionChain::deserializeJSON(JsonObject & data)
@@ -283,6 +284,7 @@ bool ActionChain::deserializeJSON(JsonObject & data)
 		actionParameter[4] = data["action5_par"];
 		actionParameter[5] = data["action6_par"];
 
+		//Assign Pointers to Action Objects
 		if (this->action1_ptr != ACTIONS) this->assignedAction[0] = actions[action1_ptr];
 		else this->assignedAction[0] = NULL;
 		if (this->action2_ptr != ACTIONS) this->assignedAction[1] = actions[action2_ptr];
@@ -295,8 +297,12 @@ bool ActionChain::deserializeJSON(JsonObject & data)
 		else this->assignedAction[4] = NULL;
 		if (this->action6_ptr != ACTIONS) this->assignedAction[5] = actions[action6_ptr];
 		else this->assignedAction[5] = NULL;
+		
+		LOGDEBUG(F("[ActionChain]"), F("deserializeJSON()"), F("OK: Deserialized members"), F("Datasize"), String(data.size()), "");
 	}
-
+	else {
+		LOGDEBUG(F("[ActionChain]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members"), F("Datasize"), String(data.size()), "");
+	}
 	return data.success();
 }
 
@@ -313,37 +319,37 @@ String ActionChain::getTitle()
 String ActionChain::getChainAction1()
 {
 	if (assignedAction[0] != NULL) return String(assignedAction[0]->getTitle());
-	else return String("<disabled>");
+	else return String(F("<NONE>"));
 }
 
 String ActionChain::getChainAction2()
 {
 	if (assignedAction[1] != NULL) return String(assignedAction[1]->getTitle());
-	else return String("<disabled>");
+	else return String(F("<NONE>"));
 }
 
 String ActionChain::getChainAction3()
 {
 	if (assignedAction[2] != NULL) return String(assignedAction[2]->getTitle());
-	else return String("<disabled>");
+	else return String(F("<NONE>"));
 }
 
 String ActionChain::getChainAction4()
 {
 	if (assignedAction[3] != NULL) return String(assignedAction[3]->getTitle());
-	else return String("<disabled>");
+	else return String(F("<NONE>"));
 }
 
 String ActionChain::getChainAction5()
 {
 	if (assignedAction[4] != NULL) return String(assignedAction[4]->getTitle());
-	else return String("<disabled>");
+	else return String(F("<NONE>"));
 }
 
 String ActionChain::getChainAction6()
 {
 	if (assignedAction[5] != NULL) return String(assignedAction[5]->getTitle());
-	else return String("<disabled>");
+	else return String(F("<NONE>"));
 }
 
 String ActionChain::getChainPar1()
@@ -378,6 +384,6 @@ String ActionChain::getChainPar6()
 
 String ActionChain::getChainActive()
 {
-	if (active == true) return String("On");
-	else return ("Off");
+	if (active == true) return String(F("ON"));
+	else return (F("OFF"));
 }

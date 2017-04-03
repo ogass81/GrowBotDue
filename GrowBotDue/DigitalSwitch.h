@@ -13,7 +13,8 @@
 class DigitalSwitch {
 public:
 	DigitalSwitch();
-
+	
+	//Callback Functions
 	void S1On();
 	void S1Off();
 	void S2On();
@@ -23,12 +24,11 @@ public:
 	void S4On();
 	void S4Off();
 
+	//UI Output
 	String getStatusS1();
 	String getStatusS2();
 	String getStatusS3();
 	String getStatusS4();
-
-
 };
 
 #endif

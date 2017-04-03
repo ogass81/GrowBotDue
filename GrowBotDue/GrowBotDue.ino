@@ -196,14 +196,13 @@ void setup() {
 	//Initialize FileSystem / SD Card
 	filesystem.init();
 	
-	if (filesystem.loadSettings("DATALOG.TXT") == false || HARDRESET == true) {
-		Serial.println("Error: Active Config damaged / Hardreset active");
-		if (filesystem.loadSettings("BACKUP.TXT") == false || HARDRESET == true) {
-			Serial.println("Error: Backup Config damaged / Hardreset active");
-			if (filesystem.loadSettings("DEFAULT.TXT") == false || HARDRESET == true) {
-				Serial.println("Error: Default Config damaged / Hardreset active");
+	if (filesystem.loadSettings("_CURRENTCONFIG.JSON") == false || HARDRESET == true) {
+		LOGMSG(F("[Setup]"), F("WARNING: Did not load primary config file"), F("Hardreset"), HARDRESET, "");
+		if (filesystem.loadSettings("BACKUPCONFIG.JSON") == false || HARDRESET == true) {
+			LOGMSG(F("[Setup]"), F("WARNING: Did not load backup config file"), F("Hardreset"), HARDRESET, "");
+			if (filesystem.loadSettings("DEFAULTCONFIG.JSON") == false || HARDRESET == true) {
+				LOGMSG(F("[Setup]"), F("WARNING: Did not load default config file"), F("Hardreset"), HARDRESET, "");
 				filesystem.reset();
-				Serial.println("Ok: Hardreset");
 			}
 		}
 	}
@@ -294,8 +293,7 @@ void loop() {
 		
 		//Cycles
 		sensor_cycles++;
-		Serial.print("Cycle: ");
-		Serial.println(sensor_cycles);
+		LOGMSG(F("[Loop]"), F("INFO: Sensor Cycle"), String(sensor_cycles), "@", String(currenttime.createTime()));
 		
 		//Update Sensors
 		for (uint8_t i = 0; i < SENSNUMBER; i++) {
@@ -314,7 +312,7 @@ void loop() {
 
 		//Backup
 		if ((sensor_cycles % (15 * NUMMINUTE)) == 0) {
-			filesystem.copyFile("DATALOG.TXT", "BACKUP.TXT");
+			filesystem.copyFile("_CURRENTCONFIG.JSON", "BACKUPCONFIG.JSON");
 		}
 
 		//Refresh UI

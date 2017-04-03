@@ -21,8 +21,6 @@ String WebServer::createPostRequest(char *json)
 	request += "\r\n";
 	request += load;
 	request += "\r\n";
-	
-	Serial.println(request);
 
 	return String(request);
 }
@@ -45,15 +43,10 @@ String WebServer::createHtmlResponse(String code, String text)
 
 WebServer::WebServer() : WiFiEspServer(80)
 {
-	Serial.print("SSID: ");
-	Serial.println(WiFi.SSID());
-
 	// print your WiFi shield's IP address
 	IPAddress ip = WiFi.localIP();
-	Serial.print("IP Address: ");
-	Serial.println(ip);
+	LOGMSG(F("[WebServer]"), F("OK: Webserver started"), F("IPV4"), ip, "");
 }
-
 
 void WebServer::checkConnection()
 {
@@ -76,10 +69,9 @@ void WebServer::checkConnection()
 	int cat = 0;
 	
 	if (client == true) {
-		Serial.println("Ok: New client connected");
+		LOGMSG(F("[WebServer]"), F("OK: New Client connected"), "@" + currenttime.createTime(), F("IPV4"), client.remoteIP());
 
 		while (client.connected()) {
-			
 			if (client.available() > 0) {
 				char c = client.read();
 				
@@ -96,8 +88,7 @@ void WebServer::checkConnection()
 			}
 			else break;
 		}
-		//Serial.println("Payload:");
-		//Serial.println(request);
+		LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("OK: Payload"), F("#START#"), String(request), F("#END#"));
 
 		if (payload == true) {
 			JsonObject& node = jsonBuffer.parseObject(request);
@@ -108,17 +99,18 @@ void WebServer::checkConnection()
 					if (cat < TRIGCAT && id < TRIGNUMBER) {
 						if (node["action"] == "GET") {
 							trigger[cat][id]->serializeJSON(cat, id, json, 2500);
-							Serial.println("Ok: Sending data via POST");
 							client.print(createPostRequest(json));
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET"), String(cat), String(id));
 						}
 						else if (node["action"] == "SET") {
 							success = trigger[cat][id]->deserializeJSON(node);
-							Serial.print("Ok: Deserialized trigger " + (String)cat);
-							Serial.println("|" + (String)id);
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: SET"), String(cat), String(id));
 							client.print(createHtmlResponse("200 OK", "JSON received"));
 						}
-						else Serial.println("Error: No Action Method");
-						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Trigger Action: UNKNOWN"), String(cat), String(id));
+							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+						}
 					}
 					delay(100);
 				}
@@ -128,17 +120,18 @@ void WebServer::checkConnection()
 					if (id < RULES) {
 						if (node["action"] == "GET") {
 							rulesets[id]->serializeJSON(id, json, 2500);
-							Serial.println("Ok: Sending data via POST");
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: GET"), String(id), "");
 							client.print(createPostRequest(json));
 						}
 						else if (node["action"] == "SET") {
 							success = rulesets[id]->deserializeJSON(node);
-							Serial.print("Ok: Deserialized ruleset " + (String)id);
-							Serial.println("|" + (String)id);
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: SET"), String(id), "");
 							client.print(createHtmlResponse("200 OK", "JSON received"));
 						}
-						else Serial.println("Error: No Action Method");
-						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Ruleset Action: UNKOWN"), String(id), "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+						}
 					}
 				}
 				else if (node["type"] == "Chain" && node["id"] != "") {
@@ -147,54 +140,59 @@ void WebServer::checkConnection()
 					if (id < ACTIONCHAINS) {
 						if (node["action"] == "GET") {
 							actionchains[id]->serializeJSON(id, json, 2500);
-							Serial.println("Ok: Sending data via POST");
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: GET"), String(id), "");
 							client.print(createPostRequest(json));
 						}
 						else if (node["action"] == "SET") {
 							success = actionchains[id]->deserializeJSON(node);
-							Serial.print("Ok: Deserialized actionchain " + (String)id);
-							Serial.println("|" + (String)id);
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: SET"), String(id), "");
 							client.print(createHtmlResponse("200 OK", "JSON received"));
 						}
-						else Serial.println("Error: No Action Method");
-						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Actionchain Action: UNKOWN"), String(id), "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+						}
 					}
 				}
 				else if (node["type"] == "Sensor" && node["id"] != "") {
 					id = (int)node["id"];
 
-					if (id < RULES) {
+					if (id < SENSNUMBER) {
 						if (node["action"] == "GET") {
 							sensors[id]->serializeJSON(id, json, 2500);
-							Serial.println("Ok: Sending data via POST");
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), "");
 							client.print(createPostRequest(json));
 						}
 						else if (node["action"] == "SET") {
-							Serial.print("Error: SET for Sensor Object not supported");
+							LOGMSG(F("[WebServer]"), F("OK: Invalid HTTP Request"), F("Type: Sensor Action: SET "), "Not Supported", String(id));
 							client.print(createHtmlResponse("501 NOT IMPLEMENTED ", "SET for Sensor Object not supported"));
 						}
-						else Serial.println("Error: No Action Method");
-						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Sensor Action: UNKOWN"), String(id), "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+						}
 					}
 					delay(150);
 				}
 				else {
-					Serial.println("Error: Incomplete Request");
+					LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type or Id wrong"), "", "");
 					client.print(createHtmlResponse("400 BAD REQUEST", "Incomplete Request"));
 				}
 			}
-			Serial.println("Error: JSON parsing failed");
-			client.print(createHtmlResponse("400 BAD REQUEST", "JSON parsing failed"));
+			else {
+				LOGMSG(F("[WebServer]"), F("ERROR: HTTP Request received"), "JSON parsing failed", "", "");
+				client.print(createHtmlResponse("400 BAD REQUEST", "JSON parsing failed"));
+			}
 		}
 		else {
-			Serial.println("Error: No Payload");
+			LOGMSG(F("[WebServer]"), F("ERROR: HTTP Request received"), "No payload", "", "");
 			client.print(createHtmlResponse("400 BAD REQUEST", "No Payload"));
 		}
 		
 		// give the web browser time to receive the data
-		delay(150);
+		delay(10);
 		// close the connection:
 		client.stop();
-		Serial.println("Ok: Client disconnected");
+		LOGMSG(F("[WebServer]"), F("OK: Client disconnected"), "@" + currenttime.createTime(), F("IPV4"), client.remoteIP());
 	}
 }

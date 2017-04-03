@@ -11,6 +11,7 @@ DigitalSwitch::DigitalSwitch()
 	pinMode(TOP3, OUTPUT);
 	pinMode(TOP4, OUTPUT);
 
+	//Set to off
 	digitalWrite(TOP1, HIGH);
 	digitalWrite(TOP2, HIGH);
 	digitalWrite(TOP3, HIGH);

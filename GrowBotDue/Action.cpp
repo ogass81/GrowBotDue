@@ -5,25 +5,23 @@
 #include "Action.h"
 
 
-//ActionWrapper
 template<class ActionType>
-SimpleAction<ActionType>::SimpleAction(String title, ActionType * actionObj, void(ActionType::*cFunct)(), bool active)
+SimpleAction<ActionType>::SimpleAction(String name, ActionType * actionObj, void(ActionType::*cFunct)(), bool active)
 {
-	this->title = title;
-	this->actionObject = actionObj;
-	this->callback = cFunct;
-	this->active = active;
+	title = name;
+	actionObject = actionObj;
+	callback = cFunct;
+	active = active;
 }
-
 
 template<class ActionType>
 void SimpleAction<ActionType>::execute()
 {
-	if (this->active == true && this->actionObject != NULL && this->callback != NULL) {
+	if (active == true && actionObject != NULL && callback != NULL) {
+		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), "", "", "");
 		(actionObject->*callback)();
 	}
 }
-
 
 void Action::execute()
 {
@@ -36,7 +34,8 @@ String Action::getTitle()
 
 void Action::setAntagonist(Action * aObject)
 {
-	this->antaObject = aObject;
+	LOGDEBUG(F("[Action]"), F("setAntagonist()"), F("OK: Setting Antagonist Object"), "", "", "");
+	antaObject = aObject;
 }
 
 //All Types of Templates used:
