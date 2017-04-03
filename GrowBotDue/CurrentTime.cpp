@@ -5,10 +5,10 @@
 #include "CurrentTime.h"
 
 
-CurrentTime::CurrentTime(int source)
-	: RTCDue(source)
+CurrentTime::CurrentTime(int src)
+	: RTCDue(src)
 {
-	this->source = "RTC";
+	source = "RTC";
 }
 
 long CurrentTime::epochTime()
@@ -18,10 +18,11 @@ long CurrentTime::epochTime()
 
 long CurrentTime::epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
 {
-	year -= 2000;
-
 	long seconds = 0;
 	
+	//Save length
+	year -= 2000;
+		
 	// seconds from 1970 till 1 jan 00:00:00 of the given year
 	seconds = year * 365 * 24 * 60 * 60;
 	for (int i = 0; i < year; i++) {
@@ -44,7 +45,7 @@ long CurrentTime::epochTime(int year, uint8_t month, uint8_t day, uint8_t hour, 
 	seconds += minute * 60;
 	seconds += second;
 
-	return (long)seconds;
+	return long(seconds);
 }
 
 void CurrentTime::syncTimeObject() {
@@ -57,7 +58,9 @@ void CurrentTime::syncTimeObject() {
 		setYear(current_year);
 		user_update = false;
 
+		//Adjust Sensor Cycles to new date
 		sensor_cycles = (CurrentTime::epochTime(current_year, current_month,current_day, current_hour, current_minute, 0)) / SENSORFRQ;
+		LOGMSG(F("[CurrentTime]"), F("OK: Updating RTC from Time Object"), "New Cycle:", String(sensor_cycles), "");
 	}
 	else {
 		current_second = getSeconds();
@@ -66,6 +69,7 @@ void CurrentTime::syncTimeObject() {
 		current_day = getDay();
 		current_month = getMonth();
 		current_year = getYear();
+		LOGDEBUG(F("[CurrentTime]"), F("syncTimeObject()"), F("OK: Updating Time Object from RTC"), "", "", "");
 	}
 }
 
@@ -76,8 +80,10 @@ void CurrentTime::updateRTC(int year, uint8_t month, uint8_t day, uint8_t hour, 
 	setDay(day);
 	setMonth(month);
 	setYear(year);
+	
+	sensor_cycles = (CurrentTime::epochTime(current_year, current_month, current_day, current_hour, current_minute, 0)) / SENSORFRQ;
+	LOGMSG(F("[CurrentTime]"), F("OK: Updating RTC from Parameters"), "New Cycle:", String(sensor_cycles), "");
 }
-
 
 void CurrentTime::updateRTCdefault() {
 	char month[12];
@@ -100,8 +106,11 @@ void CurrentTime::updateRTCdefault() {
 	setDay(day);
 	setMonth(monthIndex+1);
 	setYear(year);
-}
 
+	//Adjust Sensor Cycles to new date
+	sensor_cycles = (CurrentTime::epochTime(current_year, current_month, current_day, current_hour, current_minute, 0)) / SENSORFRQ;
+	LOGMSG(F("[CurrentTime]"), F("OK: Updating RTC from Compile Time"), "New Cycle:", String(sensor_cycles), "");
+}
 
 String CurrentTime::createDate() {
 	char timeStr[11];
@@ -117,127 +126,133 @@ String CurrentTime::createTime() {
 
 String CurrentTime::getTitle()
 {
-	return String(this->source);
+	return String(source);
 }
 
 void CurrentTime::incMinute() {
-	if (this->current_minute < 59) {
-		this->current_minute++;
+	if (current_minute < 59) {
+		current_minute++;
 	}
-	else this->current_minute = 0;
+	else current_minute = 0;
 
 	user_update = true;
 }
+
 void CurrentTime::decMinute() {
-	if (this->current_minute > 0) {
-		this->current_minute--;
+	if (current_minute > 0) {
+		current_minute--;
 	}
-	else this->current_minute = 59;
+	else current_minute = 59;
 	
 	user_update = true;
 }
+
 void CurrentTime::incHour() {
-	if (this->current_hour < 23) {
-		this->current_hour++;
+	if (current_hour < 23) {
+		current_hour++;
 	}
-	else this->current_hour = 0;
+	else current_hour = 0;
 
 	user_update = true;
 }
+
 void CurrentTime::decHour() {
-	if (this->current_hour > 0) {
-		this->current_hour--;
+	if (current_hour > 0) {
+		current_hour--;
 	}
-	else this->current_hour = 23;
+	else current_hour = 23;
 
 	user_update = true;
 }
+
 void CurrentTime::incYear() {
-	if (this->current_year < 2027) {
-		this->current_year++;
+	if (current_year < 2027) {
+		current_year++;
 	}
-	else this->current_year = 2017;
+	else current_year = 2017;
 
 	user_update = true;
 }
+
 void CurrentTime::decYear() {
-	if (this->current_year > 2017) {
-		this->current_year--;
+	if (current_year > 2017) {
+		current_year--;
 	}
-	else this->current_year = 2027;
+	else current_year = 2027;
 
 	user_update = true;
 }
+
 void CurrentTime::incMonth() {
-	if (this->current_month < 12) {
-		this->current_month++;
+	if (current_month < 12) {
+		current_month++;
 	}
-	else this->current_month = 1;
+	else current_month = 1;
 
 	user_update = true;
 }
+
 void CurrentTime::decMonth() {
-	if (this->current_month > 1) {
-		this->current_month--;
+	if (current_month > 1) {
+		current_month--;
 	}
-	else this->current_month = 12;
+	else current_month = 12;
 
 	user_update = true;
 }
+
 void CurrentTime::incDay() {
-	if (this->current_month == 1 || this->current_month == 3 || this->current_month == 5 || this->current_month == 7 || this->current_month == 8 || this->current_month == 10 || this->current_month == 12) {
-		if (this->current_day < 31) {
-			this->current_day++;
+	if (current_month == 1 || current_month == 3 || current_month == 5 || current_month == 7 || current_month == 8 || current_month == 10 || current_month == 12) {
+		if (current_day < 31) {
+			current_day++;
 		}
-		else this->current_day = 1;
+		else current_day = 1;
 	}
-	else if (this->current_month == 4 || this->current_month == 6 || this->current_month == 9 || this->current_month == 11) {
-		if (this->current_day < 30) {
-			this->current_day++;
+	else if (current_month == 4 || current_month == 6 || current_month == 9 || current_month == 11) {
+		if (current_day < 30) {
+			current_day++;
 		}
-		else this->current_day = 1;
+		else current_day = 1;
 	}
-	else if (this->current_month == 2 || (this->current_year % 4) == 0) {
-		if (this->current_day < 29) {
-			this->current_day++;
+	else if (current_month == 2 || (current_year % 4) == 0) {
+		if (current_day < 29) {
+			current_day++;
 		}
-		else this->current_day = 1;
+		else current_day = 1;
 	}
 	else {
-		if (this->current_day < 28) {
-			this->current_day++;
+		if (current_day < 28) {
+			current_day++;
 		}
-		else this->current_day = 1;
-
+		else current_day = 1;
 	}
 	user_update = true;
 }
+
 void CurrentTime::decDay() {
-	if (this->current_month == 1 || this->current_month == 3 || this->current_month == 5 || this->current_month == 7 || this->current_month == 8 || this->current_month == 10 || this->current_month == 12) {
-		if (this->current_day > 1) {
-			this->current_day--;
+	if (current_month == 1 || current_month == 3 || current_month == 5 || current_month == 7 || current_month == 8 || current_month == 10 || current_month == 12) {
+		if (current_day > 1) {
+			current_day--;
 		}
-		else this->current_day = 31;
+		else current_day = 31;
 	}
-	else if (this->current_month == 4 || this->current_month == 6 || this->current_month == 9 || this->current_month == 11) {
-		if (this->current_day > 1) {
-			this->current_day--;
+	else if (current_month == 4 || current_month == 6 || current_month == 9 || current_month == 11) {
+		if (current_day > 1) {
+			current_day--;
 		}
-		else this->current_day = 30;
+		else current_day = 30;
 	}
-	else if (this->current_month == 2 || (this->current_year % 4) == 0) {
-		if (this->current_day > 1) {
-			this->current_day--;
+	else if (current_month == 2 || (current_year % 4) == 0) {
+		if (current_day > 1) {
+			current_day--;
 		}
-		else this->current_day = 29;
+		else current_day = 29;
 	}
 	else {
-		if (this->current_day > 1) {
-			this->current_day--;
+		if (current_day > 1) {
+			current_day--;
 		}
-		else this->current_day = 28;
+		else current_day = 28;
 	}
 	user_update = true;
 }
-
-
