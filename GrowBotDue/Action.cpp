@@ -18,7 +18,7 @@ template<class ActionType>
 void SimpleAction<ActionType>::execute()
 {
 	if (active == true && actionObject != NULL && callback != NULL) {
-		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), "", "", "");
+		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), title, "", "");
 		(actionObject->*callback)();
 	}
 }

@@ -13,21 +13,17 @@
 #include "CurrentTime.h"
 #include "Sensor.h"
 
-
 //Globals
 extern String debug;
 extern CurrentTime currenttime;
 extern Sensor *sensors[SENSNUMBER];
 extern long sensor_cycles;
 
-
-
 //Trigger is a pair of sensor values and thresholds linked by a boolean operator -> can be TRUE or FALSE, repeatly checked
 class Trigger {
 public:
 	//Basic Information
-	long id;
-
+	uint8_t id;
 	bool active;
 
 	//Trigger valid timeframe
@@ -35,18 +31,18 @@ public:
 	uint8_t start_hour;
 	uint8_t start_day;
 	uint8_t start_month;
-	int start_year;
+	short start_year;
 
 	uint8_t end_minute;
 	uint8_t end_hour;
 	uint8_t end_day;
 	uint8_t end_month;
-	int end_year;
+	short end_year;
 
 	//Sensor and Thresholds
 	//Threshold
 	RelOp relop;
-	int threshold;
+	short threshold;
 
 	//Trigger repeat interval or trigger time windows for average
 	Interval interval;
@@ -54,13 +50,10 @@ public:
 	//Constructor
 	Trigger();
 
-	//Update Values or Validity
+	//Check State
 	virtual bool checkState();
 
-	virtual String getTitle();
-
-	//UI Interface
-	//Increase/Decrease Start / End Time
+	//UI Controls
 	void incStartDay();
 	void decStartDay();
 	void incStartMonth();
@@ -77,24 +70,16 @@ public:
 	void decEndMonth();
 	void incEndYear();
 	void decEndYear();
-
-	//Increase /Decrease Interval
 	void incInterval();
 	void decInterval();
-
-	//Change Boolean Operator
 	void incRelOp();
 	void decRelOp();
-
-	//Change Threshold
 	void incThresh();
 	void decThresh();
-
-	//Toogle Activity
 	void changeActive();
 
-	
-	//Generate Output for UI
+	//UI Output
+	virtual String getTitle();
 	String getActive();
 
 	String getStartDay();

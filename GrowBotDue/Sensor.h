@@ -26,19 +26,18 @@ private:
 
 public:
 	String source;
-
 	char unit;
-
 	bool active;
 	uint8_t pin;
-	String getTitle();
 
+	//Sensor Values
 	short minute_values[NUMMINUTE];
 	short hour_values[NUMHOUR]; //every minute
 	short day_values[NUMDAY]; //every 15 minutes
 	short month_values[NUMMONTH]; //every 6h
 	short year_values[NUMYEAR]; //every month for three years
 
+	//Pointer to Values
 	int8_t minute_ptr = -1;
 	int8_t hour_ptr = -1;
 	int8_t day_ptr = -1;
@@ -46,10 +45,8 @@ public:
 	int8_t year_ptr = -1;
 	
 	Sensor();
-	virtual float readValue();
-	virtual String getValue();
 
-	void update();
+	//UI Controls
 	short getLastValue();
 	short getTenSecAvg();
 	short getTwentySecAvg();
@@ -69,9 +66,17 @@ public:
 	short getTwoDayAvg();
 	short getWeekAvg();
 	short getTwoWeekAvg();
-	
+
+	//UI Output
+	virtual String getValue();
+	String getTitle();
+
+	//Read new value and write to array
+	virtual float readValue();
+	void update();
+
 	//Settings
-	void reset();;
+	void reset();
 
 	//Serialize
 	void serializeJSON(uint8_t id, char* json, size_t maxSize);

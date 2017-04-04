@@ -5,8 +5,6 @@
 #include "Relais.h"
 
 RelaisBoard::RelaisBoard() {
-	//Initialize Relais
-
 	pinMode(RELAY1, OUTPUT);
 	pinMode(RELAY2, OUTPUT);
 	pinMode(RELAY3, OUTPUT);
@@ -121,25 +119,28 @@ void RelaisBoard::R4Off()
 
 String RelaisBoard::getStatusR1() {
 	if (digitalRead(RELAY1) == 1) {
-		return String("OFF");
+		return String(F("OFF"));
 	}
-	return String("ON");
+	return String(F("ON"));
 }
+
 String RelaisBoard::getStatusR2() {
 	if (digitalRead(RELAY2) == 1) {
-		return String("OFF");
+		return String(F("OFF"));
 	}
-	return String("ON");
+	return String(F("ON"));
 }
+
 String RelaisBoard::getStatusR3() {
 	if (digitalRead(RELAY3) == 1) {
-		return String("OFF");
+		return String(F("OFF"));
 	}
-	return String("ON");
+	return String(F("ON"));
 }
+
 String RelaisBoard::getStatusR4() {
 	if (digitalRead(RELAY4) == 1) {
-		return String("OFF");
+		return String(F("OFF"));
 	}
-	return String("ON");
+	return String(F("ON"));
 }

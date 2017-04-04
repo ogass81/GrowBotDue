@@ -263,7 +263,7 @@ void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize)
 	actions["action6_par"] = actionParameter[5];
 	
 	actions.printTo(json, maxSize);
-	LOGDEBUG(F("[ActionChain]"), F("serializeJSON()"), F("OK: Serialized Members"), F("Buffersize"), String(maxSize), "");
+	LOGDEBUG(F("[ActionChain]"), F("serializeJSON()"), F("OK: Serialized Members for Actionchain"), String(id), String(actions.measureLength()), String(maxSize));
 }
 
 bool ActionChain::deserializeJSON(JsonObject & data)
@@ -285,20 +285,20 @@ bool ActionChain::deserializeJSON(JsonObject & data)
 		actionParameter[5] = data["action6_par"];
 
 		//Assign Pointers to Action Objects
-		if (this->action1_ptr != ACTIONS) this->assignedAction[0] = actions[action1_ptr];
-		else this->assignedAction[0] = NULL;
-		if (this->action2_ptr != ACTIONS) this->assignedAction[1] = actions[action2_ptr];
-		else this->assignedAction[1] = NULL;
-		if (this->action3_ptr != ACTIONS) this->assignedAction[2] = actions[action3_ptr];
-		else this->assignedAction[2] = NULL;
-		if (this->action4_ptr != ACTIONS) this->assignedAction[3] = actions[action4_ptr];
-		else this->assignedAction[3] = NULL;
-		if (this->action5_ptr != ACTIONS) this->assignedAction[4] = actions[action5_ptr];
-		else this->assignedAction[4] = NULL;
-		if (this->action6_ptr != ACTIONS) this->assignedAction[5] = actions[action6_ptr];
-		else this->assignedAction[5] = NULL;
+		if (action1_ptr != ACTIONS) assignedAction[0] = actions[action1_ptr];
+		else assignedAction[0] = NULL;
+		if (action2_ptr != ACTIONS) assignedAction[1] = actions[action2_ptr];
+		else assignedAction[1] = NULL;
+		if (action3_ptr != ACTIONS) assignedAction[2] = actions[action3_ptr];
+		else assignedAction[2] = NULL;
+		if (action4_ptr != ACTIONS) assignedAction[3] = actions[action4_ptr];
+		else assignedAction[3] = NULL;
+		if (action5_ptr != ACTIONS) assignedAction[4] = actions[action5_ptr];
+		else assignedAction[4] = NULL;
+		if (action6_ptr != ACTIONS) assignedAction[5] = actions[action6_ptr];
+		else assignedAction[5] = NULL;
 		
-		LOGDEBUG(F("[ActionChain]"), F("deserializeJSON()"), F("OK: Deserialized members"), F("Datasize"), String(data.size()), "");
+		LOGDEBUG(F("[ActionChain]"), F("deserializeJSON()"), F("OK: Deserialized members for Actionchain"), String(data["id"].asString()), "", "");
 	}
 	else {
 		LOGDEBUG(F("[ActionChain]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members"), F("Datasize"), String(data.size()), "");
