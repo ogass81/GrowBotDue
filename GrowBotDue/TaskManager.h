@@ -12,6 +12,7 @@
 #include "Action.h"
 #include "ActionChain.h"
 
+//Pre Declared for Compiler
 class ActionChain;
 
 class TaskManager {
