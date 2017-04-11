@@ -17,13 +17,13 @@ void RuleSet::changeRuleSetTrigger1()
 
 	//Cycle through active triggers
 	while (true) {
-		if (set == TRIGNUMBER - 1) {
+		if (set == TRIGGER_SETS - 1) {
 			set = 0;
 
-			if (cat < TRIGCAT) cat++;
+			if (cat < TRIGGER_TYPES) cat++;
 			else cat = 0;
 		}
-		else if (set == TRIGNUMBER) {
+		else if (set == TRIGGER_SETS) {
 			set = 0;
 			cat = 0;
 		}
@@ -31,9 +31,9 @@ void RuleSet::changeRuleSetTrigger1()
 			set++;
 		}
 		
-		if (cat == TRIGCAT) {
+		if (cat == TRIGGER_TYPES) {
 			assignedTrigger[0] = NULL;
-			set = TRIGNUMBER;
+			set = TRIGGER_SETS;
 			break;
 		}
 		else if (trigger[cat][set]->active == true) {
@@ -52,13 +52,13 @@ void RuleSet::changeRuleSetTrigger2()
 
 	//Cycle through active triggers
 	while (true) {
-		if (set == TRIGNUMBER - 1) {
+		if (set == TRIGGER_SETS - 1) {
 			set = 0;
 
-			if (cat < TRIGCAT) cat++;
+			if (cat < TRIGGER_TYPES) cat++;
 			else cat = 0;
 		}
-		else if (set == TRIGNUMBER) {
+		else if (set == TRIGGER_SETS) {
 			set = 0;
 			cat = 0;
 		}
@@ -66,9 +66,9 @@ void RuleSet::changeRuleSetTrigger2()
 			set++;
 		}
 
-		if (cat == TRIGCAT) {
+		if (cat == TRIGGER_TYPES) {
 			assignedTrigger[1] = NULL;
-			set = TRIGNUMBER;
+			set = TRIGGER_SETS;
 			break;
 		}
 		else if (trigger[cat][set]->active == true) {
@@ -87,13 +87,13 @@ void RuleSet::changeRuleSetTrigger3()
 
 	//Cycle through active triggers
 	while (true) {
-		if (set == TRIGNUMBER - 1) {
+		if (set == TRIGGER_SETS - 1) {
 			set = 0;
 
-			if (cat < TRIGCAT) cat++;
+			if (cat < TRIGGER_TYPES) cat++;
 			else cat = 0;
 		}
-		else if (set == TRIGNUMBER) {
+		else if (set == TRIGGER_SETS) {
 			set = 0;
 			cat = 0;
 		}
@@ -101,9 +101,9 @@ void RuleSet::changeRuleSetTrigger3()
 			set++;
 		}
 
-		if (cat == TRIGCAT) {
+		if (cat == TRIGGER_TYPES) {
 			assignedTrigger[2] = NULL;
-			set = TRIGNUMBER;
+			set = TRIGGER_SETS;
 			break;
 		}
 		else if (trigger[cat][set]->active == true) {
@@ -135,14 +135,14 @@ void RuleSet::changeRuleChain()
 
 	//Cycle through actionchains
 	while (true) {
-		if (action == ACTIONCHAINS) {
+		if (action == ACTIONCHAINS_NUM) {
 			action = 0;
 		}
 		else {
 			action++;
 		}
 
-		if (action == ACTIONCHAINS) {
+		if (action == ACTIONCHAINS_NUM) {
 			assignedChain = NULL;
 			break;
 		}
@@ -285,14 +285,14 @@ void RuleSet::reset()
 
 	assignedChain = NULL;
 
-	triggercat1_ptr = TRIGCAT;
-	triggercat2_ptr = TRIGCAT;
-	triggercat3_ptr = TRIGCAT;
-	triggerset1_ptr = TRIGNUMBER;
-	triggerset2_ptr = TRIGNUMBER;
-	triggerset3_ptr = TRIGNUMBER;
+	triggercat1_ptr = TRIGGER_TYPES;
+	triggercat2_ptr = TRIGGER_TYPES;
+	triggercat3_ptr = TRIGGER_TYPES;
+	triggerset1_ptr = TRIGGER_SETS;
+	triggerset2_ptr = TRIGGER_SETS;
+	triggerset3_ptr = TRIGGER_SETS;
 
-	chain_ptr = ACTIONCHAINS;
+	chain_ptr = ACTIONCHAINS_NUM;
 }
 
 void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)
@@ -323,39 +323,45 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)
 bool RuleSet::deserializeJSON(JsonObject & data)
 {
 	if (data.success() == true) {
-		this->active = data["active"];
-		this->triggerset1_ptr = data["tset1_ptr"];
-		this->triggercat1_ptr = data["tcat1_ptr"];
-		this->triggerset2_ptr = data["tset2_ptr"];
-		this->triggercat2_ptr = data["tcat2_ptr"];
-		this->triggerset3_ptr = data["tset3_ptr"];
-		this->triggercat3_ptr = data["tcat3_ptr"];
-		this->chain_ptr = data["chain_ptr"];
+		
+		if (data["active"] != "") active = data["active"];
+		if (data["tset1_ptr"] != "") triggerset1_ptr = data["tset1_ptr"];
+		if (data["tcat1_ptr"] != "") triggercat1_ptr = data["tcat1_ptr"];
+		if (data["tset2_ptr"] != "") triggerset2_ptr = data["tset2_ptr"];
+		if (data["tcat2_ptr"] != "") triggercat2_ptr = data["tcat2_ptr"];
+		if (data["tset3_ptr"] != "") triggerset3_ptr = data["tset3_ptr"];
+		if (data["tcat3_ptr"] != "") triggercat3_ptr = data["tcat3_ptr"];
+		if (data["chain_ptr"] != "") chain_ptr = data["chain_ptr"];
 		
 		//Assigning Pointers
-		if (data["Bool"][0] == 0) assignedBoolOp[0] = AND;
-		else if (data["Bool"][0] == 1) assignedBoolOp[0] = OR;
-		else if (data["Bool"][0] == 2) assignedBoolOp[0] = NOT;
-		else {
-			assignedBoolOp[0] = OR;
-			active = false;
-		}
 		
-		if (data["Bool"][1] == 0) assignedBoolOp[1] = AND;
-		else if (data["Bool"][1] == 1) assignedBoolOp[1] = OR;
-		else if (data["Bool"][1] == 2) assignedBoolOp[1] = NOT;
-		else {
-			assignedBoolOp[1] = OR;
-			active = false;
+		if (data["Bool"][0] != "") {
+			if (data["Bool"][0] == 0) assignedBoolOp[0] = AND;
+			else if (data["Bool"][0] == 1) assignedBoolOp[0] = OR;
+			else if (data["Bool"][0] == 2) assignedBoolOp[0] = NOT;
+			else {
+				assignedBoolOp[0] = OR;
+				active = false;
+			}
 		}
 
-		if (triggerset1_ptr != TRIGNUMBER && triggercat1_ptr != TRIGCAT) assignedTrigger[0] = trigger[triggercat1_ptr][triggerset1_ptr];
+		if (data["Bool"][1] != "") {
+			if (data["Bool"][1] == 0) assignedBoolOp[1] = AND;
+			else if (data["Bool"][1] == 1) assignedBoolOp[1] = OR;
+			else if (data["Bool"][1] == 2) assignedBoolOp[1] = NOT;
+			else {
+				assignedBoolOp[1] = OR;
+				active = false;
+			}
+		}
+
+		if (triggerset1_ptr != TRIGGER_SETS && triggercat1_ptr != TRIGGER_TYPES) assignedTrigger[0] = trigger[triggercat1_ptr][triggerset1_ptr];
 		else assignedTrigger[0] = NULL;
-		if (triggerset2_ptr != TRIGNUMBER && triggercat2_ptr != TRIGCAT) assignedTrigger[1] = trigger[triggercat2_ptr][triggerset2_ptr];
+		if (triggerset2_ptr != TRIGGER_SETS && triggercat2_ptr != TRIGGER_TYPES) assignedTrigger[1] = trigger[triggercat2_ptr][triggerset2_ptr];
 		else assignedTrigger[1] = NULL;
-		if (triggerset3_ptr != TRIGNUMBER && triggercat3_ptr != TRIGCAT) assignedTrigger[2] = trigger[triggercat3_ptr][triggerset3_ptr];
+		if (triggerset3_ptr != TRIGGER_SETS && triggercat3_ptr != TRIGGER_TYPES) assignedTrigger[2] = trigger[triggercat3_ptr][triggerset3_ptr];
 		else assignedTrigger[2] = NULL;
-		if (chain_ptr != ACTIONCHAINS) assignedChain = actionchains[chain_ptr];
+		if (chain_ptr != ACTIONCHAINS_NUM) assignedChain = actionchains[chain_ptr];
 		else assignedChain = NULL;
 
 		LOGDEBUG(F("[Ruleset]"), F("deserializeJSON()"), F("OK: Deserialized members for Ruleset"), data["id"].asString(), F("Datasize"), String(data.size()));

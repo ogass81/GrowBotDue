@@ -16,7 +16,7 @@
 class TaskManager;
 
 extern TaskManager *taskmanager;
-extern Action *actions[ACTIONS];
+extern Action *actions[ACTIONS_NUM];
 
 
 

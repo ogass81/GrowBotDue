@@ -21,6 +21,8 @@
 #include "ActionChain.h"
 #include "UserInterfaceElement.h"
 #include "FileSystem.h"
+#include "Setting.h"
+#include "RFController.h";
 
 //UI Variables
 extern int touch_x, touch_y;
@@ -41,15 +43,17 @@ extern FileSystem filesystem;
 //Time
 extern CurrentTime currenttime;
 //Sensors
-extern Sensor *sensors[SENSNUMBER];
+extern Sensor *sensors[SENS_NUM];
 //Relais
 extern RelaisBoard *relaisboard;
 
-extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
+extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 
-extern RuleSet *rulesets[RULES];
+extern RuleSet *rulesets[RULESETS_NUM];
 
-extern ActionChain *actionchains[ACTIONCHAINS];
+extern ActionChain *actionchains[ACTIONCHAINS_NUM];
+
+extern RFController *rfcontroller;
 
 
 //Vordeklariert
@@ -62,7 +66,6 @@ public:
 
 	int current_menue, current_frame, sensor_ptr = 0, trigger_ptr = 0, category_ptr = 0, ruleset_ptr = 0, action_ptr = 0;
 	DateRange daterange;
-
 
 	UserInterface();
 

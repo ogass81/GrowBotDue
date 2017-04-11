@@ -17,6 +17,7 @@
 #include "Trigger.h"
 #include "Ruleset.h"
 #include "ActionChain.h"
+#include "Setting.h"
 
 extern String wifi_ssid;
 extern String wifi_pw;
@@ -24,10 +25,10 @@ extern String api_secret;
 
 extern long sensor_cycles;
 extern CurrentTime currenttime;
-extern Sensor *sensors[SENSNUMBER];
-extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
-extern RuleSet *rulesets[RULES];
-extern ActionChain *actionchains[ACTIONCHAINS];
+extern Sensor *sensors[SENS_NUM];
+extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
+extern RuleSet *rulesets[RULESETS_NUM];
+extern ActionChain *actionchains[ACTIONCHAINS_NUM];
 
 
 class FileSystem {
@@ -49,12 +50,7 @@ public:
 	bool loadSettings(const char* filename);
 	bool saveSettings(const char* filename);
 	bool copyFile(const char* source, const char* destination);
-
-	void reset();
-
 };
-
-
 
 #endif
 

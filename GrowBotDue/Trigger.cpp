@@ -579,49 +579,53 @@ void Trigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize
 bool Trigger::deserializeJSON(JsonObject& data)
 {
 	if (data.success() == true) {
-		active = data["active"];
-		start_minute = data["start_minute"];
-		start_hour = data["start_hour"];
-		start_day = data["start_day"];
-		start_month = data["start_month"];
-		start_year = data["start_year"];
-		end_minute = data["end_minute"];
-		end_hour = data["end_hour"];
-		end_day = data["end_day"];
-		end_month = data["end_month"];
-		end_year = data["end_year"];
-		threshold = data["threshold"];
+		if (data["active"] != "") active = data["active"];
+		if (data["start_minute"] != "") start_minute = data["start_minute"];
+		if (data["start_hour"] != "") start_hour = data["start_hour"];
+		if (data["start_day"] != "") start_day = data["start_day"];
+		if (data["start_month"] != "") start_month = data["start_month"];
+		if (data["start_year"] != "") start_year = data["start_year"];
+		if (data["end_minute"] != "") end_minute = data["end_minute"];
+		if (data["end_hour"] != "") end_hour = data["end_hour"];
+		if (data["end_day"] != "") end_day = data["end_day"];
+		if (data["end_month"] != "") end_month = data["end_month"];
+		if (data["end_year"] != "") end_year = data["end_year"];
+		if (data["threshold"] != "") threshold = data["threshold"];
 
-		if (data["relop"] == 0) relop = SMALLER;
-		else if (data["relop"] == 1) relop = EQUAL;
-		else if (data["relop"] == 2) relop = GREATER;
-		else {
-			relop = EQUAL;
-			active = false;
+		if (data["relop"] != "") {
+			if (data["relop"] == 0) relop = SMALLER;
+			else if (data["relop"] == 1) relop = EQUAL;
+			else if (data["relop"] == 2) relop = GREATER;
+			else {
+				relop = EQUAL;
+				active = false;
+			}
 		}
 
-		if (data["interval"] == 0) interval = REALTIME;
-		else if (data["interval"] == 1) interval = TENSEC;
-		else if (data["interval"] == 2) interval = TWENTYSEC;
-		else if (data["interval"] == 3) interval = THIRTYSEC;
-		else if (data["interval"] == 4) interval = ONEMIN;
-		else if (data["interval"] == 5) interval = TWOMIN;
-		else if (data["interval"] == 6) interval = FIVEMIN;
-		else if (data["interval"] == 7) interval = QUARTER;
-		else if (data["interval"] == 8) interval = HALF;
-		else if (data["interval"] == 9) interval = ONE;
-		else if (data["interval"] == 10) interval = TWO;
-		else if (data["interval"] == 11) interval = THREE;
-		else if (data["interval"] == 12) interval = FOUR;
-		else if (data["interval"] == 13) interval = SIX;
-		else if (data["interval"] == 14) interval = TWELVE;
-		else if (data["interval"] == 15) interval = DAILY;
-		else if (data["interval"] == 16) interval = BIDAILY;
-		else if (data["interval"] == 17) interval = WEEKLY;
-		else if (data["interval"] == 18) interval = BIWEEKLY;
-		else {
-			interval = ONEMIN;
-			active = false;
+		if (data["interval"] != "") {
+			if (data["interval"] == 0) interval = REALTIME;
+			else if (data["interval"] == 1) interval = TENSEC;
+			else if (data["interval"] == 2) interval = TWENTYSEC;
+			else if (data["interval"] == 3) interval = THIRTYSEC;
+			else if (data["interval"] == 4) interval = ONEMIN;
+			else if (data["interval"] == 5) interval = TWOMIN;
+			else if (data["interval"] == 6) interval = FIVEMIN;
+			else if (data["interval"] == 7) interval = QUARTER;
+			else if (data["interval"] == 8) interval = HALF;
+			else if (data["interval"] == 9) interval = ONE;
+			else if (data["interval"] == 10) interval = TWO;
+			else if (data["interval"] == 11) interval = THREE;
+			else if (data["interval"] == 12) interval = FOUR;
+			else if (data["interval"] == 13) interval = SIX;
+			else if (data["interval"] == 14) interval = TWELVE;
+			else if (data["interval"] == 15) interval = DAILY;
+			else if (data["interval"] == 16) interval = BIDAILY;
+			else if (data["interval"] == 17) interval = WEEKLY;
+			else if (data["interval"] == 18) interval = BIWEEKLY;
+			else {
+				interval = ONEMIN;
+				active = false;
+			}
 		}
 		LOGDEBUG(F("[Trigger]"), F("deserializeJSON()"), F("OK: Deserialized members for Trigger"), String(data["cat"].asString()), String(data["id"].asString()), "");
 	}
@@ -645,30 +649,30 @@ bool TimeTrigger::checkState()
 	bool state = false;
 	
 	//Transform DateTime in Sensor Cycles as common base
-	sensor_start = (CurrentTime::epochTime(start_year, start_month, start_day, start_hour, start_minute, 0)) / SENSORFRQ;
-	sensor_end = (CurrentTime::epochTime(end_year, end_month, end_day, end_hour, end_minute, 0)) / SENSORFRQ;
+	sensor_start = (CurrentTime::epochTime(start_year, start_month, start_day, start_hour, start_minute, 0)) / SENS_FRQ_SEC;
+	sensor_end = (CurrentTime::epochTime(end_year, end_month, end_day, end_hour, end_minute, 0)) / SENS_FRQ_SEC;
 
 	if (active == true) {
 		if (sensor_cycles > sensor_start && sensor_cycles < sensor_end) {
 			if (interval == REALTIME) state = true;
-			else if (interval == TENSEC && ((sensor_cycles - sensor_start) % (10 / SENSORFRQ)) == 0) state = true;
-			else if (interval == TWENTYSEC && ((sensor_cycles - sensor_start) % (20 / SENSORFRQ)) == 0) state = true;
-			else if (interval == THIRTYSEC && ((sensor_cycles - sensor_start) % (30 / SENSORFRQ)) == 0) state = true;
-			else if (interval == ONEMIN && ((sensor_cycles - sensor_start) % (60 / SENSORFRQ)) == 0) state = true;
-			else if (interval == TWOMIN && ((sensor_cycles - sensor_start) % (120 / SENSORFRQ)) == 0) state = true;
-			else if (interval == FIVEMIN && ((sensor_cycles - sensor_start) % (300 / SENSORFRQ)) == 0) state = true;
-			else if (interval == QUARTER && ((sensor_cycles - sensor_start) % (900 / SENSORFRQ)) == 0) state = true;
-			else if (interval == HALF && ((sensor_cycles - sensor_start) % (1800 / SENSORFRQ)) == 0) state = true;
-			else if (interval == ONE && ((sensor_cycles - sensor_start) % (3600 / SENSORFRQ)) == 0)  state = true;
-			else if (interval == TWO && ((sensor_cycles - sensor_start) % (7200 / SENSORFRQ)) == 0) state = true;
-			else if (interval == THREE && ((sensor_cycles - sensor_start) % (10800 / SENSORFRQ)) == 0) state = true;
-			else if (interval == FOUR && ((sensor_cycles - sensor_start) % (14400 / SENSORFRQ)) == 0) state = true;
-			else if (interval == SIX && ((sensor_cycles - sensor_start) % (21600 / SENSORFRQ)) == 0) state = true;
-			else if (interval == TWELVE && ((sensor_cycles - sensor_start) % (43200 / SENSORFRQ)) == 0) state = true;
-			else if (interval == DAILY && ((sensor_cycles - sensor_start) % (86400 / SENSORFRQ)) == 0) state = true;
-			else if (interval == BIDAILY && ((sensor_cycles - sensor_start) % (172800 / SENSORFRQ)) == 0) state = true;
-			else if (interval == WEEKLY && ((sensor_cycles - sensor_start) % (604800 / SENSORFRQ)) == 0) state = true;
-			else if (interval == BIWEEKLY && ((sensor_cycles - sensor_start) % (1209600 / SENSORFRQ)) == 0) state = true;
+			else if (interval == TENSEC && ((sensor_cycles - sensor_start) % (10 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == TWENTYSEC && ((sensor_cycles - sensor_start) % (20 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == THIRTYSEC && ((sensor_cycles - sensor_start) % (30 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == ONEMIN && ((sensor_cycles - sensor_start) % (60 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == TWOMIN && ((sensor_cycles - sensor_start) % (120 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == FIVEMIN && ((sensor_cycles - sensor_start) % (300 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == QUARTER && ((sensor_cycles - sensor_start) % (900 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == HALF && ((sensor_cycles - sensor_start) % (1800 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == ONE && ((sensor_cycles - sensor_start) % (3600 / SENS_FRQ_SEC)) == 0)  state = true;
+			else if (interval == TWO && ((sensor_cycles - sensor_start) % (7200 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == THREE && ((sensor_cycles - sensor_start) % (10800 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == FOUR && ((sensor_cycles - sensor_start) % (14400 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == SIX && ((sensor_cycles - sensor_start) % (21600 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == TWELVE && ((sensor_cycles - sensor_start) % (43200 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == DAILY && ((sensor_cycles - sensor_start) % (86400 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == BIDAILY && ((sensor_cycles - sensor_start) % (172800 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == WEEKLY && ((sensor_cycles - sensor_start) % (604800 / SENS_FRQ_SEC)) == 0) state = true;
+			else if (interval == BIWEEKLY && ((sensor_cycles - sensor_start) % (1209600 / SENS_FRQ_SEC)) == 0) state = true;
 			LOGMSG(F("[Trigger]"), F("OK: Time Trigger Checked"), String(getTitle()), F("Time Constraint"), state);
 		}
 	}
@@ -704,7 +708,7 @@ bool SensorTrigger::checkState()
 	bool state = false;
 
 	//epoch_current = CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, currenttime.current_second);
-	sensor_start = (CurrentTime::epochTime(start_year, start_month, start_day, start_hour, start_minute, 0)) / SENSORFRQ;
+	sensor_start = (CurrentTime::epochTime(start_year, start_month, start_day, start_hour, start_minute, 0)) / SENS_FRQ_SEC;
 
 	
 	if (active == true) {

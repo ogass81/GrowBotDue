@@ -1,7 +1,7 @@
 // Ruleset.h
 
-#ifndef _RULESET_h
-#define _RULESET_h
+#ifndef _NUM_RULESETS_NUMETSET_h
+#define _NUM_RULESETS_NUMETSET_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
@@ -13,8 +13,8 @@
 #include "Trigger.h"
 #include "ActionChain.h"
 
-extern ActionChain *actionchains[ACTIONCHAINS];
-extern Trigger *trigger[TRIGCAT][TRIGNUMBER];
+extern ActionChain *actionchains[ACTIONCHAINS_NUM];
+extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 
 //Rulesets are Touples of Triggers, Boolean Operators. If the whole expression is true the assigned action (callback function) is executed
 class RuleSet {

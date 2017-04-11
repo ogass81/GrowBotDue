@@ -6,102 +6,102 @@
 
 
 UserInterface::UserInterface() {
-	this->category_ptr = 0;
-	this->trigger_ptr = 0;
-	this->ruleset_ptr = 0;
-	this->sensor_ptr = 0;
-	this->action_ptr = 0;
+	category_ptr = 0;
+	trigger_ptr = 0;
+	ruleset_ptr = 0;
+	sensor_ptr = 0;
+	action_ptr = 0;
 
-	this->daterange = MINUTE;
+	daterange = MINUTE;
 }
 
 void UserInterface::inCategoryPtr()
 {
-	if (this->category_ptr < (TRIGCAT - 1)) this->category_ptr++;
-	else this->category_ptr = 0;
+	if (category_ptr < (TRIGGER_TYPES - 1)) category_ptr++;
+	else category_ptr = 0;
 }
 
 void UserInterface::decCategoryPtr()
 {
-	if (this->category_ptr > 0) this->category_ptr--;
-	else this->category_ptr = TRIGCAT - 1;
+	if (category_ptr > 0) category_ptr--;
+	else category_ptr = TRIGGER_TYPES - 1;
 }
 
 void UserInterface::setCategoryPtr(int cat)
 {
-	if (cat >= 0 && cat < TRIGCAT) this->category_ptr = cat;
-	else this->category_ptr = 0;
+	if (cat >= 0 && cat < TRIGGER_TYPES) category_ptr = cat;
+	else category_ptr = 0;
 
-	this->trigger_ptr = 0;
+	trigger_ptr = 0;
 }
 
 void UserInterface::incSensorPtr()
 {
-	if (this->sensor_ptr < (SENSNUMBER - 1)) this->sensor_ptr++;
-	else this->sensor_ptr = 0;
+	if (sensor_ptr < (SENS_NUM - 1)) sensor_ptr++;
+	else sensor_ptr = 0;
 }
 
 void UserInterface::decSensorPtr()
 {
-	if (this->sensor_ptr > 0) this->sensor_ptr--;
-	else this->sensor_ptr = SENSNUMBER - 1;
+	if (sensor_ptr > 0) sensor_ptr--;
+	else sensor_ptr = SENS_NUM - 1;
 }
 
 void UserInterface::changeDateRange()
 {
-	switch (this->daterange) {
+	switch (daterange) {
 	case MINUTE:
-		this->daterange = HOUR;
+		daterange = HOUR;
 		break;
 	case HOUR:
-		this->daterange = DAY;
+		daterange = DAY;
 		break;
 	case DAY:
-		this->daterange = MONTH;
+		daterange = MONTH;
 		break;
 	case MONTH:
-		this->daterange = YEAR;
+		daterange = YEAR;
 		break;
 	case YEAR:
-		this->daterange = MINUTE;
+		daterange = MINUTE;
 		break;
 	}
 }
 
 void UserInterface::incTriggerPtr()
 {
-	if (this->trigger_ptr < (TRIGNUMBER - 1)) this->trigger_ptr++;
-	else this->trigger_ptr = 0;
+	if (trigger_ptr < (TRIGGER_SETS - 1)) trigger_ptr++;
+	else trigger_ptr = 0;
 }
 
 void UserInterface::decTriggerPtr()
 {
-	if (this->trigger_ptr > 0) this->trigger_ptr--;
-	else this->trigger_ptr = TRIGNUMBER - 1;
+	if (trigger_ptr > 0) trigger_ptr--;
+	else trigger_ptr = TRIGGER_SETS - 1;
 }
 
 void UserInterface::incRulesetPtr()
 {
-	if (this->ruleset_ptr < (RULES - 1)) this->ruleset_ptr++;
-	else this->ruleset_ptr = 0;
+	if (ruleset_ptr < (RULESETS_NUM - 1)) ruleset_ptr++;
+	else ruleset_ptr = 0;
 }
 
 void UserInterface::decRulesetPtr()
 {
-	if (this->ruleset_ptr > 0) this->ruleset_ptr--;
-	else this->ruleset_ptr = RULES - 1;
+	if (ruleset_ptr > 0) ruleset_ptr--;
+	else ruleset_ptr = RULESETS_NUM - 1;
 }
 
 void UserInterface::incActionPtr()
 {
-	if (this->action_ptr < (ACTIONS - 1)) this->action_ptr++;
-	else this->action_ptr = 0;
+	if (action_ptr < (ACTIONS_NUM - 1)) action_ptr++;
+	else action_ptr = 0;
 }
 
 void UserInterface::decActionPtr()
 {
-	if (this->action_ptr > 0) this->action_ptr--;
-	else this->action_ptr = ACTIONS - 1;
+	if (action_ptr > 0) action_ptr--;
+	else action_ptr = ACTIONS_NUM - 1;
 }
 
 void UserInterface::draw()
@@ -134,8 +134,8 @@ void UserInterface::drawBackground() {
 	myGLCD.clrScr();
 	myGLCD.setBackColor(BACKGROUNDCOLOR);
 	myGLCD.setColor(VGA_WHITE);
-	myGLCD.drawLine(X_DIVIDER, Y_DIVIDER, X_DIVIDER, 239);
-	myGLCD.drawLine(X_DIVIDER, Y_DIVIDER, 319, Y_DIVIDER);
+	myGLCD.drawLine(UI_X_DIVIDER, UI_Y_DIVIDER, UI_X_DIVIDER, 239);
+	myGLCD.drawLine(UI_X_DIVIDER, UI_Y_DIVIDER, 319, UI_Y_DIVIDER);
 
 	myGLCD.setFont(SmallFont);
 
@@ -182,7 +182,7 @@ void UserInterface::drawMenue(int nav) {
 		//Sub Menue Page 3: Settings
 	case 13:
 		menueElements[0] = new MenueButton("RTC", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, true, 13, 130);
-		menueElements[1] = new MenueButton("Func 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, true, 13, 1);
+		menueElements[1] = new MenueButton("RF Link", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, true, 13, 131);
 		menueElements[2] = new MenueButton("Func 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, true, 13, 1);
 		menueElements[3] = new MenueButton("Config", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, true, 13, 133);
 		menueElements[4] = new MenueButton("<back>", VGA_WHITE, VGA_TEAL, VGA_WHITE, 4, this, true, 1, 1);
@@ -201,9 +201,9 @@ void UserInterface::drawMenue(int nav) {
 
 		//Time Trigger
 	case 21:
-		menueElements[0] = new MenueControlButton<UserInterface>("Time", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, this, &UserInterface::setCategoryPtr, 0, true, 21, 210);
-		menueElements[1] = new MenueControlButton<UserInterface>("Temp.", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, this, &UserInterface::setCategoryPtr, 1, true, 21, 211);
-		menueElements[2] = new MenueControlButton<UserInterface>("Humid.", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, this, &UserInterface::setCategoryPtr, 2, true, 21, 211);
+		menueElements[0] = new TypedMenueButton<UserInterface>("Time", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, this, &UserInterface::setCategoryPtr, 0, true, 21, 210);
+		menueElements[1] = new TypedMenueButton<UserInterface>("Temp.", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, this, &UserInterface::setCategoryPtr, 1, true, 21, 211);
+		menueElements[2] = new TypedMenueButton<UserInterface>("Humid.", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, this, &UserInterface::setCategoryPtr, 2, true, 21, 211);
 		menueElements[3] = new MenueButton("<back>", VGA_WHITE, VGA_TEAL, VGA_WHITE, 4, this, true, 2, 1);
 		menueElements[4] = NULL;
 		break;
@@ -211,18 +211,18 @@ void UserInterface::drawMenue(int nav) {
 
 		//Analog Trigger
 	case 22:
-		menueElements[0] = new MenueControlButton<UserInterface>("Front 1", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, this, &UserInterface::setCategoryPtr, 3, true, 22, 211);
-		menueElements[1] = new MenueControlButton<UserInterface>("Front 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, this, &UserInterface::setCategoryPtr, 4, true, 22, 211);
-		menueElements[2] = new MenueControlButton<UserInterface>("Front 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, this, &UserInterface::setCategoryPtr, 5, true, 22, 211);
-		menueElements[3] = new MenueControlButton<UserInterface>("Front 4", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, this, &UserInterface::setCategoryPtr, 6, true, 22, 211);
+		menueElements[0] = new TypedMenueButton<UserInterface>("Front 1", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, this, &UserInterface::setCategoryPtr, 3, true, 22, 211);
+		menueElements[1] = new TypedMenueButton<UserInterface>("Front 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, this, &UserInterface::setCategoryPtr, 4, true, 22, 211);
+		menueElements[2] = new TypedMenueButton<UserInterface>("Front 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, this, &UserInterface::setCategoryPtr, 5, true, 22, 211);
+		menueElements[3] = new TypedMenueButton<UserInterface>("Front 4", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, this, &UserInterface::setCategoryPtr, 6, true, 22, 211);
 		menueElements[4] = new MenueButton("<back>", VGA_WHITE, VGA_TEAL, VGA_WHITE, 4, this, true, 2, 1);
 		menueElements[5] = NULL;
 		break;
 	case 23:
-		menueElements[0] = new MenueControlButton<UserInterface>("Top 1", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, this, &UserInterface::setCategoryPtr, 7, true, 23, 211);
-		menueElements[1] = new MenueControlButton<UserInterface>("Top 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, this, &UserInterface::setCategoryPtr, 8, true, 23, 211);
-		menueElements[2] = new MenueControlButton<UserInterface>("Top 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, this, &UserInterface::setCategoryPtr, 9, true, 23, 211);
-		menueElements[3] = new MenueControlButton<UserInterface>("Top 4", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, this, &UserInterface::setCategoryPtr, 10, true, 23, 211);
+		menueElements[0] = new TypedMenueButton<UserInterface>("Top 1", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, this, &UserInterface::setCategoryPtr, 7, true, 23, 211);
+		menueElements[1] = new TypedMenueButton<UserInterface>("Top 2", VGA_WHITE, VGA_BLACK, VGA_WHITE, 1, this, this, &UserInterface::setCategoryPtr, 8, true, 23, 211);
+		menueElements[2] = new TypedMenueButton<UserInterface>("Top 3", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, this, &UserInterface::setCategoryPtr, 9, true, 23, 211);
+		menueElements[3] = new TypedMenueButton<UserInterface>("Top 4", VGA_WHITE, VGA_BLACK, VGA_WHITE, 3, this, this, &UserInterface::setCategoryPtr, 10, true, 23, 211);
 		menueElements[4] = new MenueButton("<back>", VGA_WHITE, VGA_TEAL, VGA_WHITE, 4, this, true, 2, 1);
 		menueElements[5] = NULL;
 		break;
@@ -234,9 +234,8 @@ void UserInterface::drawMenue(int nav) {
 		menueElements[2] = new MenueButton("Rules", VGA_WHITE, VGA_BLACK, VGA_WHITE, 2, this, true, 3, 311);
 		menueElements[3] = NULL;
 		break;
-	
 
-	case 999:
+	case 99:
 		menueElements[0] = new MenueButton("<Back>", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, true, 1, 1);
 		menueElements[1] = NULL;
 		break;
@@ -278,10 +277,10 @@ void UserInterface::drawFrame(int nav) {
 	case 112: //
 		bool r1, r2, r3, r4;
 
-		r1 = (digitalRead(RELAY1) == 1) ? false : true;
-		r2 = (digitalRead(RELAY2) == 1) ? false : true;
-		r3 = (digitalRead(RELAY3) == 1) ? false : true;
-		r4 = (digitalRead(RELAY4) == 1) ? false : true;
+		r1 = (digitalRead(OUT_RELAY_1) == 1) ? false : true;
+		r2 = (digitalRead(OUT_RELAY_2) == 1) ? false : true;
+		r3 = (digitalRead(OUT_RELAY_3) == 1) ? false : true;
+		r4 = (digitalRead(OUT_RELAY_4) == 1) ? false : true;
 
 		frameElements[0] = new TextLabel("Relais Status:", 0, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[1] = new TextLabel("R1:", 2, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
@@ -309,22 +308,22 @@ void UserInterface::drawFrame(int nav) {
 		break;
 	case 114:
 		frameElements[0] = new SensorGraph(sensors[this->sensor_ptr], this->daterange);
-		frameElements[1] = new ControlButton<UserInterface>(this->getDateRange(), 9, 5, 1, 2, VGA_WHITE, VGA_BLACK, this, this, &UserInterface::changeDateRange, true, current_menue, current_frame);
-		frameElements[2] = new ControlButton<UserInterface>("<<", 9, 7, 1, 2, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decSensorPtr, true, current_menue, current_frame);
-		frameElements[3] = new ControlButton<UserInterface>(">>", 9, 9, 1, 2, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incSensorPtr, true, current_menue, current_frame);
+		frameElements[1] = new TypedControlButton<UserInterface>(this->getDateRange(), 9, 5, 1, 2, VGA_WHITE, VGA_BLACK, this, this, &UserInterface::changeDateRange, true, current_menue, current_frame);
+		frameElements[2] = new TypedControlButton<UserInterface>("<<", 9, 7, 1, 2, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decSensorPtr, true, current_menue, current_frame);
+		frameElements[3] = new TypedControlButton<UserInterface>(">>", 9, 9, 1, 2, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incSensorPtr, true, current_menue, current_frame);
 		frameElements[4] = NULL;
 		break;
 
 		//Switch Relais
 	case 120:
 		frameElements[0] = new TextLabel("Relais", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[1] = new ControlButton<RelaisBoard>("R1", 2, 1, 2, 2, VGA_BLUE, VGA_BLACK, this, relaisboard, &RelaisBoard::switchR1, true, 12, 120);
+		frameElements[1] = new TypedControlButton<RelaisBoard>("R1", 2, 1, 2, 2, VGA_BLUE, VGA_BLACK, this, relaisboard, &RelaisBoard::switchR1, true, 12, 120);
 		frameElements[2] = new TextBox(String(relaisboard->getStatusR1()), 4, 1, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<RelaisBoard>("R2", 2, 5, 2, 2, VGA_BLUE, VGA_BLACK, this, relaisboard, &RelaisBoard::switchR2, true, 12, 120);
+		frameElements[3] = new TypedControlButton<RelaisBoard>("R2", 2, 5, 2, 2, VGA_BLUE, VGA_BLACK, this, relaisboard, &RelaisBoard::switchR2, true, 12, 120);
 		frameElements[4] = new TextBox(String(relaisboard->getStatusR2()), 4, 5, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<RelaisBoard>("R3", 7, 1, 2, 2, VGA_BLUE, VGA_BLACK, this, relaisboard, &RelaisBoard::switchR3, true, 12, 120);
+		frameElements[5] = new TypedControlButton<RelaisBoard>("R3", 7, 1, 2, 2, VGA_BLUE, VGA_BLACK, this, relaisboard, &RelaisBoard::switchR3, true, 12, 120);
 		frameElements[6] = new TextBox(String(relaisboard->getStatusR3()), 9, 1, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<RelaisBoard>("R4", 7, 5, 2, 2, VGA_BLUE, VGA_BLACK, this, relaisboard, &RelaisBoard::switchR4, true, 12, 120);
+		frameElements[7] = new TypedControlButton<RelaisBoard>("R4", 7, 5, 2, 2, VGA_BLUE, VGA_BLACK, this, relaisboard, &RelaisBoard::switchR4, true, 12, 120);
 		frameElements[8] = new TextBox(String(relaisboard->getStatusR4()), 9, 5, 2, VGA_WHITE, VGA_WHITE, this);
 		frameElements[9] = NULL;
 		break;
@@ -342,38 +341,66 @@ void UserInterface::drawFrame(int nav) {
 	case 130:
 		frameElements[0] = new TextLabel("Real Time Clock", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[1] = new TextLabel("Date", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[2] = new ControlButton<CurrentTime>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incDay, true, 13, 130);
-		frameElements[3] = new ControlButton<CurrentTime>("+", 1, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incMonth, true, 13, 130);
-		frameElements[4] = new ControlButton<CurrentTime>("+", 1, 6, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incYear, true, 13, 130);
+		frameElements[2] = new TypedControlButton<CurrentTime>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incDay, true, 13, 130);
+		frameElements[3] = new TypedControlButton<CurrentTime>("+", 1, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incMonth, true, 13, 130);
+		frameElements[4] = new TypedControlButton<CurrentTime>("+", 1, 6, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incYear, true, 13, 130);
 		frameElements[5] = new TextBox(String(currenttime.current_day), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
 		frameElements[6] = new TextBox(String(currenttime.current_month), 2, 4, 2, VGA_WHITE, VGA_WHITE, this);
 		frameElements[7] = new TextBox(String(currenttime.current_year), 2, 6, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[8] = new ControlButton<CurrentTime>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decDay, true, 13, 130);
-		frameElements[9] = new ControlButton<CurrentTime>("-", 3, 4, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decMonth, true, 13, 130);
-		frameElements[10] = new ControlButton<CurrentTime>("-", 3, 6, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decYear, true, 13, 130);
+		frameElements[8] = new TypedControlButton<CurrentTime>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decDay, true, 13, 130);
+		frameElements[9] = new TypedControlButton<CurrentTime>("-", 3, 4, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decMonth, true, 13, 130);
+		frameElements[10] = new TypedControlButton<CurrentTime>("-", 3, 6, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decYear, true, 13, 130);
 		frameElements[11] = new TextLabel("Time", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[12] = new ControlButton<CurrentTime>("+", 5, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incHour, true, 13, 130);
-		frameElements[13] = new ControlButton<CurrentTime>("+", 5, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incMinute, true, 13, 130);
+		frameElements[12] = new TypedControlButton<CurrentTime>("+", 5, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incHour, true, 13, 130);
+		frameElements[13] = new TypedControlButton<CurrentTime>("+", 5, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, &currenttime, &CurrentTime::incMinute, true, 13, 130);
 		frameElements[14] = new TextBox(String(currenttime.current_hour), 6, 2, 2, VGA_WHITE, VGA_WHITE, this);
 		frameElements[15] = new TextBox(String(currenttime.current_minute), 6, 4, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[16] = new ControlButton<CurrentTime>("-", 7, 2, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decHour, true, 13, 130);
-		frameElements[17] = new ControlButton<CurrentTime>("-", 7, 4, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decMinute, true, 13, 130);
-		frameElements[18] = new ControlButton<CurrentTime>("Default", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, &currenttime, &CurrentTime::updateRTCdefault, true, 13, 130);
+		frameElements[16] = new TypedControlButton<CurrentTime>("-", 7, 2, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decHour, true, 13, 130);
+		frameElements[17] = new TypedControlButton<CurrentTime>("-", 7, 4, 1, 2, VGA_RED, VGA_BLACK, this, &currenttime, &CurrentTime::decMinute, true, 13, 130);
+		frameElements[18] = new TypedControlButton<CurrentTime>("Default", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, &currenttime, &CurrentTime::updateRTCdefault, true, 13, 130);
 		frameElements[19] = NULL;
 		break;
+	case 131:
+		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+
+		frameElements[1] = new TextLabel(String(rfcontroller->getName()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+
+		frameElements[2] = new TypedControlButton<RFController>(String(rfcontroller->getLearningMode()), 2, 2, 1, 8, VGA_WHITE, VGA_BLACK, this, rfcontroller, &RFController::switchLearningMode, true, current_menue, current_frame);
+		frameElements[3] = new TypedControlButton<RFController>(String("Test"), 3, 2, 1, 4, VGA_GREEN, VGA_BLACK, this, rfcontroller, &RFController::testSettings, true, current_menue, current_frame);
+		frameElements[4] = new TypedControlButton<RFController>(String("Reset"), 3, 6, 1, 4, VGA_RED, VGA_BLACK, this, rfcontroller, &RFController::resetSettings, true, current_menue, current_frame);
+
+		frameElements[5] = new TextLabel("Dec", 4, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[6] = new TextLabel(String(rfcontroller->getDecimalKey()), 4, 3, 5, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[7] = new TextLabel("Bin", 5, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[8] = new TextLabel(String(rfcontroller->getBinaryKey()), 5, 3, 5, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[9] = new TextLabel("Bits", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[10] = new TextLabel(String(rfcontroller->getBitLength()), 6, 3, 5, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[11] = new TextLabel("Prot", 7, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[12] = new TextLabel(String(rfcontroller->getProtocol()), 7, 3, 5, BACKGROUNDCOLOR, VGA_WHITE, this);
+
+
+		frameElements[13] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[14] = new TypedControlButton<RFController>(String(rfcontroller->getActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rfcontroller, &RFController::switchActive, true, current_menue, current_frame);
+
+		frameElements[15] = new TypedControlButton<RFController>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rfcontroller, &RFController::decCodeSet_Ptr, true, current_menue, current_frame);
+		frameElements[16] = new TypedControlButton<RFController>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rfcontroller, &RFController::incCodeSet_Ptr, true, current_menue, current_frame);
+
+		frameElements[17] = NULL;
+		break;
+
 	case 133:
 		frameElements[0] = new TextLabel("Settings ", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[1] = new TextLabel("Active", 2, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[2] = new ControlButton<FileSystem>("Load", 2, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::loadActiveConfig, true, 13, 133);
-		frameElements[3] = new ControlButton<FileSystem>("Save", 2, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveActiveConfig, true, 13, 133);
+		frameElements[2] = new TypedControlButton<FileSystem>("Load", 2, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::loadActiveConfig, true, 13, 133);
+		frameElements[3] = new TypedControlButton<FileSystem>("Save", 2, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveActiveConfig, true, 13, 133);
 		frameElements[4] = new TextLabel("Backup", 4, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<FileSystem>("Load", 4, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::loadBackupConfig, true, 13, 133);
-		frameElements[6] = new ControlButton<FileSystem>("Save", 4, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveBackupConfig, true, 13, 133);
+		frameElements[5] = new TypedControlButton<FileSystem>("Load", 4, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::loadBackupConfig, true, 13, 133);
+		frameElements[6] = new TypedControlButton<FileSystem>("Save", 4, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveBackupConfig, true, 13, 133);
 		frameElements[7] = new TextLabel("Default", 6, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[8] = new ControlButton<FileSystem>("Load", 6, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::loadDefaultConfig, true, 13, 133);
-		frameElements[9] = new ControlButton<FileSystem>("Save", 6, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveDefaultConfig, true, 13, 133);
+		frameElements[8] = new TypedControlButton<FileSystem>("Load", 6, 3, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::loadDefaultConfig, true, 13, 133);
+		frameElements[9] = new TypedControlButton<FileSystem>("Save", 6, 6, 1, 3, VGA_YELLOW, VGA_BLACK, this, &filesystem, &FileSystem::saveDefaultConfig, true, 13, 133);
 		frameElements[10] = new TextLabel("System", 8, 0, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<FileSystem>("Reset", 8, 3, 1, 3, VGA_RED, VGA_BLACK, this, &filesystem, &FileSystem::reset, true, 13, 133);
+		frameElements[11] = new UnTypedControlButton("Reset", 8, 3, 1, 3, VGA_RED, VGA_BLACK, this, &Setting::reset, true, 13, 133);
 		frameElements[12] = NULL;
 		break;
 
@@ -384,49 +411,48 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[1] = new TextLabel(String(trigger[category_ptr][trigger_ptr]->getTitle()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("From", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<Trigger>("+", 1, 2, 1, 1, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incStartDay, true, current_menue, current_frame);
-		frameElements[4] = new ControlButton<Trigger>("+", 1, 3, 1, 1, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incStartMonth, true, current_menue, current_frame);
-		frameElements[5] = new ControlButton<Trigger>("+", 1, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incStartYear, true, current_menue, current_frame);
+		frameElements[3] = new TypedControlButton<Trigger>("+", 1, 2, 1, 1, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incStartDay, true, current_menue, current_frame);
+		frameElements[4] = new TypedControlButton<Trigger>("+", 1, 3, 1, 1, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incStartMonth, true, current_menue, current_frame);
+		frameElements[5] = new TypedControlButton<Trigger>("+", 1, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incStartYear, true, current_menue, current_frame);
 		frameElements[6] = new TextBox(String(trigger[category_ptr][trigger_ptr]->getStartDay()), 2, 2, 1, VGA_WHITE, VGA_WHITE, this);
 		frameElements[7] = new TextBox(String(trigger[category_ptr][trigger_ptr]->getStartMonth()), 2, 3, 1, VGA_WHITE, VGA_WHITE, this);
 		frameElements[8] = new TextBox(String(trigger[category_ptr][trigger_ptr]->getStartYear()), 2, 4, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<Trigger>("-", 3, 2, 1, 1, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decStartDay, true, current_menue, current_frame);
-		frameElements[10] = new ControlButton<Trigger>("-", 3, 3, 1, 1, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decStartMonth, true, current_menue, current_frame);
-		frameElements[11] = new ControlButton<Trigger>("-", 3, 4, 1, 2, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decStartYear, true, current_menue, current_frame);
+		frameElements[9] = new TypedControlButton<Trigger>("-", 3, 2, 1, 1, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decStartDay, true, current_menue, current_frame);
+		frameElements[10] = new TypedControlButton<Trigger>("-", 3, 3, 1, 1, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decStartMonth, true, current_menue, current_frame);
+		frameElements[11] = new TypedControlButton<Trigger>("-", 3, 4, 1, 2, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decStartYear, true, current_menue, current_frame);
 
 		frameElements[12] = new TextLabel("to", 2, 6, 1, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<Trigger>("+", 1, 7, 1, 1, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incEndDay, true, current_menue, current_frame);
-		frameElements[14] = new ControlButton<Trigger>("+", 1, 8, 1, 1, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incEndMonth, true, current_menue, current_frame);
-		frameElements[15] = new ControlButton<Trigger>("+", 1, 9, 1, 2, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incEndYear, true, current_menue, current_frame);
+		frameElements[13] = new TypedControlButton<Trigger>("+", 1, 7, 1, 1, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incEndDay, true, current_menue, current_frame);
+		frameElements[14] = new TypedControlButton<Trigger>("+", 1, 8, 1, 1, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incEndMonth, true, current_menue, current_frame);
+		frameElements[15] = new TypedControlButton<Trigger>("+", 1, 9, 1, 2, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incEndYear, true, current_menue, current_frame);
 		frameElements[16] = new TextBox(String(trigger[category_ptr][trigger_ptr]->getEndDay()), 2, 7, 1, VGA_WHITE, VGA_WHITE, this);
 		frameElements[17] = new TextBox(String(trigger[category_ptr][trigger_ptr]->getEndMonth()), 2, 8, 1, VGA_WHITE, VGA_WHITE, this);
 		frameElements[18] = new TextBox(String(trigger[category_ptr][trigger_ptr]->getEndYear()), 2, 9, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[19] = new ControlButton<Trigger>("-", 3, 7, 1, 1, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decEndDay, true, current_menue, current_frame);
-		frameElements[20] = new ControlButton<Trigger>("-", 3, 8, 1, 1, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decEndMonth, true, current_menue, current_frame);
-		frameElements[21] = new ControlButton<Trigger>("-", 3, 9, 1, 2, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decEndYear, true, current_menue, current_frame);
+		frameElements[19] = new TypedControlButton<Trigger>("-", 3, 7, 1, 1, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decEndDay, true, current_menue, current_frame);
+		frameElements[20] = new TypedControlButton<Trigger>("-", 3, 8, 1, 1, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decEndMonth, true, current_menue, current_frame);
+		frameElements[21] = new TypedControlButton<Trigger>("-", 3, 9, 1, 2, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decEndYear, true, current_menue, current_frame);
 
 		frameElements[22] = new TextLabel("Time", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[23] = new ControlButton<Trigger>("+", 5, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incStartHour, true, current_menue, current_frame);
-		frameElements[24] = new ControlButton<Trigger>("+", 5, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incStartMinute, true, current_menue, current_frame);
+		frameElements[23] = new TypedControlButton<Trigger>("+", 5, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incStartHour, true, current_menue, current_frame);
+		frameElements[24] = new TypedControlButton<Trigger>("+", 5, 4, 1, 2, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incStartMinute, true, current_menue, current_frame);
 		frameElements[25] = new TextBox(String(trigger[category_ptr][trigger_ptr]->getStartHour()), 6, 2, 2, VGA_WHITE, VGA_WHITE, this);
 		frameElements[26] = new TextBox(String(trigger[category_ptr][trigger_ptr]->getStartMinute()), 6, 4, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[27] = new ControlButton<Trigger>("-", 7, 2, 1, 2, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decStartHour, true, current_menue, current_frame);
-		frameElements[28] = new ControlButton<Trigger>("-", 7, 4, 1, 2, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decStartMinute, true, current_menue, current_frame);
+		frameElements[27] = new TypedControlButton<Trigger>("-", 7, 2, 1, 2, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decStartHour, true, current_menue, current_frame);
+		frameElements[28] = new TypedControlButton<Trigger>("-", 7, 4, 1, 2, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decStartMinute, true, current_menue, current_frame);
 
 		frameElements[29] = new TextLabel("Int.", 6, 6, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[30] = new ControlButton<Trigger>("+", 5, 8, 1, 3, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incInterval, true, current_menue, current_frame);
+		frameElements[30] = new TypedControlButton<Trigger>("+", 5, 8, 1, 3, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incInterval, true, current_menue, current_frame);
 		frameElements[31] = new TextBox(String(trigger[category_ptr][trigger_ptr]->getInterval()), 6, 8, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[32] = new ControlButton<Trigger>("-", 7, 8, 1, 3, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decInterval, true, current_menue, current_frame);
+		frameElements[32] = new TypedControlButton<Trigger>("-", 7, 8, 1, 3, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decInterval, true, current_menue, current_frame);
 
 		frameElements[33] = new TextLabel("Stat.", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[34] = new ControlButton<Trigger>(String(trigger[category_ptr][trigger_ptr]->getActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, trigger[category_ptr][trigger_ptr], &Trigger::changeActive, true, current_menue, current_frame);
+		frameElements[34] = new TypedControlButton<Trigger>(String(trigger[category_ptr][trigger_ptr]->getActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, trigger[category_ptr][trigger_ptr], &Trigger::changeActive, true, current_menue, current_frame);
 
-		frameElements[35] = new ControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decTriggerPtr, true, current_menue, current_frame);
-		frameElements[36] = new ControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incTriggerPtr, true, current_menue, current_frame);
+		frameElements[35] = new TypedControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decTriggerPtr, true, current_menue, current_frame);
+		frameElements[36] = new TypedControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incTriggerPtr, true, current_menue, current_frame);
 
 		frameElements[37] = NULL;
 		break;
-
 
 		//Sensor Trigger
 	case 211:
@@ -435,26 +461,26 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[1] = new TextLabel(String((trigger[category_ptr][trigger_ptr]->getTitle)()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("Temp.", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<Trigger>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incRelOp, true, current_menue, current_frame);
+		frameElements[3] = new TypedControlButton<Trigger>("+", 1, 2, 1, 2, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incRelOp, true, current_menue, current_frame);
 		frameElements[4] = new TextBox(String((trigger[category_ptr][trigger_ptr]->getRelOp)()), 2, 2, 2, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new ControlButton<Trigger>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decRelOp, true, current_menue, current_frame);
+		frameElements[5] = new TypedControlButton<Trigger>("-", 3, 2, 1, 2, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decRelOp, true, current_menue, current_frame);
 
 		frameElements[6] = new TextLabel(" ", 2, 4, 3, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new ControlButton<Trigger>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incThresh, true, current_menue, current_frame);
+		frameElements[7] = new TypedControlButton<Trigger>("+", 1, 7, 1, 3, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incThresh, true, current_menue, current_frame);
 		frameElements[8] = new TextBox(String((trigger[category_ptr][trigger_ptr]->getThresh)()), 2, 7, 3, VGA_WHITE, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<Trigger>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decThresh, true, current_menue, current_frame);
+		frameElements[9] = new TypedControlButton<Trigger>("-", 3, 7, 1, 3, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decThresh, true, current_menue, current_frame);
 
 		frameElements[10] = new TextLabel("Int.", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<Trigger>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incInterval, true, current_menue, current_frame);
+		frameElements[11] = new TypedControlButton<Trigger>("+", 5, 2, 1, 5, VGA_GREEN, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::incInterval, true, current_menue, current_frame);
 		frameElements[12] = new TextBox(String((trigger[category_ptr][trigger_ptr]->getInterval)()), 6, 2, 5, VGA_WHITE, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<Trigger>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decInterval, true, current_menue, current_frame);
+		frameElements[13] = new TypedControlButton<Trigger>("-", 7, 2, 1, 5, VGA_RED, VGA_BLACK, this, trigger[category_ptr][trigger_ptr], &Trigger::decInterval, true, current_menue, current_frame);
 
 
 		frameElements[14] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<Trigger>(String(trigger[category_ptr][trigger_ptr]->getActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, trigger[category_ptr][trigger_ptr], &Trigger::changeActive, true, current_menue, current_frame);
+		frameElements[15] = new TypedControlButton<Trigger>(String(trigger[category_ptr][trigger_ptr]->getActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, trigger[category_ptr][trigger_ptr], &Trigger::changeActive, true, current_menue, current_frame);
 
-		frameElements[16] = new ControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decTriggerPtr, true, current_menue, current_frame);
-		frameElements[17] = new ControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incTriggerPtr, true, current_menue, current_frame);
+		frameElements[16] = new TypedControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decTriggerPtr, true, current_menue, current_frame);
+		frameElements[17] = new TypedControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incTriggerPtr, true, current_menue, current_frame);
 
 		frameElements[18] = NULL;
 		break;
@@ -467,61 +493,60 @@ void UserInterface::drawFrame(int nav) {
 
 		//Only three Actions for Testing on small display
 		frameElements[2] = new TextLabel("1:", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction1()), 2, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction1, true, current_menue, current_frame);
-		frameElements[4] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar1()), 2, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar1, true, current_menue, current_frame);
+		frameElements[3] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction1()), 2, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction1, true, current_menue, current_frame);
+		frameElements[4] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar1()), 2, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar1, true, current_menue, current_frame);
 
 		frameElements[5] = new TextLabel("2:", 4, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[6] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction2()), 4, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction2, true, current_menue, current_frame);
-		frameElements[7] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar2()), 4, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar2, true, current_menue, current_frame);
+		frameElements[6] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction2()), 4, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction2, true, current_menue, current_frame);
+		frameElements[7] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar2()), 4, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar2, true, current_menue, current_frame);
 
 		frameElements[8] = new TextLabel("3:", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction3()), 6, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction3, true, current_menue, current_frame);
-		frameElements[10] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar3()), 6, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar3, true, current_menue, current_frame);
+		frameElements[9] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction3()), 6, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction3, true, current_menue, current_frame);
+		frameElements[10] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar3()), 6, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar3, true, current_menue, current_frame);
 
 		frameElements[11] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[12] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changeChainActive, true, current_menue, current_frame);
+		frameElements[12] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changeChainActive, true, current_menue, current_frame);
 
-		frameElements[13] = new ControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decActionPtr, true, current_menue, current_frame);
-		frameElements[14] = new ControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incActionPtr, true, current_menue, current_frame);
+		frameElements[13] = new TypedControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decActionPtr, true, current_menue, current_frame);
+		frameElements[14] = new TypedControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incActionPtr, true, current_menue, current_frame);
 
 		frameElements[15] = NULL;
 
 		/*
 		frameElements[2] = new TextLabel("1:", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction1()), 2, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction1, true, current_menue, current_frame);
-		frameElements[4] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar1()), 2, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar1, true, current_menue, current_frame);
+		frameElements[3] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction1()), 2, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction1, true, current_menue, current_frame);
+		frameElements[4] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar1()), 2, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar1, true, current_menue, current_frame);
 
 		frameElements[5] = new TextLabel("2:", 3, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[6] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction2()), 3, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction2, true, current_menue, current_frame);
-		frameElements[7] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar2()), 3, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar2, true, current_menue, current_frame);
+		frameElements[6] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction2()), 3, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction2, true, current_menue, current_frame);
+		frameElements[7] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar2()), 3, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar2, true, current_menue, current_frame);
 
 		frameElements[8] = new TextLabel("3:", 4, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction3()), 4, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction3, true, current_menue, current_frame);
-		frameElements[10] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar3()), 4, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar3, true, current_menue, current_frame);
+		frameElements[9] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction3()), 4, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction3, true, current_menue, current_frame);
+		frameElements[10] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar3()), 4, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar3, true, current_menue, current_frame);
 
 
 		frameElements[11] = new TextLabel("4:", 5, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[12] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction4()), 5, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction4, true, current_menue, current_frame);
-		frameElements[13] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar4()), 5, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar4, true, current_menue, current_frame);
+		frameElements[12] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction4()), 5, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction4, true, current_menue, current_frame);
+		frameElements[13] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar4()), 5, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar4, true, current_menue, current_frame);
 
 		frameElements[14] = new TextLabel("5:", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[15] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction5()), 6, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction5, true, current_menue, current_frame);
-		frameElements[16] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar5()), 6, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar5, true, current_menue, current_frame);
+		frameElements[15] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction5()), 6, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction5, true, current_menue, current_frame);
+		frameElements[16] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar5()), 6, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar5, true, current_menue, current_frame);
 
 		frameElements[17] = new TextLabel("6:", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[18] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction6()), 7, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction6, true, current_menue, current_frame);
-		frameElements[19] = new ControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar6()), 7, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar6, true, current_menue, current_frame);
+		frameElements[18] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainAction6()), 7, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, actionchains[action_ptr], &ActionChain::changeAction6, true, current_menue, current_frame);
+		frameElements[19] = new TypedControlButton<ActionChain>(String(actionchains[action_ptr]->getChainPar6()), 7, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, actionchains[action_ptr], &ActionChain::changePar6, true, current_menue, current_frame);
 
 		frameElements[20] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[21] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetActive, true, current_menue, current_frame);
+		frameElements[21] = new TypedControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetActive, true, current_menue, current_frame);
 
-		frameElements[22] = new ControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decActionPtr, true, current_menue, current_frame);
-		frameElements[23] = new ControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incActionPtr, true, current_menue, current_frame);
+		frameElements[22] = new TypedControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decActionPtr, true, current_menue, current_frame);
+		frameElements[23] = new TypedControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incActionPtr, true, current_menue, current_frame);
 
 		frameElements[24] = NULL;
 		*/
 		break;
-
 
 		//Rules Set
 	case 311:
@@ -530,28 +555,27 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[1] = new TextLabel(String(rulesets[ruleset_ptr]->getTitle()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
 		frameElements[2] = new TextLabel("If", 2, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[3] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetTrigger1()), 2, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetTrigger1, true, current_menue, current_frame);
-		frameElements[4] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetBoolOp1()), 2, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetBoolOp1, true, current_menue, current_frame);
+		frameElements[3] = new TypedControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetTrigger1()), 2, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetTrigger1, true, current_menue, current_frame);
+		frameElements[4] = new TypedControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetBoolOp1()), 2, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetBoolOp1, true, current_menue, current_frame);
 		
 		frameElements[5] = new TextLabel("If", 3, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[6] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetTrigger2()), 3, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetTrigger2, true, current_menue, current_frame);
-		frameElements[7] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetBoolOp2()), 3, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetBoolOp2, true, current_menue, current_frame);
+		frameElements[6] = new TypedControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetTrigger2()), 3, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetTrigger2, true, current_menue, current_frame);
+		frameElements[7] = new TypedControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetBoolOp2()), 3, 9, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetBoolOp2, true, current_menue, current_frame);
 
 		frameElements[8] = new TextLabel("If", 4, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[9] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetTrigger3()), 4, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetTrigger3, true, current_menue, current_frame);
+		frameElements[9] = new TypedControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetTrigger3()), 4, 2, 1, 6, VGA_WHITE, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetTrigger3, true, current_menue, current_frame);
 		
 		frameElements[10] = new TextLabel("Run", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetChain()), 6, 2, 1, 6, VGA_RED, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleChain, true, current_menue, current_frame);
+		frameElements[11] = new TypedControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetChain()), 6, 2, 1, 6, VGA_RED, VGA_BLACK, this, rulesets[ruleset_ptr], &RuleSet::changeRuleChain, true, current_menue, current_frame);
 		
 		frameElements[12] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[13] = new ControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetActive, true, current_menue, current_frame);
+		frameElements[13] = new TypedControlButton<RuleSet>(String(rulesets[ruleset_ptr]->getRuleSetActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rulesets[ruleset_ptr], &RuleSet::changeRuleSetActive, true, current_menue, current_frame);
 
-		frameElements[14] = new ControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decRulesetPtr, true, current_menue, current_frame);
-		frameElements[15] = new ControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incRulesetPtr, true, current_menue, current_frame);
+		frameElements[14] = new TypedControlButton<UserInterface>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decRulesetPtr, true, current_menue, current_frame);
+		frameElements[15] = new TypedControlButton<UserInterface>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incRulesetPtr, true, current_menue, current_frame);
 
 		frameElements[16] = NULL;
 		break;
-
 	}
 }
 void UserInterface::checkEvent(int x, int y) {

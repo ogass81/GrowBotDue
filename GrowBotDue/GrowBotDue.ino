@@ -5,6 +5,8 @@
 */
 
 //Contants
+
+#include <RCSwitch.h>
 #include "Definitions.h"
 
 //Hardware Libaries
@@ -30,6 +32,8 @@
 #include "Ruleset.h"
 #include "TaskManager.h"
 #include "UserInterface.h"
+#include "RFController.h"
+#include "Setting.h"
 
 
 //Global Variables
@@ -64,9 +68,12 @@ UTFT    myGLCD(SSD1289, 38, 39, 40, 41);
 //Control Pins Touchscreen
 UTouch  myTouch(44, 45, 46, 47, 48);
 //DHT Hardware
-DHT dht(DHTPIN, DHTTYPE);
+DHT dht(DHT_DATA_PIN, DHT_TYPE);
 //RealTimeClock
 CurrentTime currenttime(RC);
+
+//433Mhz
+RFController *rfcontroller;
 
 //Wifi
 WebServer *webserver;
@@ -78,20 +85,20 @@ DigitalSwitch *digitalswitches;
 
 //Modules
 //Sensors: Abstraction of all Sensors
-Sensor *sensors[SENSNUMBER]; 
+Sensor *sensors[SENS_NUM]; 
 
 //Actions: Abstraction of all Actors 
-Action *actions[ACTIONS];
-ActionChain *actionchains[ACTIONCHAINS];
+Action *actions[ACTIONS_NUM];
+ActionChain *actionchains[ACTIONCHAINS_NUM];
 
 //Task Manager
 TaskManager *taskmanager;
 
 //Trigger: Constraints for particular sensors
-Trigger *trigger[TRIGCAT][TRIGNUMBER];
+Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 
 //Rulesets: Trigger Action Bundles
-RuleSet *rulesets[RULES];
+RuleSet *rulesets[RULESETS_NUM];
 
 //FileSystem
 FileSystem filesystem;
@@ -107,7 +114,7 @@ void setup() {
 	currenttime.begin(); 
 	currenttime.syncTimeObject();
 	//Initialize Tact Generator
-	sensor_cycles = (CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, 0)) / SENSORFRQ;
+	sensor_cycles = (CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, 0)) / SENS_FRQ_SEC;
 
 	//Initialize Relais Board
 	relaisboard = new RelaisBoard();
@@ -117,14 +124,14 @@ void setup() {
 	//Initialize Sensors
 	sensors[0] = new	DHTTemperature("Temp.", 'C', true);
 	sensors[1] = new 	DHTHumidity("Humid.", '%', true);
-	sensors[2] = new 	AnalogSensor("Moist.", MOS1, '%', true);
-	sensors[3] = new 	AnalogSensor("Moist.", MOS2, '%', true);
-	sensors[4] = new 	AnalogSensor("Mosit.", MOS3, '%', true);
-	sensors[5] = new 	AnalogSensor("Moist.", MOS4, '%', true);
-	sensors[6] = new 	DigitalSensor("TBD", TOP1, 'B', true);
-	sensors[7] = new 	DigitalSensor("TBD", TOP2, 'B', true);
-	sensors[8] = new 	DigitalSensor("TBD", TOP3, 'B', true);
-	sensors[9] = new 	DigitalSensor("TBD", TOP4, 'B', true);
+	sensors[2] = new 	AnalogSensor("Moist.", IN_MOS_1, '%', true);
+	sensors[3] = new 	AnalogSensor("Moist.", IN_MOS_2, '%', true);
+	sensors[4] = new 	AnalogSensor("Mosit.", IN_MOS_3, '%', true);
+	sensors[5] = new 	AnalogSensor("Moist.", IN_MOS_4, '%', true);
+	sensors[6] = new 	DigitalSensor("TBD", OUT_TOP_1, 'B', true);
+	sensors[7] = new 	DigitalSensor("TBD", OUT_TOP_2, 'B', true);
+	sensors[8] = new 	DigitalSensor("TBD", OUT_TOP_3, 'B', true);
+	sensors[9] = new 	DigitalSensor("TBD", OUT_TOP_4, 'B', true);
 
 	//Intialize Actions
 	actions[0] = new SimpleAction<RelaisBoard>("R1 On", relaisboard, &RelaisBoard::R1On, true);
@@ -171,7 +178,7 @@ void setup() {
 	actions[15]->setAntagonist(actions[14]);
 
 	//Initialize ActionChains
-	for (uint8_t i = 0; i < ACTIONCHAINS; i++) {
+	for (uint8_t i = 0; i < ACTIONCHAINS_NUM; i++) {
 		actionchains[i] = new ActionChain(i);
 	}
 
@@ -179,8 +186,8 @@ void setup() {
 	taskmanager = new TaskManager();
 
 	//Initialize Trigger
-	for (int tcategory = 0; tcategory < TRIGCAT; tcategory++) {
-		for (int tset = 0; tset < TRIGNUMBER; tset++) {
+	for (int tcategory = 0; tcategory < TRIGGER_TYPES; tcategory++) {
+		for (int tset = 0; tset < TRIGGER_SETS; tset++) {
 			if (tcategory == 0) trigger[tcategory][tset] = new TimeTrigger(tset);
 			else {
 				trigger[tcategory][tset] = new SensorTrigger(tset, sensors[tcategory - 1]);
@@ -189,29 +196,32 @@ void setup() {
 	}
 
 	//Initialize Rulesets
-	for (uint8_t k = 0; k < RULES; k++) {
+	for (uint8_t k = 0; k < RULESETS_NUM; k++) {
 		rulesets[k] = new RuleSet(k);
 	}
 
 	//Initialize FileSystem / SD Card
 	filesystem.init();
 	
-	if (filesystem.loadSettings("_CURRENTCONFIG.JSON") == false || HARDRESET == true) {
-		LOGMSG(F("[Setup]"), F("WARNING: Did not load primary config file"), F("Hardreset"), HARDRESET, "");
-		if (filesystem.loadSettings("BACKUPCONFIG.JSON") == false || HARDRESET == true) {
-			LOGMSG(F("[Setup]"), F("WARNING: Did not load backup config file"), F("Hardreset"), HARDRESET, "");
-			if (filesystem.loadSettings("DEFAULTCONFIG.JSON") == false || HARDRESET == true) {
-				LOGMSG(F("[Setup]"), F("WARNING: Did not load default config file"), F("Hardreset"), HARDRESET, "");
-				filesystem.reset();
+	if (filesystem.loadSettings("_CURRENTCONFIG.JSON") == false || DEBUG_RESET == true) {
+		LOGMSG(F("[Setup]"), F("WARNING: Did not load primary config file"), F("Hardreset"), DEBUG_RESET, "");
+		if (filesystem.loadSettings("BACKUPCONFIG.JSON") == false || DEBUG_RESET == true) {
+			LOGMSG(F("[Setup]"), F("WARNING: Did not load backup config file"), F("Hardreset"), DEBUG_RESET, "");
+			if (filesystem.loadSettings("DEFAULTCONFIG.JSON") == false || DEBUG_RESET == true) {
+				LOGMSG(F("[Setup]"), F("WARNING: Did not load default config file"), F("Hardreset"), DEBUG_RESET, "");
+				Setting::reset();
 			}
 		}
 	}
 
 	//Wifi ESP2866
-	pinMode(ESPPIN, OUTPUT);
-	digitalWrite(ESPPIN, HIGH);
+	pinMode(ESP_CONTROL_PIN, OUTPUT);
+	digitalWrite(ESP_CONTROL_PIN, HIGH);
 	Serial1.begin(115200);
 	WiFi.init(&Serial1);
+
+	//433Mhz
+	rfcontroller = new RFController(RTX_DATA_PIN, RTS_DATA_PIN);
 
 	//Convert SSID and PW to char[]
 	char ssid[wifi_ssid.length()+1];
@@ -258,17 +268,19 @@ void setup() {
 	trigger[1][1]->relop = GREATER;
 	trigger[1][1]->interval = QUARTER;
 	*/
-	for (uint8_t i = 0; i < NUMMINUTE; i++) sensors[0]->minute_values[i] = random(-25, 30);
-	for (uint8_t i = 0; i < NUMHOUR; i++) sensors[0]->hour_values[i] = random(-25, 25);
-	for (uint8_t i = 0; i < NUMDAY; i++) sensors[0]->day_values[i] = random(-25, 25);
-	for (uint8_t i = 0; i < NUMMONTH; i++) sensors[0]->month_values[i] = random(-25, 25);
-	for (uint8_t i = 0; i < NUMYEAR; i++) sensors[0]->year_values[i] = random(-25, 25);
+	for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) sensors[0]->minute_values[i] = random(-25, 30);
+	for (uint8_t i = 0; i < SENS_VALUES_HOUR; i++) sensors[0]->hour_values[i] = random(-25, 25);
+	for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) sensors[0]->day_values[i] = random(-25, 25);
+	for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) sensors[0]->month_values[i] = random(-25, 25);
+	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) sensors[0]->year_values[i] = random(-25, 25);
 
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
 	
+	//Constantly
+	//Touch
 	if (myTouch.dataAvailable())
 	{
 		myTouch.read();
@@ -276,19 +288,32 @@ void loop() {
 		touch_y = myTouch.getY();
 		myUI.checkEvent(touch_x, touch_y);
 	}
-
+	
+	//Webserver
 	webserver->checkConnection();
 	
+	//RF Link
+	if (rfcontroller->available()) {
+		if (rfcontroller->learning == true) {
+			rfcontroller->learnPattern();
+			rfcontroller->resetAvailable();
+			myUI.draw();
+		}
+		else {
+			//Processing
+		}
+	}
+
 	//Get Millis
 	cpu_current = millis();
 
-	if (cpu_current - task_last >= (TASKFRQ * 1000)) {
+	if (cpu_current - task_last >= (TASK_FRQ_SEC * 1000)) {
 		task_last = cpu_current;
 		taskmanager->execute();
 	}
 
 	//Refresh Sensor and Logic every 5sec
-	if (cpu_current - sensor_last >= (SENSORFRQ*1000)) {
+	if (cpu_current - sensor_last >= (SENS_FRQ_SEC*1000)) {
 		sensor_last = cpu_current;
 		
 		//Cycles
@@ -296,27 +321,27 @@ void loop() {
 		LOGMSG(F("[Loop]"), F("INFO: Sensor Cycle"), String(sensor_cycles), "@", String(currenttime.createTime()));
 		
 		//Update Sensors
-		for (uint8_t i = 0; i < SENSNUMBER; i++) {
+		for (uint8_t i = 0; i < SENS_NUM; i++) {
 			sensors[i]->update();
 		}
 
 		//Check RuleSets
-		for (uint8_t i = 0; i < RULES; i++) {
+		for (uint8_t i = 0; i < RULESETS_NUM; i++) {
 			rulesets[i]->execute();
 		}
 
 		//Save Settings to SD Card
-		if ((sensor_cycles % (5 * NUMMINUTE)) == 0) {
+		if ((sensor_cycles % (5 * SENS_VALUES_MIN)) == 0) {
 			filesystem.saveActiveConfig();
 		}
 
 		//Backup
-		if ((sensor_cycles % (15 * NUMMINUTE)) == 0) {
+		if ((sensor_cycles % (15 * SENS_VALUES_MIN)) == 0) {
 			filesystem.copyFile("_CURRENTCONFIG.JSON", "BACKUPCONFIG.JSON");
 		}
 
 		//Refresh UI
-		if((sensor_cycles % NUMMINUTE) == 0) {
+		if((sensor_cycles % SENS_VALUES_MIN) == 0) {
 			//Update Clock
 			currenttime.syncTimeObject();
 			//Draw UI

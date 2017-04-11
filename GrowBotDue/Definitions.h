@@ -12,83 +12,87 @@
 //User Interface
 #define BACKGROUNDCOLOR VGA_BLACK
 
-#define PADDING 3
-#define COLUMN_WIDTH 22
-#define ROW_HEIGHT 21
-#define MENUE_HEIGHT 42
-#define X_DIVIDER 74
-#define Y_DIVIDER 20
+#define UI_PADDING 3
+#define UI_COLUMN_WIDTH 22
+#define UI_ROW_HEIGHT 21
+#define UI_MENUE_HEIGHT 42
+#define UI_X_DIVIDER 74
+#define UI_Y_DIVIDER 20
 
 //SD Card Control Pin
-#define SDCS  52
+#define SD_CONTROL_PIN  52
 
 //Wifi Control Pin
-#define ESPPIN 17
+#define ESP_CONTROL_PIN 17
 
 //FS1000A
-#define FSAPIN 16
+#define RTX_DATA_PIN 16
+#define RTS_DATA_PIN 15
+#define RC_SOCKETS 4
+#define RC_REPEAT 15
 
 //Arduino JSON
 #define ARDUINOJSON_ENABLE_PROGMEM 1
 
 //Settings
-#define HARDRESET false
+#define DEBUG_RESET false
 
 //Tact
-#define TASKFRQ 1
-#define SENSORFRQ 5
+#define TASK_FRQ_SEC 1
+#define SENS_FRQ_SEC 5
 //Log
-#define NUMMINUTE (60 / SENSORFRQ) //every 5 sec
-#define NUMHOUR 60 //every Minute
-#define NUMDAY 96 // every 15 Minutes
-#define NUMMONTH 56// every 12 Hours
-#define NUMYEAR 52 // every week
+#define SENS_VALUES_MIN (60 / SENS_FRQ_SEC) //every 5 sec
+#define SENS_VALUES_HOUR 60 //every Minute
+#define SENS_VALUES_DAY 96 // every 15 Minutes
+#define SENS_VALUES_MONTH 56// every 12 Hours
+#define SENS_VALUES_YEAR 52 // every week
 
 //Sensors
-#define SENSNUMBER 10
+#define SENS_NUM 10
 
 //Rules Enginge
 //Trigger Categories and number for each category
-#define TRIGCAT 11
-#define TRIGNUMBER 8
+#define TRIGGER_TYPES 11
+#define TRIGGER_SETS 8
 
 //Number of Rulesssets
-#define RULES 32
+#define RULESETS_NUM 32
 
 //Number of Actions
-#define ACTIONS 16
-#define ACTIONCHAINS 16
+#define ACTIONS_NUM 16
+#define ACTIONCHAINS_NUM 16
+#define ACTIONCHAIN_LENGTH 6
+
 //Task Manager
-#define TASKBUFFER 120 //MAX 255!!!
-#define TASKSINCHAIN 6
-#define MAXTASKSECONDS (TASKBUFFER / TASKSINCHAIN)
-#define PARALLELTASKS 6
+#define TASK_QUEUE_LENGTH 120 //MAX 255!!!
+#define ACTIONCHAIN_TASK_MAXDURATION (TASK_QUEUE_LENGTH / ACTIONCHAIN_LENGTH)
+#define TASK_PARALLEL_SEC 6
 
 //Internal Temperatur Sensor
-#define DHTPIN 53
-#define DHTTYPE DHT22
+#define DHT_DATA_PIN 53
+#define DHT_TYPE DHT22
 
 //Relais
-#define RELAY1 2 
-#define RELAY2 3 
-#define RELAY3 4 
-#define RELAY4 5 
+#define OUT_RELAY_1 2 
+#define OUT_RELAY_2 3 
+#define OUT_RELAY_3 4 
+#define OUT_RELAY_4 5 
 
 //Front Panel
-#define MOS1 A0
-#define MOS2 A1
-#define MOS3 A2
-#define MOS4 A3
-#define FOD1 10
-#define FOD2 11
-#define FOD3 12
-#define FOD4 13
+#define IN_MOS_1 A0
+#define IN_MOS_2 A1
+#define IN_MOS_3 A2
+#define IN_MOS_4 A3
+#define IN_TOP_1 10
+#define IN_TOP_2 11
+#define IN_TOP_3 12
+#define IN_TOP_4 13
 
 //Top Panel
-#define TOP1 6
-#define TOP2 7
-#define TOP3 8
-#define TOP4 9
+#define OUT_TOP_1 6
+#define OUT_TOP_2 7
+#define OUT_TOP_3 8
+#define OUT_TOP_4 9
 
 enum RelOp { SMALLER, EQUAL, GREATER };
 enum BoolOp { AND, OR, NOT };

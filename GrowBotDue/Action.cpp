@@ -4,32 +4,17 @@
 
 #include "Action.h"
 
-
-template<class ActionType>
-SimpleAction<ActionType>::SimpleAction(String name, ActionType * actionObj, void(ActionType::*cFunct)(), bool active)
-{
-	title = name;
-	actionObject = actionObj;
-	callback = cFunct;
-	active = active;
-}
-
-template<class ActionType>
-void SimpleAction<ActionType>::execute()
-{
-	if (active == true && actionObject != NULL && callback != NULL) {
-		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), title, "", "");
-		(actionObject->*callback)();
-	}
-}
-
 void Action::execute()
+{
+}
+
+void Action::serializeJSON(uint8_t id, char * json, size_t maxSize)
 {
 }
 
 String Action::getTitle()
 {
-	return String(title);
+	return String(name);
 }
 
 void Action::setAntagonist(Action * aObject)
@@ -38,6 +23,75 @@ void Action::setAntagonist(Action * aObject)
 	antaObject = aObject;
 }
 
+
+template<class ActionType>
+SimpleAction<ActionType>::SimpleAction(String name, ActionType * actionObj, void(ActionType::*cFunct)(), bool visible)
+{
+	this->name = name;
+	this->actionObject = actionObj;
+	this->callback = cFunct;
+	this->visible = visible;
+}
+
+template<class ActionType>
+void SimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t maxSize)
+{
+	StaticJsonBuffer<500> jsonBuffer;
+
+	JsonObject& actions = jsonBuffer.createObject();
+
+	actions["type"] = "ACTION";
+	actions["id"] = id;
+	actions["visible"] = visible;
+	actions["name"] = name;
+
+	actions.printTo(json, maxSize);
+	LOGDEBUG(F("[SimpleAction]"), F("serializeJSON()"), F("OK: Serialized Action"), String(id), String(actions.measureLength()), String(maxSize));
+}
+
+template<class ActionType>
+void SimpleAction<ActionType>::execute()
+{
+	if (actionObject != NULL && callback != NULL) {
+		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), name, "", "");
+		(actionObject->*callback)();
+	}
+}
+
+template<class ActionType>
+ParameterizedSimpleAction<ActionType>::ParameterizedSimpleAction(String name, ActionType * actionObj, void(ActionType::*cFunct)(int), int par, bool visible)
+{
+	this->name = name;
+	this->actionObject = actionObj;
+	this->callback = cFunct;
+	this->visible = visible;
+	this->parameter = par;
+}
+
+template<class ActionType>
+void ParameterizedSimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t maxSize)
+{
+	StaticJsonBuffer<500> jsonBuffer;
+
+	JsonObject& actions = jsonBuffer.createObject();
+
+	actions["type"] = "ACTION";
+	actions["id"] = id;
+	actions["visible"] = visible;
+	actions["name"] = name;
+
+	actions.printTo(json, maxSize);
+	LOGDEBUG(F("[ParameterizedSimpleAction]"), F("serializeJSON()"), F("OK: Serialized Action"), String(id), String(actions.measureLength()), String(maxSize));
+}
+
+template<class ActionType>
+void ParameterizedSimpleAction<ActionType>::execute()
+{
+	if (actionObject != NULL && callback != NULL) {
+		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), name, "", "");
+		(actionObject->*callback)(parameter);
+	}
+}
 //All Types of Templates used:
 template class SimpleAction<RelaisBoard>;
 template class SimpleAction<DigitalSwitch>;

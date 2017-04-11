@@ -40,10 +40,10 @@ TextLabel::TextLabel(String value, uint8_t row, uint8_t column, uint8_t column_s
 
 	//Dimensions
 	this->active = active;
-	this->x1 = X_DIVIDER + column * COLUMN_WIDTH + PADDING;
-	this->y1 = Y_DIVIDER + row * ROW_HEIGHT + PADDING;
-	this->x2 = x1 + column_spread * COLUMN_WIDTH - PADDING;
-	this->y2 = y1 + ROW_HEIGHT - PADDING;
+	this->x1 = UI_X_DIVIDER + column * UI_COLUMN_WIDTH + UI_PADDING;
+	this->y1 = UI_Y_DIVIDER + row * UI_ROW_HEIGHT + UI_PADDING;
+	this->x2 = x1 + column_spread * UI_COLUMN_WIDTH - UI_PADDING;
+	this->y2 = y1 + UI_ROW_HEIGHT - UI_PADDING;
 
 	//Container
 	this->touchmenue = touchmenue;
@@ -51,13 +51,12 @@ TextLabel::TextLabel(String value, uint8_t row, uint8_t column, uint8_t column_s
 	this->navframe = navframe;
 
 	draw();
-
 }
 void TextLabel::draw() {
 	myGLCD.setFont(SmallFont);
-	myGLCD.setBackColor(this->fill_color);
-	myGLCD.setColor(this->text_color);
-	myGLCD.print(this->value, this->x1 + 3, this->y1 + 3);
+	myGLCD.setBackColor(fill_color);
+	myGLCD.setColor(text_color);
+	myGLCD.print(value, x1 + 3, y1 + 3);
 }
 
 TextBox::TextBox(String value, uint8_t row, uint8_t column, uint8_t column_spread, word frame_color, word text_color, UserInterface *touchmenue, bool active, int navmenue, int navframe) {
@@ -71,10 +70,10 @@ TextBox::TextBox(String value, uint8_t row, uint8_t column, uint8_t column_sprea
 
 	//Dimensions
 	this->active = active;
-	this->x1 = X_DIVIDER + column * COLUMN_WIDTH + PADDING;
-	this->y1 = Y_DIVIDER + row * ROW_HEIGHT + PADDING;
-	this->x2 = x1 + column_spread * COLUMN_WIDTH - PADDING;
-	this->y2 = y1 + ROW_HEIGHT - PADDING;
+	this->x1 = UI_X_DIVIDER + column * UI_COLUMN_WIDTH + UI_PADDING;
+	this->y1 = UI_Y_DIVIDER + row * UI_ROW_HEIGHT + UI_PADDING;
+	this->x2 = x1 + column_spread * UI_COLUMN_WIDTH - UI_PADDING;
+	this->y2 = y1 + UI_ROW_HEIGHT - UI_PADDING;
 
 	//Container
 	this->touchmenue = touchmenue;
@@ -104,17 +103,16 @@ MenueButton::MenueButton(String value, word frame_color, word fill_color, word t
 	this->active = active;
 
 	this->x1 = 0;
-	this->y1 = Y_DIVIDER + row * MENUE_HEIGHT;
-	this->x2 = X_DIVIDER;
-	this->y2 = y1 + MENUE_HEIGHT;
+	this->y1 = UI_Y_DIVIDER + row * UI_MENUE_HEIGHT;
+	this->x2 = UI_X_DIVIDER;
+	this->y2 = y1 + UI_MENUE_HEIGHT;
 
 	//Container
 	this->touchmenue = touchmenue;
 	this->navmenue = navmenue;
 	this->navframe = navframe;
 
-	this->draw();
-
+	draw();
 }
 void MenueButton::draw() {
 	myGLCD.setColor(this->fill_color);
@@ -128,7 +126,7 @@ void MenueButton::draw() {
 }
 
 template<class ActionType>
-MenueControlButton<ActionType>::MenueControlButton(String value, word frame_color, word fill_color, word text_color, uint8_t row, UserInterface * touchmenue, ActionType * actionObj, void(ActionType::* actionFunc)(int), int par, bool active, int navmenue, int navframe)
+TypedMenueButton<ActionType>::TypedMenueButton(String value, word frame_color, word fill_color, word text_color, uint8_t row, UserInterface * touchmenue, ActionType * actionObj, void(ActionType::* actionFunc)(int), int par, bool active, int navmenue, int navframe)
 {
 	//Look and Feel
 	this->value = value;
@@ -141,9 +139,9 @@ MenueControlButton<ActionType>::MenueControlButton(String value, word frame_colo
 	this->active = active;
 
 	this->x1 = 0;
-	this->y1 = Y_DIVIDER + row * MENUE_HEIGHT;
-	this->x2 = X_DIVIDER;
-	this->y2 = y1 + MENUE_HEIGHT;
+	this->y1 = UI_Y_DIVIDER + row * UI_MENUE_HEIGHT;
+	this->x2 = UI_X_DIVIDER;
+	this->y2 = y1 + UI_MENUE_HEIGHT;
 
 	//Container
 	this->touchmenue = touchmenue;
@@ -160,7 +158,7 @@ MenueControlButton<ActionType>::MenueControlButton(String value, word frame_colo
 }
 
 template<class ActionType>
-void MenueControlButton<ActionType>::draw() {
+void TypedMenueButton<ActionType>::draw() {
 	myGLCD.setColor(this->fill_color);
 	myGLCD.fillRect(this->x1, this->y1, this->x2, this->y2);
 	myGLCD.setColor(this->frame_color);
@@ -172,17 +170,18 @@ void MenueControlButton<ActionType>::draw() {
 }
 
 template<class ActionType>
-void MenueControlButton<ActionType>::executeAction()
+void TypedMenueButton<ActionType>::executeAction()
 {
-	if (this->active == true && this->actionObject != NULL) {
+	if (active == true && actionObject != NULL) {
 		(actionObject->*callback)(parameter);
 	}
 	else Serial.println("FAIL: Button has no action");
 }
 
-
-template <class ActionType>
-ControlButton<ActionType>::ControlButton(String value, uint8_t row, uint8_t column, uint8_t row_spread, uint8_t column_spread, word fill_color, word text_color, UserInterface *touchmenue, ActionType *actionObj, void (ActionType::*actionFunc)(), bool active, int navmenue, int navframe) {
+ControlButton::ControlButton(String value, uint8_t row, uint8_t column, uint8_t row_spread, uint8_t column_spread, word fill_color, word text_color, UserInterface * touchmenue, bool active, int navmenue, int navframe)
+{
+	this->active = active;
+	
 	//Look and Feel
 	this->value = value;
 	this->row = row;
@@ -194,26 +193,19 @@ ControlButton<ActionType>::ControlButton(String value, uint8_t row, uint8_t colu
 
 	//Dimensions
 	this->active = active;
-	this->x1 = X_DIVIDER + column * COLUMN_WIDTH + PADDING;
-	this->y1 = Y_DIVIDER + row * ROW_HEIGHT + PADDING;
-	this->x2 = x1 + column_spread * COLUMN_WIDTH - PADDING;
-	this->y2 = y1 + row_spread * ROW_HEIGHT - PADDING;
+	this->x1 = UI_X_DIVIDER + column * UI_COLUMN_WIDTH + UI_PADDING;
+	this->y1 = UI_Y_DIVIDER + row * UI_ROW_HEIGHT + UI_PADDING;
+	this->x2 = x1 + column_spread * UI_COLUMN_WIDTH - UI_PADDING;
+	this->y2 = y1 + row_spread * UI_ROW_HEIGHT - UI_PADDING;
 
 	//Container
 	this->touchmenue = touchmenue;
 	this->navmenue = navmenue;
 	this->navframe = navframe;
-
-	//Action Handler
-	this->actionObject = actionObj;
-	this->callback = actionFunc;
-	this->active = active;
-
-	draw();
 }
 
-template <class ActionType>
-void ControlButton<ActionType>::draw() {
+
+void ControlButton::draw() {
 	myGLCD.setColor(this->fill_color);
 	myGLCD.fillRoundRect(this->x1, this->y1, this->x2, this->y2);
 	myGLCD.setBackColor(this->fill_color);
@@ -222,12 +214,45 @@ void ControlButton<ActionType>::draw() {
 	myGLCD.print(this->value, this->x1 + 3, this->y1 + 3);
 }
 
-template <class ActionType>
-void ControlButton<ActionType>::executeAction() {
-	if (this->active == true && this->actionObject != NULL && this->callback != NULL) {
-		(actionObject->*callback)();
+UnTypedControlButton::UnTypedControlButton(String value, uint8_t row, uint8_t column, uint8_t row_spread, uint8_t column_spread, word fill_color, word text_color, UserInterface * touchmenue, void(* actionFunc)(), bool active, int navmenue, int navframe) 
+	: ControlButton(value, row, column, row_spread, column_spread, fill_color, text_color, touchmenue, active, navmenue, navframe) {
+
+	//Action Handler
+	this->callback = actionFunc;
+
+	draw();
+}
+
+void UnTypedControlButton::executeAction()
+{
+	if (active == true) {
+		if (callback != NULL) {
+			callback();
+		}
+		else LOGDEBUG(F("[TypedControlButton]"), F("execute()"), F("ERROR: Button has no Action assigned"), F("Title"), String(value), "");
 	}
-	else Serial.println("FAIL: Button has no action");
+}
+
+
+template <class ActionType>
+TypedControlButton<ActionType>::TypedControlButton(String value, uint8_t row, uint8_t column, uint8_t row_spread, uint8_t column_spread, word fill_color, word text_color, UserInterface *touchmenue, ActionType *actionObj, void (ActionType::*actionFunc)(), bool active, int navmenue, int navframe)
+	: ControlButton(value, row, column, row_spread, column_spread, fill_color, text_color, touchmenue, active, navmenue, navframe) {
+
+	//Action Handler
+	this->actionObject = actionObj;
+	this->callback = actionFunc;
+
+	draw();
+}
+
+template <class ActionType>
+void TypedControlButton<ActionType>::executeAction() {
+	if (active == true) {
+		if (actionObject != NULL && callback != NULL) {
+			(actionObject->*callback)();
+		}
+		else LOGDEBUG(F("[TypedControlButton]"), F("execute()"), F("ERROR: Button has no Action assigned"), F("Title"), String(value), "");
+	}
 }
 
 
@@ -243,37 +268,37 @@ short SensorGraph::getMaxValue(DateRange range)
 	switch (range) {
 
 	case MINUTE:
-		for (uint8_t i = 0; i < NUMMINUTE; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) {
 			if (sensor_ptr->minute_values[i] > max) max = sensor_ptr->minute_values[i];
 		}
 		break;
 	
 	case HOUR:
-		for (uint8_t i = 0; i < NUMHOUR; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_HOUR ; i++) {
 			if (sensor_ptr->hour_values[i] > max) max = sensor_ptr->hour_values[i];
 		}
 		break;
 		
 	case DAY:
-		for (uint8_t i = 0; i < NUMDAY; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) {
 			if (sensor_ptr->day_values[i] > max) max = sensor_ptr->day_values[i];
 		}
 		break;
 		
 	case MONTH:
-		for (uint8_t i = 0; i < NUMMONTH; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) {
 			if (sensor_ptr->month_values[i] > max) max = sensor_ptr->month_values[i];
 		}
 		break;
 		
 	case YEAR:
-		for (uint8_t i = 0; i < NUMYEAR; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) {
 			if (sensor_ptr->year_values[i] > max) max = sensor_ptr->year_values[i];
 		}
 		break;
 	}
-	Serial.print("Max Value:");
-	Serial.println(max);
+	LOGDEBUG(F("[SensorGraph]"), F("getMaxValue()"), F("OK: Maximum value in Sensor data"), String(max), "", "");
+
 	return max;
 }
 
@@ -284,37 +309,37 @@ short SensorGraph::getMinValue(DateRange range)
 	switch (range) {
 
 	case MINUTE:
-		for (uint8_t i = 0; i < NUMMINUTE; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) {
 			if (sensor_ptr->minute_values[i] < min) min = sensor_ptr->minute_values[i];
 		}
 		break;
 
 	case HOUR:
-		for (uint8_t i = 0; i < NUMHOUR; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_HOUR ; i++) {
 			if (sensor_ptr->hour_values[i] < min) min = sensor_ptr->hour_values[i];
 		}
 		break;
 		
 	case DAY:
-		for (uint8_t i = 0; i < NUMDAY; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) {
 			if (sensor_ptr->day_values[i] < min) min = sensor_ptr->day_values[i];
 		}
 		break;
 		
 	case MONTH:
-		for (uint8_t i = 0; i < NUMMONTH; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) {
 			if (sensor_ptr->month_values[i] < min) min = sensor_ptr->month_values[i];
 		}
 		break;
 		
 	case YEAR:
-		for (uint8_t i = 0; i < NUMYEAR; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) {
 			if (sensor_ptr->year_values[i] < min) min = sensor_ptr->year_values[i];
 		}
 		break;
 	}
-	Serial.print("Min Value:");
-	Serial.println(min);
+	LOGDEBUG(F("[SensorGraph]"), F("getMinValue()"), F("OK: Minimum value in Sensor data"), String(min), "", "");
+
 	return min;
 }
 
@@ -325,28 +350,27 @@ float SensorGraph::getXMultiplier(DateRange range)
 	switch (range) {
 
 	case MINUTE:
-		multiplier = (320 - X_DIVIDER - 4 * PADDING) / NUMMINUTE;
+		multiplier = (320 - UI_X_DIVIDER - 4 * UI_PADDING) / SENS_VALUES_MIN;
 		break;
 
 	case HOUR:
-		multiplier = (320 - X_DIVIDER - 4 * PADDING) / NUMHOUR;
+		multiplier = (320 - UI_X_DIVIDER - 4 * UI_PADDING) / SENS_VALUES_HOUR ;
 		break;
 
 	case DAY:
-		multiplier = (320 - X_DIVIDER - 4 * PADDING) / NUMDAY;
+		multiplier = (320 - UI_X_DIVIDER - 4 * UI_PADDING) / SENS_VALUES_DAY;
 		break;
 
 	case MONTH:
-		multiplier = (320 - X_DIVIDER - 4 * PADDING) / NUMMONTH;
+		multiplier = (320 - UI_X_DIVIDER - 4 * UI_PADDING) / SENS_VALUES_MONTH;
 		break;
 
 	case YEAR:
-		multiplier = (320 - X_DIVIDER - 4 * PADDING) / NUMYEAR;
+		multiplier = (320 - UI_X_DIVIDER - 4 * UI_PADDING) / SENS_VALUES_YEAR;
 		break;
 
 	}
-	Serial.print("X-Multiplier:");
-	Serial.println(multiplier);
+	LOGDEBUG(F("[SensorGraph]"), F("getXMultiplier()"), F("OK: X Multiplier"), String(multiplier), "", "");
 
 	return (float) multiplier;
 }
@@ -355,11 +379,6 @@ float SensorGraph::getYMultiplier(short min, short max)
 {
 	short range;
 	float multiplier;
-
-	Serial.print("Min Function:");
-	Serial.println(min);
-	Serial.print("Max Function:");
-	Serial.println(max);
 
 	if (max > 0 && min < 0) {
 		range = max + abs(min);
@@ -376,7 +395,7 @@ float SensorGraph::getYMultiplier(short min, short max)
 	}
 
 	if (range > 0) {
-		multiplier = (float)(240 - Y_DIVIDER - 2 * PADDING) / (float)range;
+		multiplier = (float)(240 - UI_Y_DIVIDER - 2 * UI_PADDING) / (float)range;
 	}
 	else multiplier = 0;
 	
@@ -385,6 +404,8 @@ float SensorGraph::getYMultiplier(short min, short max)
 	Serial.print("Y-Multiplier:");
 	Serial.println(multiplier);
 	
+	LOGDEBUG(F("[SensorGraph]"), F("getYMultiplier()"), F("OK: Y Multiplier"), String(multiplier), String(range), "");
+	
 	return (float)multiplier; 
 }
 
@@ -392,46 +413,26 @@ void SensorGraph::drawValue(uint8_t counter, short value, float x_multiplier, fl
 {
 	short x1, x2, y1, y2;
 	
-	Serial.println("------------------------------------");
-	Serial.print("Counter:");
-	Serial.println(counter);
-	Serial.print("Value");
-	Serial.println(value);
-
-	
 	if (value < 0 && value > -32768) {
-		x1 = (X_DIVIDER + 2 * PADDING) + (short)(counter * x_multiplier);
+		x1 = (UI_X_DIVIDER + 2 * UI_PADDING) + (short)(counter * x_multiplier);
 		y1 = base;
-		x2 = (X_DIVIDER + 2 * PADDING) + (short)((counter + 1) * x_multiplier);
+		x2 = (UI_X_DIVIDER + 2 * UI_PADDING) + (short)((counter + 1) * x_multiplier);
 		y2 = (short)(base - value * y_multiplier);
-		//myGLCD.drawLine(x1 - 1, y2, x1 + 1, y2);
 	}
 	else if (value >= 0) {
-		x1 = (X_DIVIDER + 2 * PADDING) + (short)(counter * x_multiplier);
+		x1 = (UI_X_DIVIDER + 2 * UI_PADDING) + (short)(counter * x_multiplier);
 		y1 = (short)(base - value * y_multiplier);
-		x2 = (X_DIVIDER + 2 * PADDING) + (short)((counter + 1) * x_multiplier);
+		x2 = (UI_X_DIVIDER + 2 * UI_PADDING) + (short)((counter + 1) * x_multiplier);
 		y2 = base;
-		//myGLCD.drawLine(x1 - 1, y1, x1 + 1, y1);
 	}
 	else {
-		x1 = (X_DIVIDER + 2 * PADDING) + (short)(counter * x_multiplier);
+		x1 = (UI_X_DIVIDER + 2 * UI_PADDING) + (short)(counter * x_multiplier);
 		y1 = base;
-		x2 = (X_DIVIDER + 2 * PADDING) + (short)((counter + 1) * x_multiplier);
+		x2 = (UI_X_DIVIDER + 2 * UI_PADDING) + (short)((counter + 1) * x_multiplier);
 		y2 = base;
 	}
 
-
-	Serial.print("X1:");
-	Serial.println(x1);
-	Serial.print("Y1:");
-	Serial.println(y1);
-	Serial.print("X2:");
-	Serial.println(x2);
-	Serial.print("Y2:");
-	Serial.println(y2);
-
 	myGLCD.fillRect(x1, y1, x2, y2);
-
 }
 
 void SensorGraph::drawGraph(DateRange range)
@@ -446,20 +447,18 @@ void SensorGraph::drawGraph(DateRange range)
 
 
 	if (max < 0 || min < 0) {
-		base = 240 - PADDING + min * y_multiplier;
+		base = 240 - UI_PADDING + min * y_multiplier;
 	}
 	else {
-		base = 240 - PADDING;
+		base = 240 - UI_PADDING;
 	}
 
-	Serial.print("Base:");
-	Serial.println(base);
-	Serial.println("++Points++++");
+	LOGDEBUG(F("[SensorGraph]"), F("drawGraph()"), F("OK: Baseline"), String(base), "", "");
 	
 	switch (range) {
 
 	case MINUTE:
-		for (uint8_t i = 0; i < NUMMINUTE; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) {
 			myGLCD.setColor(VGA_RED);
 			drawValue(i, sensor_ptr->minute_values[i], x_multiplier, y_multiplier, base);
 			
@@ -467,17 +466,17 @@ void SensorGraph::drawGraph(DateRange range)
 			myGLCD.setBackColor(VGA_TRANSPARENT);
 
 			if (base > 120) {
-				if (i > 0) myGLCD.print(String(i*5), X_DIVIDER + 5 * PADDING + i * x_multiplier, base - 12);
+				if (i > 0) myGLCD.print(String(i*5), UI_X_DIVIDER + 5 * UI_PADDING + i * x_multiplier, base - 12);
 			}
 			else {
-				if (i > 0) myGLCD.print(String(i*5), X_DIVIDER + 5 * PADDING + i * x_multiplier, base + 12);
+				if (i > 0) myGLCD.print(String(i*5), UI_X_DIVIDER + 5 * UI_PADDING + i * x_multiplier, base + 12);
 			}
 		}
 		
 		break;
 
 	case HOUR:
-		for (uint8_t i = 0; i < NUMHOUR; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_HOUR ; i++) {
 			myGLCD.setColor(VGA_FUCHSIA);
 			drawValue(i, sensor_ptr->hour_values[i], x_multiplier, y_multiplier, base);
 			
@@ -485,17 +484,17 @@ void SensorGraph::drawGraph(DateRange range)
 			myGLCD.setBackColor(VGA_TRANSPARENT);
 
 			if (base > 120) {
-				if (i  % 15 == 0) myGLCD.print(String(i), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
+				if (i  % 15 == 0) myGLCD.print(String(i), UI_X_DIVIDER + 5 * UI_PADDING + (i - 1)  * x_multiplier, base - 12);
 			}
 			else {
-				if (i %  15 == 0) myGLCD.print(String(i), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base + 12);
+				if (i %  15 == 0) myGLCD.print(String(i), UI_X_DIVIDER + 5 * UI_PADDING + (i - 1)  * x_multiplier, base + 12);
 			}
 		}
 		break;
 
 	case DAY:
 
-		for (uint8_t i = 0; i < NUMDAY; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) {
 			myGLCD.setColor(VGA_LIME);
 			drawValue(i, sensor_ptr->day_values[i], x_multiplier, y_multiplier, base);
 		
@@ -503,16 +502,16 @@ void SensorGraph::drawGraph(DateRange range)
 			myGLCD.setBackColor(VGA_TRANSPARENT);
 
 			if (base > 120) {
-				if (i % 8 == 0) myGLCD.print(String(i/4), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
+				if (i % 8 == 0) myGLCD.print(String(i/4), UI_X_DIVIDER + 5 * UI_PADDING + (i - 1)  * x_multiplier, base - 12);
 			}
 			else {
-				if (i % 8 == 0) myGLCD.print(String(i/4), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base + 12);
+				if (i % 8 == 0) myGLCD.print(String(i/4), UI_X_DIVIDER + 5 * UI_PADDING + (i - 1)  * x_multiplier, base + 12);
 			}
 		}
 		break;
 
 	case MONTH:
-		for (uint8_t i = 0; i < NUMMONTH; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) {
 			myGLCD.setColor(VGA_BLUE);
 			drawValue(i, sensor_ptr->month_values[i], x_multiplier, y_multiplier, base);
 		
@@ -520,16 +519,16 @@ void SensorGraph::drawGraph(DateRange range)
 			myGLCD.setBackColor(VGA_TRANSPARENT);
 
 			if (base > 120) {
-				if (i % 14 == 0) myGLCD.print(String(i / 14), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
+				if (i % 14 == 0) myGLCD.print(String(i / 14), UI_X_DIVIDER + 5 * UI_PADDING + (i - 1)  * x_multiplier, base - 12);
 			}
 			else {
-				if (i % 14 == 0) myGLCD.print(String(i / 14), X_DIVIDER + 5 * PADDING + (i-1) * x_multiplier, base + 12);
+				if (i % 14 == 0) myGLCD.print(String(i / 14), UI_X_DIVIDER + 5 * UI_PADDING + (i-1) * x_multiplier, base + 12);
 			}
 		}
 		break;
 
 	case YEAR:
-		for (uint8_t i = 0; i < NUMYEAR; i++) {
+		for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) {
 			myGLCD.setColor(VGA_RED);
 			drawValue(i, sensor_ptr->year_values[i], x_multiplier, y_multiplier, base);
 		
@@ -537,10 +536,10 @@ void SensorGraph::drawGraph(DateRange range)
 			myGLCD.setBackColor(VGA_TRANSPARENT);
 
 			if (base > 120) {
-				if (i % 12 == 0) myGLCD.print(String(i / 12), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base - 12);
+				if (i % 12 == 0) myGLCD.print(String(i / 12), UI_X_DIVIDER + 5 * UI_PADDING + (i - 1)  * x_multiplier, base - 12);
 			}
 			else {
-				if (i % 12 == 0) myGLCD.print(String(i / 12), X_DIVIDER + 5 * PADDING + (i - 1)  * x_multiplier, base + 12);
+				if (i % 12 == 0) myGLCD.print(String(i / 12), UI_X_DIVIDER + 5 * UI_PADDING + (i - 1)  * x_multiplier, base + 12);
 			}
 		
 		}
@@ -551,19 +550,19 @@ void SensorGraph::drawGraph(DateRange range)
 	//Draw Axis
 	myGLCD.setColor(VGA_WHITE);
 	myGLCD.setBackColor(VGA_TRANSPARENT);
-	myGLCD.drawLine(X_DIVIDER + PADDING, base, 320 - PADDING, base);
-	myGLCD.drawLine(X_DIVIDER + 2 * PADDING, Y_DIVIDER + PADDING, X_DIVIDER + 2 * PADDING, 240 - PADDING);
+	myGLCD.drawLine(UI_X_DIVIDER + UI_PADDING, base, 320 - UI_PADDING, base);
+	myGLCD.drawLine(UI_X_DIVIDER + 2 * UI_PADDING, UI_Y_DIVIDER + UI_PADDING, UI_X_DIVIDER + 2 * UI_PADDING, 240 - UI_PADDING);
 
 	//Labels
 	if (base > 120) {
 		label = "0";
 		label += (String)sensor_ptr->unit;
-		myGLCD.print(label, X_DIVIDER + 3 * PADDING, base - 12);
+		myGLCD.print(label, UI_X_DIVIDER + 3 * UI_PADDING, base - 12);
 	} 
 	else {
 		label = "0";
 		label += (String)sensor_ptr->unit;
-		myGLCD.print(label, X_DIVIDER + 3 * PADDING, base + 12);
+		myGLCD.print(label, UI_X_DIVIDER + 3 * UI_PADDING, base + 12);
 	}
 
 	//Labels
@@ -571,27 +570,28 @@ void SensorGraph::drawGraph(DateRange range)
 		label = "Max:";
 		label += (String)max;
 		label += (String)sensor_ptr->unit;
-		myGLCD.print(label, X_DIVIDER + 3 * PADDING, Y_DIVIDER + PADDING);
+		myGLCD.print(label, UI_X_DIVIDER + 3 * UI_PADDING, UI_Y_DIVIDER + UI_PADDING);
 	}
 	//Min
 	if (min < 0 && base < 180 ) {
 		label = "Min:";
 		label += (String)min;
 		label += (String)sensor_ptr->unit;
-		myGLCD.print(label, X_DIVIDER + 3 * PADDING, 240 - 12 - PADDING);
+		myGLCD.print(label, UI_X_DIVIDER + 3 * UI_PADDING, 240 - 12 - UI_PADDING);
 	}
 }
 
 
 //All Types of Templates used:
-template class MenueControlButton<Trigger>;
-template class MenueControlButton<RuleSet>;
-template class MenueControlButton<UserInterface>;
+template class TypedMenueButton<Trigger>;
+template class TypedMenueButton<RuleSet>;
+template class TypedMenueButton<UserInterface>;
 
-template class ControlButton<RelaisBoard>;
-template class ControlButton<CurrentTime>;
-template class ControlButton<RuleSet>;
-template class ControlButton<UserInterface>;
-template class ControlButton<Trigger>;
-template class ControlButton<FileSystem>;
-template class ControlButton<ActionChain>;
+template class TypedControlButton<RelaisBoard>;
+template class TypedControlButton<CurrentTime>;
+template class TypedControlButton<RuleSet>;
+template class TypedControlButton<UserInterface>;
+template class TypedControlButton<Trigger>;
+template class TypedControlButton<FileSystem>;
+template class TypedControlButton<ActionChain>;
+template class TypedControlButton<RFController>;

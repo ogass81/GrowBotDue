@@ -78,29 +78,42 @@ public:
 
 
 template <class ActionType>
-class MenueControlButton : public UserInterfaceElement {
+class TypedMenueButton : public UserInterfaceElement {
 public:
 	ActionType *actionObject = NULL;
 	void (ActionType::*callback)(int);
 	int parameter;
 		
-	MenueControlButton(String value, word frame_color, word fill_color, word text_color, uint8_t row, UserInterface *touchmenue, ActionType *actionObj, void (ActionType::*actionFunc)(int), int par, bool active = true, int navmenue = 1, int navframe = 1);
+	TypedMenueButton(String value, word frame_color, word fill_color, word text_color, uint8_t row, UserInterface *touchmenue, ActionType *actionObj, void (ActionType::*actionFunc)(int), int par, bool active = true, int navmenue = 1, int navframe = 1);
 	
 	void draw();
 	void executeAction();
 };
 
+class ControlButton : public UserInterfaceElement {
+public:
+	ControlButton(String value, uint8_t row, uint8_t column, uint8_t row_spread, uint8_t column_spread, word fill_color, word text_color, UserInterface *touchmenue, bool active = true, int navmenue = 999, int navframe = 999);
+	void draw();
+};
+
+class UnTypedControlButton : public ControlButton {
+public:
+	void (*callback)() = NULL;
+
+	UnTypedControlButton(String value, uint8_t row, uint8_t column, uint8_t row_spread, uint8_t column_spread, word fill_color, word text_color, UserInterface *touchmenue, void (*actionFunc)(), bool active = true, int navmenue = 999, int navframe = 999);
+
+	void executeAction();
+};
 
 template <class ActionType>
-class ControlButton : public UserInterfaceElement {
+class TypedControlButton : public ControlButton {
 
 public:
 	ActionType *actionObject = NULL;
 	void (ActionType::*callback)() = NULL;
 
-	ControlButton(String value, uint8_t row, uint8_t column, uint8_t row_spread, uint8_t column_spread, word fill_color, word text_color, UserInterface *touchmenue, ActionType *actionObj, void (ActionType::*actionFunc)(), bool active = true, int navmenue = 999, int navframe = 999);
-		
-	void draw();
+	TypedControlButton(String value, uint8_t row, uint8_t column, uint8_t row_spread, uint8_t column_spread, word fill_color, word text_color, UserInterface *touchmenue, ActionType *actionObj, void (ActionType::*actionFunc)(), bool active = true, int navmenue = 999, int navframe = 999);
+
 	void executeAction();
 };
 
