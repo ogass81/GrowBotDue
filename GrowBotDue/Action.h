@@ -9,20 +9,23 @@
 	#include "WProgram.h"
 #endif
 
+#include <ArduinoJson.h>
 #include "Relais.h"
 #include "DigitalSwitch.h"
 
 //Abstract Class for Actions
 class Action {
 public:
-	String title;
-	bool active;
+	String name;
+	bool visible;
 	//Pointer to Action that does the opposite
 	Action *antaObject = NULL;
 
 	void setAntagonist(Action *aObject);
 	virtual void execute();
-	
+	//Serialize
+	virtual void serializeJSON(uint8_t id, char* json, size_t maxSize);
+
 	//UI Output
 	String getTitle();
 };
@@ -33,8 +36,25 @@ public:
 	ActionType *actionObject = NULL;
 	void (ActionType::*callback)();
 	
-	SimpleAction(String title, ActionType *actionObj, void (ActionType::*cFunct)(), bool active = true);
+	SimpleAction(String title, ActionType *actionObj, void (ActionType::*cFunct)(), bool visible = false);
 
+	//Serialize
+	void serializeJSON(uint8_t id, char* json, size_t maxSize);
+
+	void execute();
+};
+
+template <class ActionType>
+class ParameterizedSimpleAction : public Action {
+public:
+	ActionType *actionObject = NULL;
+	void (ActionType::*callback)(int);
+	int parameter;
+
+	ParameterizedSimpleAction(String title, ActionType *actionObj, void (ActionType::*cFunct)(int), int par, bool visible = false);
+
+	//Serialize
+	void serializeJSON(uint8_t id, char* json, size_t maxSize);
 
 	void execute();
 };

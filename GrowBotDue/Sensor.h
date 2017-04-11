@@ -31,11 +31,11 @@ public:
 	uint8_t pin;
 
 	//Sensor Values
-	short minute_values[NUMMINUTE];
-	short hour_values[NUMHOUR]; //every minute
-	short day_values[NUMDAY]; //every 15 minutes
-	short month_values[NUMMONTH]; //every 6h
-	short year_values[NUMYEAR]; //every month for three years
+	short minute_values[SENS_VALUES_MIN];
+	short hour_values[SENS_VALUES_HOUR ]; //every minute
+	short day_values[SENS_VALUES_DAY]; //every 15 minutes
+	short month_values[SENS_VALUES_MONTH]; //every 6h
+	short year_values[SENS_VALUES_YEAR]; //every month for three years
 
 	//Pointer to Values
 	int8_t minute_ptr = -1;

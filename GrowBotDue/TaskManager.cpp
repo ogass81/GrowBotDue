@@ -6,7 +6,7 @@
 
 void TaskManager::next()
 {
-	if (task_ptr < (TASKBUFFER - 1)) {
+	if (task_ptr < (TASK_QUEUE_LENGTH - 1)) {
 		task_ptr++;
 	}
 	else task_ptr = 0;
@@ -17,26 +17,26 @@ void TaskManager::prev()
 	if (task_ptr > 0) {
 		task_ptr--;
 	}
-	else task_ptr = (TASKBUFFER - 1);
+	else task_ptr = (TASK_QUEUE_LENGTH - 1);
 }
 
 uint8_t TaskManager::getNextPosition(uint8_t delay)
 {
-	if (task_ptr + delay < TASKBUFFER) {
+	if (task_ptr + delay < TASK_QUEUE_LENGTH) {
 		return uint8_t(task_ptr + delay);
 	}
 	else {
-		return (delay - (TASKBUFFER - task_ptr - 1));
+		return (delay - (TASK_QUEUE_LENGTH - task_ptr - 1));
 	}
 }
 
 uint8_t TaskManager::getNextPositionFrom(uint8_t current_pos, uint8_t delay)
 {
-	if (current_pos + delay < TASKBUFFER) {
+	if (current_pos + delay < TASK_QUEUE_LENGTH) {
 		return uint8_t(current_pos + delay);
 	}
 	else {
-		return (delay - (TASKBUFFER - current_pos - 1));
+		return (delay - (TASK_QUEUE_LENGTH - current_pos - 1));
 	}
 }
 
@@ -46,14 +46,14 @@ uint8_t TaskManager::getOffSet(ActionChain *actionchain)
 	bool empty_spot = false;
 	uint8_t offset = 0;
 
-	while (offset < TASKBUFFER) {
+	while (offset < TASK_QUEUE_LENGTH) {
 		LOGDEBUG(F("[TaskManager]"), F("getOffSet()"), F("OK: Searching spot for Actionchain"), String(actionchain->getTitle()), String(current_ptr), String(offset));
 	
-		for (uint8_t i = 0; i < TASKSINCHAIN; i++) { //Iterate all Tasks in Chain
+		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) { //Iterate all Tasks in Chain
 			if (actionchain->assignedAction[i] != NULL) {
 				if (actionchain->actionParameter[i] == 0) {  //Simple Action - only Start, no End
 					 //Empty Spot for Start of Action
-					for (uint8_t j = 0; j < PARALLELTASKS; j++) {
+					for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
 						if (queue[current_ptr][j] == NULL) {
 							empty_spot = true;
 							current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
@@ -65,11 +65,11 @@ uint8_t TaskManager::getOffSet(ActionChain *actionchain)
 				else {  //Complex Action - need two spots for Start and End
 						//Find Empty Spot for
 						//Start
-					for (uint8_t j = 0; j < PARALLELTASKS; j++) {
+					for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
 						if (queue[current_ptr][j] == NULL) {
 							current_ptr = getNextPositionFrom(current_ptr, actionchain->actionParameter[i]);
 							//End
-							for (uint8_t k = 0; k < PARALLELTASKS; k++) {
+							for (uint8_t k = 0; k < TASK_PARALLEL_SEC; k++) {
 								if (queue[current_ptr][k] == NULL) {
 									empty_spot = true;
 									current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
@@ -103,8 +103,8 @@ uint8_t TaskManager::getOffSet(ActionChain *actionchain)
 
 TaskManager::TaskManager()
 {
-	for (uint8_t i = 0; i < TASKBUFFER; i++) {
-		for (uint8_t j = 0; j < PARALLELTASKS; j++) {
+	for (uint8_t i = 0; i < TASK_QUEUE_LENGTH; i++) {
+		for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
 			queue[i][j] = NULL;
 		}
 	}
@@ -118,14 +118,14 @@ void TaskManager::addActions(ActionChain *actionchain)
 
 	offset = getOffSet(actionchain);
 
-	if (offset < TASKBUFFER) {
+	if (offset < TASK_QUEUE_LENGTH) {
 		current_ptr = getNextPositionFrom(task_ptr, offset);
 
-		for (uint8_t i = 0; i < TASKSINCHAIN; i++) { //Iterate all Tasks in Chain
+		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) { //Iterate all Tasks in Chain
 			if (actionchain->assignedAction[i] != NULL) {
 				if (actionchain->actionParameter[i] == 0) {  //Simple Action - only Start, no End
 															 //Empty Spot for Start of Action
-					for (uint8_t j = 0; j < PARALLELTASKS; j++) {
+					for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
 						if (queue[current_ptr][j] == NULL) {
 							LOGMSG(F("[TaskManager]"), F("OK: Added action to queue @"), String(current_ptr), String(actionchain->assignedAction[i]->getTitle()), "");
 							queue[current_ptr][j] = actionchain->assignedAction[i];
@@ -137,7 +137,7 @@ void TaskManager::addActions(ActionChain *actionchain)
 				else {  //Complex Action - need two spots for Start and End
 						//Find Empty Spot for
 						//Start
-					for (uint8_t j = 0; j < PARALLELTASKS; j++) {
+					for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
 						if (queue[current_ptr][j] == NULL) {
 							uint8_t start_ptr, start_task;
 							queue[current_ptr][j] = actionchain->assignedAction[i];
@@ -149,7 +149,7 @@ void TaskManager::addActions(ActionChain *actionchain)
 							
 							current_ptr = getNextPositionFrom(current_ptr, actionchain->actionParameter[i]);
 							//End
-							for (uint8_t k = 0; k < PARALLELTASKS; k++) {
+							for (uint8_t k = 0; k < TASK_PARALLEL_SEC; k++) {
 								if (queue[current_ptr][k] == NULL) {
 									if (actionchain->assignedAction[i]->antaObject != NULL) {
 										queue[current_ptr][k] = actionchain->assignedAction[i]->antaObject;
@@ -172,14 +172,14 @@ void TaskManager::addActions(ActionChain *actionchain)
 		}
 	}
 	else {
-		LOGMSG(F("[TaskManager]"), F("ERROR: Could not find spot for all tasks of Actionchain."), String(actionchain->getTitle()), F("Current # of parallel tasks"), String(PARALLELTASKS));
+		LOGMSG(F("[TaskManager]"), F("ERROR: Could not find spot for all tasks of Actionchain."), String(actionchain->getTitle()), F("Current # of parallel tasks"), String(TASK_PARALLEL_SEC));
 	}
 }
 
 void TaskManager::execute()
 {
-	//LOGDEBUG(F("[TaskManager]"), F("execute()"), F("OK: Taskpointer @"), String(task_ptr), F("of"), String(TASKBUFFER));
-	for (uint8_t i = 0; i < PARALLELTASKS; i++) {
+	//LOGDEBUG(F("[TaskManager]"), F("execute()"), F("OK: Taskpointer @"), String(task_ptr), F("of"), String(TASK_QUEUE_LENGTH));
+	for (uint8_t i = 0; i < TASK_PARALLEL_SEC; i++) {
 		if (queue[task_ptr][i] != NULL) {
 			LOGMSG(F("[TaskManager]"), F("OK: Executing task @"), String(task_ptr), String(queue[task_ptr][i]->getTitle()), "");
 		

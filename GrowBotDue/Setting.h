@@ -1,43 +1,43 @@
-// Network.h
+// Setting.h
 
-#ifndef _NETWORK_h
-#define _NETWORK_h
+#ifndef _SETTING_h
+#define _SETTING_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
 #else
 	#include "WProgram.h"
 #endif
-#include <WiFiEsp.h>
-
+#include "Definitions.h"
 #include <ArduinoJson.h>
 #include "CurrentTime.h"
 #include "Sensor.h"
 #include "Trigger.h"
 #include "Ruleset.h"
-#include "Action.h"
 #include "ActionChain.h"
-#include "Setting.h"
 
+extern String wifi_ssid;
+extern String wifi_pw;
+extern String api_secret;
+
+extern long sensor_cycles;
 extern CurrentTime currenttime;
 extern Sensor *sensors[SENS_NUM];
 extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 extern RuleSet *rulesets[RULESETS_NUM];
-extern Action *actions[ACTIONS_NUM];
 extern ActionChain *actionchains[ACTIONCHAINS_NUM];
 
-
-class WebServer : public WiFiEspServer {
-private: 
-	//Create POST Request with JSON in HTTP body
-	String createPostRequest(char *json);
-	//Create HTTP Response with HTML Body
-	String createHtmlResponse(String code, String text);
-
+class Setting {
 public:
-	WebServer();
-	void checkConnection();
+
+	static void reset();
+
+	static void serializeJSON(char* json, size_t maxSize);
+	static bool deserializeJSON(JsonObject& data);
+
+	static void serializeConstantsJSON(char* json, size_t maxSize);
 };
+
 
 #endif
 

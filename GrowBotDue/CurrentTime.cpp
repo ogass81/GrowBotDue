@@ -59,7 +59,7 @@ void CurrentTime::syncTimeObject() {
 		user_update = false;
 
 		//Adjust Sensor Cycles to new date
-		sensor_cycles = (CurrentTime::epochTime(current_year, current_month,current_day, current_hour, current_minute, 0)) / SENSORFRQ;
+		sensor_cycles = (CurrentTime::epochTime(current_year, current_month,current_day, current_hour, current_minute, 0)) / SENS_FRQ_SEC;
 		LOGMSG(F("[CurrentTime]"), F("OK: Updating RTC from Time Object"), "New Cycle:", String(sensor_cycles), "");
 	}
 	else {
@@ -81,7 +81,7 @@ void CurrentTime::updateRTC(int year, uint8_t month, uint8_t day, uint8_t hour, 
 	setMonth(month);
 	setYear(year);
 	
-	sensor_cycles = (CurrentTime::epochTime(current_year, current_month, current_day, current_hour, current_minute, 0)) / SENSORFRQ;
+	sensor_cycles = (CurrentTime::epochTime(current_year, current_month, current_day, current_hour, current_minute, 0)) / SENS_FRQ_SEC;
 	LOGMSG(F("[CurrentTime]"), F("OK: Updating RTC from Parameters"), "New Cycle:", String(sensor_cycles), "");
 }
 
@@ -108,7 +108,7 @@ void CurrentTime::updateRTCdefault() {
 	setYear(year);
 
 	//Adjust Sensor Cycles to new date
-	sensor_cycles = (CurrentTime::epochTime(current_year, current_month, current_day, current_hour, current_minute, 0)) / SENSORFRQ;
+	sensor_cycles = (CurrentTime::epochTime(current_year, current_month, current_day, current_hour, current_minute, 0)) / SENS_FRQ_SEC;
 	LOGMSG(F("[CurrentTime]"), F("OK: Updating RTC from Compile Time"), "New Cycle:", String(sensor_cycles), "");
 }
 

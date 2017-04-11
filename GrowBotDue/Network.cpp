@@ -93,10 +93,10 @@ void WebServer::checkConnection()
 		if (payload == true) {
 			JsonObject& node = jsonBuffer.parseObject(request);
 			if (node.success()) {
-				if (node["type"] == "Trigger" && node["cat"] != "" && node["id"] != "") {
+				if (node["type"] == "TRIGGER" && node["cat"] != "" && node["id"] != "") {
 					id = (int)node["id"];
 					cat = (int)node["cat"];
-					if (cat < TRIGCAT && id < TRIGNUMBER) {
+					if (cat < TRIGGER_TYPES && id < TRIGGER_SETS) {
 						if (node["action"] == "GET") {
 							trigger[cat][id]->serializeJSON(cat, id, json, 2500);
 							client.print(createPostRequest(json));
@@ -114,10 +114,10 @@ void WebServer::checkConnection()
 					}
 					delay(100);
 				}
-				else if (node["type"] == "Rules" && node["id"] != "") {
+				else if (node["type"] == "RULE" && node["id"] != "") {
 					id = (int)node["id"];
 
-					if (id < RULES) {
+					if (id < RULESETS_NUM) {
 						if (node["action"] == "GET") {
 							rulesets[id]->serializeJSON(id, json, 2500);
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: GET"), String(id), "");
@@ -134,10 +134,10 @@ void WebServer::checkConnection()
 						}
 					}
 				}
-				else if (node["type"] == "Chain" && node["id"] != "") {
+				else if (node["type"] == "CHAIN" && node["id"] != "") {
 					id = (int)node["id"];
 
-					if (id < ACTIONCHAINS) {
+					if (id < ACTIONCHAINS_NUM) {
 						if (node["action"] == "GET") {
 							actionchains[id]->serializeJSON(id, json, 2500);
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: GET"), String(id), "");
@@ -154,10 +154,10 @@ void WebServer::checkConnection()
 						}
 					}
 				}
-				else if (node["type"] == "Sensor" && node["id"] != "") {
+				else if (node["type"] == "SENSOR" && node["id"] != "") {
 					id = (int)node["id"];
 
-					if (id < SENSNUMBER) {
+					if (id < SENS_NUM) {
 						if (node["action"] == "GET") {
 							sensors[id]->serializeJSON(id, json, 2500);
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), "");
@@ -174,10 +174,43 @@ void WebServer::checkConnection()
 					}
 					delay(150);
 				}
-				else {
-					LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type or Id wrong"), "", "");
-					client.print(createHtmlResponse("400 BAD REQUEST", "Incomplete Request"));
+				else if (node["type"] == "ACTION" && node["id"] != "") {
+					id = (int)node["id"];
+
+					if (id < SENS_NUM) {
+						if (node["action"] == "GET") {
+							actions[id]->serializeJSON(id, json, 2500);
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), String(id), "");
+							client.print(createPostRequest(json));
+						}
+						else if (node["action"] == "SET") {
+							LOGMSG(F("[WebServer]"), F("OK: Invalid HTTP Request"), F("Type: Action Object Action: SET "), "Not Supported", String(id));
+							client.print(createHtmlResponse("501 NOT IMPLEMENTED ", "SET for Action Object not supported"));
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Action Object Action: UNKOWN"), String(id), "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+						}
+					}
+					delay(150);
 				}
+				else if (node["type"] == "SETTINGS") {
+					if (node["action"] == "GET") {
+						Setting::serializeJSON(json, 2500);
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), String(id), "");
+						client.print(createPostRequest(json));
+					}
+					else if (node["action"] == "SET") {
+						success = Setting::deserializeJSON(node);
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SET"), String(id), "");
+						client.print(createHtmlResponse("200 OK", "JSON received"));
+					}
+					else {
+						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Action Object Action: UNKOWN"), String(id), "");
+						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+					}
+				}
+				delay(150);
 			}
 			else {
 				LOGMSG(F("[WebServer]"), F("ERROR: HTTP Request received"), "JSON parsing failed", "", "");

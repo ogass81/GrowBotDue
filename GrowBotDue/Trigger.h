@@ -16,7 +16,7 @@
 //Globals
 extern String debug;
 extern CurrentTime currenttime;
-extern Sensor *sensors[SENSNUMBER];
+extern Sensor *sensors[SENS_NUM];
 extern long sensor_cycles;
 
 //Trigger is a pair of sensor values and thresholds linked by a boolean operator -> can be TRUE or FALSE, repeatly checked
