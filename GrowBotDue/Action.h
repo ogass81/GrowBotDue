@@ -12,6 +12,7 @@
 #include <ArduinoJson.h>
 #include "Relais.h"
 #include "DigitalSwitch.h"
+#include "RCSocketController.h"
 
 //Abstract Class for Actions
 class Action {

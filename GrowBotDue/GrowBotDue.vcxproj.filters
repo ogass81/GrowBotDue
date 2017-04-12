@@ -66,7 +66,7 @@
     <ClInclude Include="Setting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RFController.h">
+    <ClInclude Include="RCSocketController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -116,7 +116,7 @@
     <ClCompile Include="Setting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RFController.cpp">
+    <ClCompile Include="RCSocketController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -32,7 +32,7 @@
 #include "Ruleset.h"
 #include "TaskManager.h"
 #include "UserInterface.h"
-#include "RFController.h"
+#include "RCSocketController.h"
 #include "Setting.h"
 
 
@@ -73,7 +73,7 @@ DHT dht(DHT_DATA_PIN, DHT_TYPE);
 CurrentTime currenttime(RC);
 
 //433Mhz
-RFController *rfcontroller;
+RCSocketController *rcsocketcontroller;
 
 //Wifi
 WebServer *webserver;
@@ -142,14 +142,15 @@ void setup() {
 	actions[5] = new SimpleAction<RelaisBoard>("R3 Off", relaisboard, &RelaisBoard::R3Off, true);
 	actions[6] = new SimpleAction<RelaisBoard>("R4 On", relaisboard, &RelaisBoard::R4On, true);
 	actions[7] = new SimpleAction<RelaisBoard>("R4 Off", relaisboard, &RelaisBoard::R4Off, true);
-	actions[8] = new SimpleAction<DigitalSwitch>("T1 On", digitalswitches, &DigitalSwitch::S1On, true);
-	actions[9] = new SimpleAction<DigitalSwitch>("T1 Off", digitalswitches, &DigitalSwitch::S1Off, true);
-	actions[10] = new SimpleAction<DigitalSwitch>("T2 On", digitalswitches, &DigitalSwitch::S2On, true);
-	actions[11] = new SimpleAction<DigitalSwitch>("T2 Off", digitalswitches, &DigitalSwitch::S2Off, true);
-	actions[12] = new SimpleAction<DigitalSwitch>("T3 On", digitalswitches, &DigitalSwitch::S3On, true);
-	actions[13] = new SimpleAction<DigitalSwitch>("T3 Off", digitalswitches, &DigitalSwitch::S3Off, true);
-	actions[14] = new SimpleAction<DigitalSwitch>("T4 On", digitalswitches, &DigitalSwitch::S4On, true);
-	actions[15] = new SimpleAction<DigitalSwitch>("T4 Off", digitalswitches, &DigitalSwitch::S4Off, true);
+	actions[8] = new ParameterizedSimpleAction<RCSocketController>("RC1 On", rcsocketcontroller, &RCSocketController::sendCode, 0, true);
+	actions[9] = new ParameterizedSimpleAction<RCSocketController>("RC1 Off", rcsocketcontroller, &RCSocketController::sendCode, 1, true);
+	actions[10] = new ParameterizedSimpleAction<RCSocketController>("RC2 On", rcsocketcontroller, &RCSocketController::sendCode, 2, true);
+	actions[11] = new ParameterizedSimpleAction<RCSocketController>("RC2 Off", rcsocketcontroller, &RCSocketController::sendCode, 3, true);
+	actions[12] = new ParameterizedSimpleAction<RCSocketController>("RC3 On", rcsocketcontroller, &RCSocketController::sendCode, 4, true);
+	actions[13] = new ParameterizedSimpleAction<RCSocketController>("RC3 Off", rcsocketcontroller, &RCSocketController::sendCode, 5, true);
+	actions[14] = new ParameterizedSimpleAction<RCSocketController>("RC4 On", rcsocketcontroller, &RCSocketController::sendCode, 6, true);
+	actions[15] = new ParameterizedSimpleAction<RCSocketController>("RC4 Off", rcsocketcontroller, &RCSocketController::sendCode, 7, true);
+
 
 	//Define Opposite Action / Antagonist
 	//R1
@@ -164,16 +165,16 @@ void setup() {
 	//R4
 	actions[6]->setAntagonist(actions[7]);
 	actions[7]->setAntagonist(actions[6]);
-	//T1
+	//RC1
 	actions[8]->setAntagonist(actions[9]);
 	actions[9]->setAntagonist(actions[8]);
-	//T2
+	//RC2
 	actions[10]->setAntagonist(actions[11]);
 	actions[11]->setAntagonist(actions[10]);
-	//T3
+	//RC3
 	actions[12]->setAntagonist(actions[13]);
 	actions[13]->setAntagonist(actions[12]);
-	//T4
+	//RC4
 	actions[14]->setAntagonist(actions[15]);
 	actions[15]->setAntagonist(actions[14]);
 
@@ -221,7 +222,7 @@ void setup() {
 	WiFi.init(&Serial1);
 
 	//433Mhz
-	rfcontroller = new RFController(RTX_DATA_PIN, RTS_DATA_PIN);
+	rcsocketcontroller = new RCSocketController(RTX_DATA_PIN, RTS_DATA_PIN);
 
 	//Convert SSID and PW to char[]
 	char ssid[wifi_ssid.length()+1];
@@ -292,15 +293,12 @@ void loop() {
 	//Webserver
 	webserver->checkConnection();
 	
-	//RF Link
-	if (rfcontroller->available()) {
-		if (rfcontroller->learning == true) {
-			rfcontroller->learnPattern();
-			rfcontroller->resetAvailable();
+	//RC Socket
+	if (rcsocketcontroller->learning == true) {
+		if (rcsocketcontroller->available()) {
+			rcsocketcontroller->learnPattern();
+			rcsocketcontroller->resetAvailable();
 			myUI.draw();
-		}
-		else {
-			//Processing
 		}
 	}
 

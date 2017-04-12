@@ -363,27 +363,29 @@ void UserInterface::drawFrame(int nav) {
 	case 131:
 		frameElements[0] = new TextLabel("ID", 0, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[1] = new TextLabel(String(rfcontroller->getName()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[1] = new TextLabel(String(rcsocketcontroller->getName()), 0, 2, 6, BACKGROUNDCOLOR, VGA_WHITE, this);
 
-		frameElements[2] = new TypedControlButton<RFController>(String(rfcontroller->getLearningMode()), 2, 2, 1, 8, VGA_WHITE, VGA_BLACK, this, rfcontroller, &RFController::switchLearningMode, true, current_menue, current_frame);
-		frameElements[3] = new TypedControlButton<RFController>(String("Test"), 3, 2, 1, 4, VGA_GREEN, VGA_BLACK, this, rfcontroller, &RFController::testSettings, true, current_menue, current_frame);
-		frameElements[4] = new TypedControlButton<RFController>(String("Reset"), 3, 6, 1, 4, VGA_RED, VGA_BLACK, this, rfcontroller, &RFController::resetSettings, true, current_menue, current_frame);
+		frameElements[2] = new TypedControlButton<RCSocketController>(String(rcsocketcontroller->getLearningMode()), 2, 2, 1, 8, VGA_WHITE, VGA_BLACK, this, rcsocketcontroller, &RCSocketController::switchLearningMode, true, current_menue, current_frame);
+		frameElements[3] = new TypedControlButton<RCSocketController>(String("Test"), 3, 2, 1, 4, VGA_GREEN, VGA_BLACK, this, rcsocketcontroller, &RCSocketController::testSettings, true, current_menue, current_frame);
+		frameElements[4] = new TypedControlButton<RCSocketController>(String("Reset"), 3, 6, 1, 4, VGA_RED, VGA_BLACK, this, rcsocketcontroller, &RCSocketController::resetSettings, true, current_menue, current_frame);
 
-		frameElements[5] = new TextLabel("Dec", 4, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[6] = new TextLabel(String(rfcontroller->getDecimalKey()), 4, 3, 5, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[7] = new TextLabel("Bin", 5, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[8] = new TextLabel(String(rfcontroller->getBinaryKey()), 5, 3, 5, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[9] = new TextLabel("Bits", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[10] = new TextLabel(String(rfcontroller->getBitLength()), 6, 3, 5, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[11] = new TextLabel("Prot", 7, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[12] = new TextLabel(String(rfcontroller->getProtocol()), 7, 3, 5, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[5] = new TextLabel("#", 5, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[6] = new TextLabel(String(rcsocketcontroller->getSignalPointer()), 5, 2, 5, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[7] = new TypedControlButton<RCSocketController>(String(rcsocketcontroller->getSwitchSignalText()), 5, 7, 1, 3, VGA_BLUE, VGA_WHITE, this, rcsocketcontroller, &RCSocketController::switchSignal, true, current_menue, current_frame);
+
+		frameElements[8] = new TextLabel("Val", 6, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[9] = new TextLabel(String(rcsocketcontroller->getDecimalKey()), 6, 2, 4, BACKGROUNDCOLOR, VGA_WHITE, this);
+			
+		frameElements[10] = new TextLabel("Prot", 7, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[11] = new TextLabel(String(rcsocketcontroller->getProtocol()), 7, 2, 4, BACKGROUNDCOLOR, VGA_WHITE, this);
+		frameElements[12] = new TypedControlButton<RCSocketController>(String(rcsocketcontroller->getSwitchProtocolText()), 7, 7, 1, 3, VGA_BLUE, VGA_WHITE, this, rcsocketcontroller, &RCSocketController::switchProtocol, true, current_menue, current_frame);
 
 
 		frameElements[13] = new TextLabel("Stat", 9, 0, 2, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[14] = new TypedControlButton<RFController>(String(rfcontroller->getActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rfcontroller, &RFController::switchActive, true, current_menue, current_frame);
+		frameElements[14] = new TypedControlButton<RCSocketController>(String(rcsocketcontroller->getActive()), 9, 2, 1, 2, VGA_BLUE, VGA_WHITE, this, rcsocketcontroller, &RCSocketController::switchActive, true, current_menue, current_frame);
 
-		frameElements[15] = new TypedControlButton<RFController>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rfcontroller, &RFController::decCodeSet_Ptr, true, current_menue, current_frame);
-		frameElements[16] = new TypedControlButton<RFController>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rfcontroller, &RFController::incCodeSet_Ptr, true, current_menue, current_frame);
+		frameElements[15] = new TypedControlButton<RCSocketController>("<<Prev", 9, 5, 1, 3, VGA_YELLOW, VGA_BLACK, this, rcsocketcontroller, &RCSocketController::decCodeSet_Ptr, true, current_menue, current_frame);
+		frameElements[16] = new TypedControlButton<RCSocketController>("Next>>", 9, 8, 1, 3, VGA_YELLOW, VGA_BLACK, this, rcsocketcontroller, &RCSocketController::incCodeSet_Ptr, true, current_menue, current_frame);
 
 		frameElements[17] = NULL;
 		break;

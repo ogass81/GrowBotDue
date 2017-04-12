@@ -398,12 +398,7 @@ float SensorGraph::getYMultiplier(short min, short max)
 		multiplier = (float)(240 - UI_Y_DIVIDER - 2 * UI_PADDING) / (float)range;
 	}
 	else multiplier = 0;
-	
-	Serial.print("Range:");
-	Serial.println(range);
-	Serial.print("Y-Multiplier:");
-	Serial.println(multiplier);
-	
+
 	LOGDEBUG(F("[SensorGraph]"), F("getYMultiplier()"), F("OK: Y Multiplier"), String(multiplier), String(range), "");
 	
 	return (float)multiplier; 
@@ -594,4 +589,4 @@ template class TypedControlButton<UserInterface>;
 template class TypedControlButton<Trigger>;
 template class TypedControlButton<FileSystem>;
 template class TypedControlButton<ActionChain>;
-template class TypedControlButton<RFController>;
+template class TypedControlButton<RCSocketController>;

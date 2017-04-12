@@ -22,7 +22,7 @@
 #include "UserInterfaceElement.h"
 #include "FileSystem.h"
 #include "Setting.h"
-#include "RFController.h";
+#include "RCSocketController.h";
 
 //UI Variables
 extern int touch_x, touch_y;
@@ -53,7 +53,7 @@ extern RuleSet *rulesets[RULESETS_NUM];
 
 extern ActionChain *actionchains[ACTIONCHAINS_NUM];
 
-extern RFController *rfcontroller;
+extern RCSocketController *rcsocketcontroller;
 
 
 //Vordeklariert
