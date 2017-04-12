@@ -94,7 +94,7 @@
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Relais.h" />
-    <ClInclude Include="RFController.h" />
+    <ClInclude Include="RCSocketController.h" />
     <ClInclude Include="Ruleset.h" />
     <ClInclude Include="Sensor.h" />
     <ClInclude Include="Setting.h" />
@@ -113,7 +113,7 @@
     <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Relais.cpp" />
-    <ClCompile Include="RFController.cpp" />
+    <ClCompile Include="RCSocketController.cpp" />
     <ClCompile Include="Ruleset.cpp" />
     <ClCompile Include="Sensor.cpp" />
     <ClCompile Include="Setting.cpp" />

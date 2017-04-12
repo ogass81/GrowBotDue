@@ -29,6 +29,7 @@
 #define RTX_DATA_PIN 16
 #define RTS_DATA_PIN 15
 #define RC_SOCKETS 4
+#define RC_SIGNALS 5
 #define RC_REPEAT 15
 
 //Arduino JSON

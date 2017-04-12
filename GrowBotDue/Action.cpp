@@ -87,11 +87,13 @@ void ParameterizedSimpleAction<ActionType>::serializeJSON(uint8_t id, char * jso
 template<class ActionType>
 void ParameterizedSimpleAction<ActionType>::execute()
 {
-	if (actionObject != NULL && callback != NULL) {
+	if (actionObject != NULL && callback != NULL && parameter != NULL) {
 		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), name, "", "");
 		(actionObject->*callback)(parameter);
 	}
+	else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Incomplete task"), name, "", "");
 }
 //All Types of Templates used:
 template class SimpleAction<RelaisBoard>;
 template class SimpleAction<DigitalSwitch>;
+template class ParameterizedSimpleAction<RCSocketController>;
