@@ -120,6 +120,8 @@ void setup() {
 	relaisboard = new RelaisBoard();
 	//Initialize Digital Switches
 	digitalswitches = new DigitalSwitch();
+	//433Mhz
+	rcsocketcontroller = new RCSocketController(RTX_DATA_PIN, RTS_DATA_PIN);
 			
 	//Initialize Sensors
 	sensors[0] = new	DHTTemperature("Temp.", 'C', true);
@@ -221,9 +223,6 @@ void setup() {
 	Serial1.begin(115200);
 	WiFi.init(&Serial1);
 
-	//433Mhz
-	rcsocketcontroller = new RCSocketController(RTX_DATA_PIN, RTS_DATA_PIN);
-
 	//Convert SSID and PW to char[]
 	char ssid[wifi_ssid.length()+1];
 	wifi_ssid.toCharArray(ssid, wifi_ssid.length()+1);
@@ -234,8 +233,7 @@ void setup() {
 	int status = WL_IDLE_STATUS;
 	uint8_t failed = 0;
 	while (status != WL_CONNECTED && failed < 5) {
-		Serial.print("Attempting to connect to WPA SSID: ");
-		Serial.println(wifi_ssid);
+		LOGMSG(F("[Setup]"), F("Info: Attempting to connect to WPA SSID: "), String(wifi_ssid), "", "");
 		// Connect to WPA/WPA2 network
 		status = WiFi.begin(ssid, pw);
 		failed++;

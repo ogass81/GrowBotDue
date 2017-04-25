@@ -573,7 +573,7 @@ void Trigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize
 	trigger["interval"] = static_cast<int>(interval);
 
 	trigger.printTo(json, maxSize);
-	LOGDEBUG(F("[Trigger]"), F("serializeJSON()"), F("OK: Serialized Members for Trigger"), String(getTitle()), String(trigger.measureLength()), String(maxSize));
+	LOGDEBUG2(F("[Trigger]"), F("serializeJSON()"), F("OK: Serialized Members for Trigger"), String(getTitle()), String(trigger.measureLength()), String(maxSize));
 }
 
 bool Trigger::deserializeJSON(JsonObject& data)
@@ -627,10 +627,10 @@ bool Trigger::deserializeJSON(JsonObject& data)
 				active = false;
 			}
 		}
-		LOGDEBUG(F("[Trigger]"), F("deserializeJSON()"), F("OK: Deserialized members for Trigger"), String(data["cat"].asString()), String(data["id"].asString()), "");
+		LOGDEBUG2(F("[Trigger]"), F("deserializeJSON()"), F("OK: Deserialized members for Trigger"), String(data["cat"].asString()), String(data["id"].asString()), "");
 	}
 	else {
-		LOGDEBUG(F("[Trigger]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members of Trigger"), F("Datasize"), String(data.size()), "");
+		LOGDEBUG2(F("[Trigger]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members of Trigger"), F("Datasize"), String(data.size()), "");
 	}
 	return data.success();
 }

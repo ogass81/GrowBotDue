@@ -317,7 +317,7 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)
 	boolop.add(static_cast<int>(assignedBoolOp[1]));
 
 	rules.printTo(json, maxSize);
-	LOGDEBUG(F("[Ruleset]"), F("serializeJSON()"), F("OK: Serialized Members for Ruleset"), String(id), String(rules.measureLength()), String(maxSize));
+	LOGDEBUG2(F("[Ruleset]"), F("serializeJSON()"), F("OK: Serialized Members for Ruleset"), String(id), String(rules.measureLength()), String(maxSize));
 }
 
 bool RuleSet::deserializeJSON(JsonObject & data)
@@ -364,10 +364,10 @@ bool RuleSet::deserializeJSON(JsonObject & data)
 		if (chain_ptr != ACTIONCHAINS_NUM) assignedChain = actionchains[chain_ptr];
 		else assignedChain = NULL;
 
-		LOGDEBUG(F("[Ruleset]"), F("deserializeJSON()"), F("OK: Deserialized members for Ruleset"), data["id"].asString(), F("Datasize"), String(data.size()));
+		LOGDEBUG2(F("[Ruleset]"), F("deserializeJSON()"), F("OK: Deserialized members for Ruleset"), data["id"].asString(), F("Datasize"), String(data.size()));
 	}
 	else {
-		LOGDEBUG(F("[Ruleset]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize membersRuleset"), F("Datasize"), String(data.size()), "");
+		LOGDEBUG2(F("[Ruleset]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize membersRuleset"), F("Datasize"), String(data.size()), "");
 	}
 	return data.success();
 }

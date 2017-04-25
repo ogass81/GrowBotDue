@@ -673,7 +673,7 @@ void Sensor::serializeJSON(uint8_t id, char* json, size_t maxSize)
 	for (uint8_t j = 0; j < SENS_VALUES_YEAR; j++) year.add(toNAN(year_values[j]));
 	
 	sensor.printTo(json, maxSize);
-	LOGDEBUG(F("[Sensor]"), F("serializeJSON()"), F("OK: Serialized members for Sensor"), String(id), String(sensor.measureLength()), String(maxSize));
+	LOGDEBUG2(F("[Sensor]"), F("serializeJSON()"), F("OK: Serialized members for Sensor"), String(id), String(sensor.measureLength()), String(maxSize));
 }
 
 bool Sensor::deserializeJSON(JsonObject& data)
@@ -691,10 +691,10 @@ bool Sensor::deserializeJSON(JsonObject& data)
 		for (uint8_t j = 0; j < SENS_VALUES_MONTH; j++) if (data["m_vals"][j] != "") month_values[j] = fromNAN(data["m_vals"][j]);
 		for (uint8_t j = 0; j < SENS_VALUES_YEAR; j++) if (data["y_vals"][j] != "") year_values[j] = fromNAN(data["y_vals"][j]);
 		
-		LOGDEBUG(F("[Sensor]"), F("deserializeJSON()"), F("OK: Deserialized members for Sensor"), String(data["id"].asString()), "", "");
+		LOGDEBUG2(F("[Sensor]"), F("deserializeJSON()"), F("OK: Deserialized members for Sensor"), String(data["id"].asString()), "", "");
 	}
 	else {
-		LOGDEBUG(F("[Sensor]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members"), F("Datasize"), String(data.size()), "");
+		LOGDEBUG2(F("[Sensor]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members"), F("Datasize"), String(data.size()), "");
 	}
 	return data.success();
 }

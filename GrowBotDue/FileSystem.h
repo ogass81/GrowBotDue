@@ -17,6 +17,7 @@
 #include "Trigger.h"
 #include "Ruleset.h"
 #include "ActionChain.h"
+#include "RCSocketController.h"
 #include "Setting.h"
 
 extern String wifi_ssid;
@@ -29,6 +30,7 @@ extern Sensor *sensors[SENS_NUM];
 extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 extern RuleSet *rulesets[RULESETS_NUM];
 extern ActionChain *actionchains[ACTIONCHAINS_NUM];
+extern RCSocketController *rcsocketcontroller;
 
 
 class FileSystem {

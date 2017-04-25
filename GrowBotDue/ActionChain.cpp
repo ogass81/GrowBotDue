@@ -12,7 +12,7 @@ ActionChain::ActionChain(int count)
 
 void ActionChain::changeAction1()
 {
-	uint8_t action = action1_ptr;
+	uint8_t action = actionPtr[0];
 
 	//Cycle through actions
 	while (true) {
@@ -32,12 +32,12 @@ void ActionChain::changeAction1()
 			break;
 		}
 	}
-	action1_ptr = action;
+	actionPtr[0] = action;
 }
 
 void ActionChain::changeAction2()
 {
-	uint8_t action = action2_ptr;
+	uint8_t action = actionPtr[1];
 
 	//Cycle through actions
 	while (true) {
@@ -57,12 +57,12 @@ void ActionChain::changeAction2()
 			break;
 		}
 	}
-	action2_ptr = action;
+	actionPtr[1] = action;
 }
 
 void ActionChain::changeAction3()
 {
-	uint8_t action = action3_ptr;
+	uint8_t action = actionPtr[2];
 
 	//Cycle through actions
 	while (true) {
@@ -82,12 +82,12 @@ void ActionChain::changeAction3()
 			break;
 		}
 	}
-	action3_ptr = action;
+	actionPtr[2] = action;
 }
 
 void ActionChain::changeAction4()
 {
-	uint8_t action = action4_ptr;
+	uint8_t action = actionPtr[3];
 
 	//Cycle through actions
 	while (true) {
@@ -107,12 +107,12 @@ void ActionChain::changeAction4()
 			break;
 		}
 	}
-	action4_ptr = action;
+	actionPtr[3] = action;
 }
 
 void ActionChain::changeAction5()
 {
-	uint8_t action = action5_ptr;
+	uint8_t action = actionPtr[4];
 
 	//Cycle through actions
 	while (true) {
@@ -132,12 +132,12 @@ void ActionChain::changeAction5()
 			break;
 		}
 	}
-	action5_ptr = action;
+	actionPtr[4] = action;
 }
 
 void ActionChain::changeAction6()
 {
-	uint8_t action = action6_ptr;
+	uint8_t action = actionPtr[5];
 
 	//Cycle through actions
 	while (true) {
@@ -157,55 +157,55 @@ void ActionChain::changeAction6()
 			break;
 		}
 	}
-	action6_ptr = action;
+	actionPtr[5] = action;
 }
 
 void ActionChain::changePar1()
 {
-	if (actionParameter[0] < ACTIONCHAIN_TASK_MAXDURATION) {
-		actionParameter[0]++;
+	if (actionPar[0] < ACTIONCHAIN_TASK_MAXDURATION) {
+		actionPar[0]++;
 	}
-	else actionParameter[0] = 0;
+	else actionPar[0] = 0;
 }
 
 void ActionChain::changePar2()
 {
-	if (actionParameter[1] < ACTIONCHAIN_TASK_MAXDURATION) {
-		actionParameter[1]++;
+	if (actionPar[1] < ACTIONCHAIN_TASK_MAXDURATION) {
+		actionPar[1]++;
 	}
-	else actionParameter[1] = 0;
+	else actionPar[1] = 0;
 }
 
 void ActionChain::changePar3()
 {
-	if (actionParameter[2] < ACTIONCHAIN_TASK_MAXDURATION) {
-		actionParameter[2]++;
+	if (actionPar[2] < ACTIONCHAIN_TASK_MAXDURATION) {
+		actionPar[2]++;
 	}
-	else actionParameter[2] = 0;
+	else actionPar[2] = 0;
 }
 
 void ActionChain::changePar4()
 {
-	if (actionParameter[3] < ACTIONCHAIN_TASK_MAXDURATION) {
-		actionParameter[3]++;
+	if (actionPar[3] < ACTIONCHAIN_TASK_MAXDURATION) {
+		actionPar[3]++;
 	}
-	else actionParameter[3] = 0;
+	else actionPar[3] = 0;
 }
 
 void ActionChain::changePar5()
 {
-	if (actionParameter[4] < ACTIONCHAIN_TASK_MAXDURATION) {
-		actionParameter[4]++;
+	if (actionPar[4] < ACTIONCHAIN_TASK_MAXDURATION) {
+		actionPar[4]++;
 	}
-	else actionParameter[4] = 0;
+	else actionPar[4] = 0;
 }
 
 void ActionChain::changePar6()
 {
-	if (actionParameter[5] < ACTIONCHAIN_TASK_MAXDURATION) {
-		actionParameter[5]++;
+	if (actionPar[5] < ACTIONCHAIN_TASK_MAXDURATION) {
+		actionPar[5]++;
 	}
-	else actionParameter[5] = 0;
+	else actionPar[5] = 0;
 }
 
 void ActionChain::changeChainActive()
@@ -218,26 +218,11 @@ void ActionChain::reset()
 {
 	active = false;
 
-	assignedAction[0] = NULL;
-	assignedAction[1] = NULL;
-	assignedAction[2] = NULL;
-	assignedAction[3] = NULL;
-	assignedAction[4] = NULL;
-	assignedAction[5] = NULL;
-
-	action1_ptr = ACTIONS_NUM;
-	action2_ptr = ACTIONS_NUM;
-	action3_ptr = ACTIONS_NUM;
-	action4_ptr = ACTIONS_NUM;
-	action5_ptr = ACTIONS_NUM;
-	action6_ptr = ACTIONS_NUM;
-
-	actionParameter[0] = 0;
-	actionParameter[1] = 0;
-	actionParameter[2] = 0;
-	actionParameter[3] = 0;
-	actionParameter[4] = 0;
-	actionParameter[5] = 0;
+	for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
+		assignedAction[i] = NULL;
+		actionPtr[i] = ACTIONS_NUM;
+		actionPar[i] = 0;
+	}
 }
 
 void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize)
@@ -249,59 +234,41 @@ void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize)
 	actions["type"] = "CHAIN";
 	actions["id"] = id;
 	actions["active"] = active;
-	actions["action1_ptr"] = action1_ptr;
-	actions["action2_ptr"] = action2_ptr;
-	actions["action3_ptr"] = action3_ptr;
-	actions["action4_ptr"] = action4_ptr;
-	actions["action5_ptr"] = action5_ptr;
-	actions["action6_ptr"] = action6_ptr;
-	actions["action1_par"] = actionParameter[0];
-	actions["action2_par"] = actionParameter[1];
-	actions["action3_par"] = actionParameter[2];
-	actions["action4_par"] = actionParameter[3];
-	actions["action5_par"] = actionParameter[4];
-	actions["action6_par"] = actionParameter[5];
 	
+	for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
+		actions[String("actPtr" + i)] = actionPtr[i];
+		actions[String("actPar" + i)] = actionPar[i];
+	}
+
 	actions.printTo(json, maxSize);
-	LOGDEBUG(F("[ActionChain]"), F("serializeJSON()"), F("OK: Serialized Members for Actionchain"), String(id), String(actions.measureLength()), String(maxSize));
+	LOGDEBUG2(F("[ActionChain]"), F("serializeJSON()"), F("OK: Serialized Members for Actionchain"), String(id), String(actions.measureLength()), String(maxSize));
 }
 
 bool ActionChain::deserializeJSON(JsonObject & data)
 {
 	if (data.success() == true) {
-		if (data["active"] != "") active = data["active"];
-		if (data["action1_ptr"] != "") action1_ptr = data["action1_ptr"];
-		if (data["action2_ptr"] != "") action2_ptr = data["action2_ptr"];
-		if (data["action3_ptr"] != "") action3_ptr = data["action3_ptr"];
-		if (data["action4_ptr"] != "") action4_ptr = data["action4_ptr"];
-		if (data["action5_ptr"] != "") action5_ptr = data["action5_ptr"];
-		if (data["action6_ptr"] != "") action6_ptr = data["action6_ptr"];
-
-		if (data["action1_par"] != "") actionParameter[0] = data["action1_par"];
-		if (data["action2_par"] != "") actionParameter[1] = data["action2_par"];
-		if (data["action3_par"] != "") actionParameter[2] = data["action3_par"];
-		if (data["action4_par"] != "") actionParameter[3] = data["action4_par"];
-		if (data["action5_par"] != "") actionParameter[4] = data["action5_par"];
-		if (data["action6_par"] != "") actionParameter[5] = data["action6_par"];
-
-		//Assign Pointers to Action Objects
-		if (action1_ptr != ACTIONS_NUM) assignedAction[0] = actions[action1_ptr];
-		else assignedAction[0] = NULL;
-		if (action2_ptr != ACTIONS_NUM) assignedAction[1] = actions[action2_ptr];
-		else assignedAction[1] = NULL;
-		if (action3_ptr != ACTIONS_NUM) assignedAction[2] = actions[action3_ptr];
-		else assignedAction[2] = NULL;
-		if (action4_ptr != ACTIONS_NUM) assignedAction[3] = actions[action4_ptr];
-		else assignedAction[3] = NULL;
-		if (action5_ptr != ACTIONS_NUM) assignedAction[4] = actions[action5_ptr];
-		else assignedAction[4] = NULL;
-		if (action6_ptr != ACTIONS_NUM) assignedAction[5] = actions[action6_ptr];
-		else assignedAction[5] = NULL;
 		
-		LOGDEBUG(F("[ActionChain]"), F("deserializeJSON()"), F("OK: Deserialized members for Actionchain"), String(data["id"].asString()), "", "");
+		if (data["active"] != "") active = data["active"];
+		
+		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
+			//Assign Pointers to Action using Index to Action
+			if (data[String("actPtr" + i)] != "") {
+				actionPtr[i] = data[String("actPtr" + i)];
+				assignedAction[i] = actions[actionPtr[i]];
+			}
+			else {
+				actionPtr[i] = ACTIONS_NUM;
+				assignedAction[i] = NULL;
+			}
+			//Assign Action Parameter to Member
+			if (data[String("actPar" + i)] != "") actionPar[i] = data[String("actPar" + i)];
+			else actionPtr[i] = 0;
+		}
+
+		LOGDEBUG2(F("[ActionChain]"), F("deserializeJSON()"), F("OK: Deserialized members for Actionchain"), String(data["id"].asString()), "", "");
 	}
 	else {
-		LOGDEBUG(F("[ActionChain]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members"), F("Datasize"), String(data.size()), "");
+		LOGDEBUG2(F("[ActionChain]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members"), F("Datasize"), String(data.size()), "");
 	}
 	return data.success();
 }
@@ -354,32 +321,32 @@ String ActionChain::getChainAction6()
 
 String ActionChain::getChainPar1()
 {
-	return String(actionParameter[0]);
+	return String(actionPar[0]);
 }
 
 String ActionChain::getChainPar2()
 {
-	return String(actionParameter[1]);
+	return String(actionPar[1]);
 }
 
 String ActionChain::getChainPar3()
 {
-	return String(actionParameter[2]);
+	return String(actionPar[2]);
 }
 
 String ActionChain::getChainPar4()
 {
-	return String(actionParameter[3]);
+	return String(actionPar[3]);
 }
 
 String ActionChain::getChainPar5()
 {
-	return String(actionParameter[4]);
+	return String(actionPar[4]);
 }
 
 String ActionChain::getChainPar6()
 {
-	return String(actionParameter[5]);
+	return String(actionPar[5]);
 }
 
 String ActionChain::getChainActive()

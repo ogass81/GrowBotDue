@@ -9,6 +9,7 @@
 	#include "WProgram.h"
 #endif
 #include "Definitions.h"
+#include <ArduinoJson.h>
 #include <RCSwitch.h>
 
 class RCSocketCodeSet {
@@ -21,8 +22,6 @@ public:
 	unsigned int nReceivedDelay[RC_SIGNALS];
 	unsigned int nReceivedProtocol[RC_SIGNALS];
 	unsigned int nReceivedBitlength[RC_SIGNALS];
-
-
 	int repeat = 0;
 	uint8_t signal_ptr = 0;
 
@@ -35,6 +34,11 @@ public:
 	unsigned int getCurrentBitlength();
 	unsigned int getCurrentProtocol();
 
+	unsigned long getValueFrom(uint8_t set);
+	unsigned int getDelayFrom(uint8_t set);
+	unsigned int getBitlengthFrom(uint8_t set);
+	unsigned int getProtocolFrom(uint8_t set);
+
 	void setCurrentValue(unsigned long value);
 	void setCurrentDelay(unsigned int delay);
 	void setCurrentBitlength(unsigned int bitlength);
@@ -45,6 +49,9 @@ public:
 
 	bool isNewSignal(long dec_val);
 	uint8_t numberSignals();
+
+	void serializeJSON(JsonObject & codeset, uint8_t id);
+	bool deserializeJSON(JsonObject& data);
 };
 
 class RCSocketController : public RCSwitch {
@@ -97,6 +104,10 @@ public:
 	//Helper
 	static const char * bin2tristate(const char * bin);
 	static String dec2binWzerofill(unsigned long Dec, unsigned int bitLength);
+
+	//Serialize
+	void serializeJSON(char* json, size_t maxSize);
+	bool deserializeJSON(JsonObject& data);
 };
 
 #endif
