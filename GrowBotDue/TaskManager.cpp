@@ -40,6 +40,49 @@ uint8_t TaskManager::getNextPositionFrom(uint8_t current_pos, uint8_t delay)
 	}
 }
 
+uint8_t TaskManager::getOffSet(uint8_t duration)
+{
+	uint8_t current_ptr = task_ptr;
+	bool empty_spot = false;
+	uint8_t offset = 0;
+
+	while (offset < TASK_QUEUE_LENGTH) {
+		LOGDEBUG(F("[TaskManager]"), F("getOffSet()"), F("OK: Searching spot for timed Action with duration"), String(duration), String(current_ptr), String(offset));
+	
+		//Find Empty Spot for
+		//Start
+		for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
+			if (queue[current_ptr][j] == NULL) {
+				current_ptr = getNextPositionFrom(current_ptr, duration);
+				//End
+				for (uint8_t k = 0; k < TASK_PARALLEL_SEC; k++) {
+					if (queue[current_ptr][k] == NULL) {
+						empty_spot = true;
+						current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
+						break;
+					}
+					else empty_spot = false;
+				}
+				break;
+			}
+			else empty_spot = false;
+		}
+	
+		if (empty_spot == false) { //Last Task didnt find spot - bad -> start over with different offset
+			offset++;
+			current_ptr = getNextPositionFrom(task_ptr, offset);
+			LOGDEBUG2(F("[TaskManager]"), F("getOffSet()"), F("INFO: No spot found for Action with duration"), String(duration), String("Raising Pointer and Offset"), String(offset));
+		}
+		
+		if (empty_spot == true) {
+			LOGDEBUG2(F("[TaskManager]"), F("getOffSet()"), F("Ok: Spot found for Action with duration"), String(duration), String(current_ptr), String(offset));
+			break; //Last Task found spot - good -> break loop
+		}
+	}
+
+	return offset;
+}
+
 uint8_t TaskManager::getOffSet(ActionChain *actionchain)
 {
 	uint8_t current_ptr = task_ptr;
@@ -109,6 +152,50 @@ TaskManager::TaskManager()
 		}
 	}
 	task_ptr = 0;
+}
+
+void TaskManager::addAction(Action * action, uint8_t duration)
+{
+	uint8_t current_ptr = task_ptr;
+	uint8_t offset = 0;
+
+	offset = getOffSet(duration);
+	if (offset < TASK_QUEUE_LENGTH) {
+		current_ptr = getNextPositionFrom(task_ptr, offset);
+
+		for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
+			if (queue[current_ptr][j] == NULL) {
+				uint8_t start_ptr, start_task;
+				queue[current_ptr][j] = action;
+				LOGMSG(F("[TaskManager]"), F("OK: Added action to queue @"), String(current_ptr), String(action->getTitle()), "");
+
+				//If adding of antagonist task fails -> needed to remove previously added action
+				start_ptr = current_ptr;
+				start_task = j;
+
+				current_ptr = getNextPositionFrom(current_ptr, duration);
+				//End
+				for (uint8_t k = 0; k < TASK_PARALLEL_SEC; k++) {
+					if (queue[current_ptr][k] == NULL) {
+						if (action->antaObject != NULL) {
+							queue[current_ptr][k] = action->antaObject;
+							LOGMSG(F("[TaskManager]"), F("OK: Added action to queue @"), String(current_ptr), String(action->antaObject->getTitle()), "");
+						}
+						else {
+							queue[start_ptr][start_task] = NULL;
+							LOGMSG(F("[TaskManager]"), F("ERROR: Antagonist Object missing."), F("Removed Start Action from"), start_ptr, start_task);
+						}
+						current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
+						break;
+					}
+				}
+				break;
+			}
+		}
+	}
+	else {
+		LOGMSG(F("[TaskManager]"), F("ERROR: Could not find spot for Action"), String(action->getTitle()), F("Duration"), String(duration));
+	}
 }
 
 void TaskManager::addActions(ActionChain *actionchain)

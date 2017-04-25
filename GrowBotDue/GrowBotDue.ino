@@ -6,7 +6,6 @@
 
 //Contants
 
-#include <RCSwitch.h>
 #include "Definitions.h"
 
 //Hardware Libaries
@@ -14,7 +13,6 @@
 #include <UTouchCD.h>
 #include <UTouch.h>
 #include <UTFT.h>
-
 #include <RTCDue.h>
 #include <DHT_U.h>
 #include <DHT.h>
@@ -49,13 +47,11 @@ bool unit = true;
 
 //Tact Generator
 long sensor_cycles = 0;
-int cpu_current = 0;
-int sensor_last = 0;
-int task_last = 0;
-
-long rtc_current = 0;
-long rtc_fast = 0;
-long rtc_slow = 0;
+long cpu_current = 0;
+long sensor_last = 0;
+long task_last = 0;
+bool haltstate = false;
+long haltstate_start;
 
 //Wifi and Auth
 String wifi_ssid;
@@ -152,6 +148,8 @@ void setup() {
 	actions[13] = new ParameterizedSimpleAction<RCSocketController>("RC3 Off", rcsocketcontroller, &RCSocketController::sendCode, 5, true);
 	actions[14] = new ParameterizedSimpleAction<RCSocketController>("RC4 On", rcsocketcontroller, &RCSocketController::sendCode, 6, true);
 	actions[15] = new ParameterizedSimpleAction<RCSocketController>("RC4 Off", rcsocketcontroller, &RCSocketController::sendCode, 7, true);
+	actions[16] = new SimpleAction<RCSocketController>("Learning Mode On", rcsocketcontroller, &RCSocketController::learningmode_on, false);
+	actions[17] = new SimpleAction<RCSocketController>("Learning Mode Off", rcsocketcontroller, &RCSocketController::learningmode_off, false);
 
 
 	//Define Opposite Action / Antagonist
@@ -179,6 +177,9 @@ void setup() {
 	//RC4
 	actions[14]->setAntagonist(actions[15]);
 	actions[15]->setAntagonist(actions[14]);
+	//Learning Mode
+	actions[16]->setAntagonist(actions[17]);
+	actions[17]->setAntagonist(actions[16]);
 
 	//Initialize ActionChains
 	for (uint8_t i = 0; i < ACTIONCHAINS_NUM; i++) {
@@ -278,7 +279,10 @@ void setup() {
 // the loop function runs over and over again until power down or reset
 void loop() {
 	
-	//Constantly
+	//Get Current CPU tact
+	cpu_current = millis();
+
+	//Constantly check for control input
 	//Touch
 	if (myTouch.dataAvailable())
 	{
@@ -287,61 +291,75 @@ void loop() {
 		touch_y = myTouch.getY();
 		myUI.checkEvent(touch_x, touch_y);
 	}
-	
 	//Webserver
 	webserver->checkConnection();
 	
-	//RC Socket
-	if (rcsocketcontroller->learning == true) {
-		if (rcsocketcontroller->available()) {
-			rcsocketcontroller->learnPattern();
-			rcsocketcontroller->resetAvailable();
-			myUI.draw();
+	//Freeze Sensor, Logic and Taskmanager
+	if (haltstate == true) {
+		//Automatic Resume
+		if (haltstate_start == 0) {
+			haltstate_start = cpu_current;
 		}
-	}
-
-	//Get Millis
-	cpu_current = millis();
-
-	if (cpu_current - task_last >= (TASK_FRQ_SEC * 1000)) {
-		task_last = cpu_current;
-		taskmanager->execute();
-	}
-
-	//Refresh Sensor and Logic every 5sec
-	if (cpu_current - sensor_last >= (SENS_FRQ_SEC*1000)) {
-		sensor_last = cpu_current;
-		
-		//Cycles
-		sensor_cycles++;
-		LOGMSG(F("[Loop]"), F("INFO: Sensor Cycle"), String(sensor_cycles), "@", String(currenttime.createTime()));
-		
-		//Update Sensors
-		for (uint8_t i = 0; i < SENS_NUM; i++) {
-			sensors[i]->update();
-		}
-
-		//Check RuleSets
-		for (uint8_t i = 0; i < RULESETS_NUM; i++) {
-			rulesets[i]->execute();
-		}
-
-		//Save Settings to SD Card
-		if ((sensor_cycles % (5 * SENS_VALUES_MIN)) == 0) {
-			filesystem.saveActiveConfig();
-		}
-
-		//Backup
-		if ((sensor_cycles % (15 * SENS_VALUES_MIN)) == 0) {
-			filesystem.copyFile("_CURRENTCONFIG.JSON", "BACKUPCONFIG.JSON");
-		}
-
-		//Refresh UI
-		if((sensor_cycles % SENS_VALUES_MIN) == 0) {
-			//Update Clock
+		else if (cpu_current - haltstate_start >= (HALTSTATE * 1000)) {
+			haltstate = false;
+			haltstate_start = 0;
+			currenttime.user_update = true;
 			currenttime.syncTimeObject();
-			//Draw UI
-			myUI.draw();
+		}
+		
+		//RC Socket Learning
+		if (rcsocketcontroller->learning == true) {
+			if (rcsocketcontroller->available()) {
+				rcsocketcontroller->learnPattern();
+				rcsocketcontroller->resetAvailable();
+				myUI.draw();
+			}
+		}
+		//more Hardware
+	}
+	//Regular Cycle
+	else {
+		//Sensor
+		if (cpu_current - sensor_last >= (SENS_FRQ_SEC * 1000)) {
+			sensor_last = cpu_current;
+
+			//Cycles
+			sensor_cycles++;
+			LOGMSG(F("[Loop]"), F("INFO: Sensor Cycle"), String(sensor_cycles), "@", String(currenttime.createTime()));
+
+			//Update Sensors
+			for (uint8_t i = 0; i < SENS_NUM; i++) {
+				sensors[i]->update();
+			}
+
+			//Check RuleSets
+			for (uint8_t i = 0; i < RULESETS_NUM; i++) {
+				rulesets[i]->execute();
+			}
+
+			//Save Settings to SD Card
+			if ((sensor_cycles % (5 * SENS_VALUES_MIN)) == 0) {
+				filesystem.saveActiveConfig();
+			}
+
+			//Backup
+			if ((sensor_cycles % (15 * SENS_VALUES_MIN)) == 0) {
+				filesystem.copyFile("_CURRENTCONFIG.JSON", "BACKUPCONFIG.JSON");
+			}
+			
+			//Refresh UI
+			if ((sensor_cycles % SENS_VALUES_MIN) == 0) {
+				//Update Clock
+				currenttime.syncTimeObject();
+				//Draw UI
+				myUI.draw();
+			}
+		}
+
+		//Task Manager
+		if (cpu_current - task_last >= (TASK_FRQ_SEC * 1000)) {
+			task_last = cpu_current;
+			taskmanager->execute();
 		}
 	}
 }

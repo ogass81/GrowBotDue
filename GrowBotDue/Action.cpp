@@ -102,4 +102,5 @@ void ParameterizedSimpleAction<ActionType>::execute()
 //All Types of Templates used:
 template class SimpleAction<RelaisBoard>;
 template class SimpleAction<DigitalSwitch>;
+template class SimpleAction<RCSocketController>;
 template class ParameterizedSimpleAction<RCSocketController>;

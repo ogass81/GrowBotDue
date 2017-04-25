@@ -133,14 +133,11 @@ uint8_t RCSocketCodeSet::numberSignals()
 	return RC_SIGNALS;
 }
 
-void RCSocketCodeSet::serializeJSON(JsonObject &socket, uint8_t id)
+void RCSocketCodeSet::serializeJSON(JsonObject &codeset)
 {
-	
-	JsonObject& codeset = socket.createNestedObject(String(id));
-
-	codeset["id"] = id;
 	codeset["active"] = active;
-	
+	codeset["tol"] = nReceiveTolerance;
+	codeset["rep"] = repeat;
 	JsonArray& values = codeset.createNestedArray("value");
 	for (uint8_t j = 0; j < RC_SIGNALS; j++) values.add(nReceivedValue[j]);
 	JsonArray& delays = codeset.createNestedArray("delay");
@@ -149,29 +146,26 @@ void RCSocketCodeSet::serializeJSON(JsonObject &socket, uint8_t id)
 	for (uint8_t j = 0; j < RC_SIGNALS; j++) lengths.add(nReceivedBitlength[j]);
 	JsonArray& protocols = codeset.createNestedArray("proto");
 	for (uint8_t j = 0; j < RC_SIGNALS; j++) protocols.add(nReceivedProtocol[j]);
-	codeset["tol"] = nReceiveTolerance;
-	codeset["rep"] = repeat;
 
-	LOGDEBUG2(F("[Sensor]"), F("serializeJSON()"), F("OK: Serialized Remote Socket Code Set"), String(id), String(codeset.measureLength()), "");
+	LOGDEBUG2(F("[Sensor]"), F("serializeJSON()"), F("OK: Sub-routine serialized codeset"), String(codeset.measureLength()), "", "");
 }
 
 bool RCSocketCodeSet::deserializeJSON(JsonObject &data)
 {
 	if (data.success() == true) {
 		if (data["active"] != "") active = data["active"];
+		if (data["tol"] != "") nReceiveTolerance = data["tol"];
+		if (data["rep"] != "") repeat = data["rep"];
 
 		for (uint8_t j = 0; j < RC_SIGNALS; j++) if (data["value"][j] != "") nReceivedValue[j] = data["value"][j];
 		for (uint8_t j = 0; j < RC_SIGNALS; j++) if (data["delay"][j] != "") nReceivedDelay[j] = data["delay"][j];
 		for (uint8_t j = 0; j < RC_SIGNALS; j++) if (data["length"][j] != "") nReceivedBitlength[j] = data["length"][j];
 		for (uint8_t j = 0; j < RC_SIGNALS; j++) if (data["proto"][j] != "") nReceivedProtocol[j] = data["proto"][j];
 
-		if (data["tol"] != "") nReceiveTolerance = data["tol"];
-		if (data["rep"] != "") repeat = data["rep"];
-
-		LOGDEBUG2(F("[Sensor]"), F("deserializeJSON()"), F("OK: Deserialized members for Remote Socket Code Set"), String(data["id"].asString()), "", "");
+		LOGDEBUG2(F("[Sensor]"), F("deserializeJSON()"), F("OK: Sub-routine deserialized codeset"), String(data["id"].asString()), "", "");
 	}
 	else {
-		LOGDEBUG2(F("[Sensor]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members"), F("Datasize"), String(data.size()), "");
+		LOGDEBUG2(F("[Sensor]"), F("deserializeJSON()"), F("ERROR: No Data for sub-routine to deserialize codeset"), F("Datasize"), String(data.size()), "");
 	}
 	return data.success();
 }
@@ -230,6 +224,15 @@ void RCSocketController::learningmode_on()
 {
 	receiver_on();
 	learning = true;
+}
+
+void RCSocketController::learningmode_on(int set)
+{
+	if (set < 2 * RC_SOCKETS && learning == false) {
+		code_set_ptr = set;
+		receiver_on();
+		learning = true;
+	}
 }
 
 void RCSocketController::learningmode_off()
@@ -484,39 +487,35 @@ String RCSocketController::dec2binWzerofill(unsigned long Dec, unsigned int bitL
 	return String(bin);
 }
 
-void RCSocketController::serializeJSON(char * json, size_t maxSize)
+void RCSocketController::serializeJSON(uint8_t set, char * json, size_t maxSize)
 {
 	StaticJsonBuffer<5000> jsonBuffer;
 
 	JsonObject& socket = jsonBuffer.createObject();
 	socket["type"] = "RCSOCKET";
+	socket["id"] = set;
 	//Add data from each codeset, pass overall JSON by reference
-	for (uint8_t i = 0; i < RC_SOCKETS * 2; i++) {
-		socketcode[i]->serializeJSON(socket, i);
-	}
+	socketcode[set]->serializeJSON(socket);
 	socket.printTo(json, maxSize);
 	LOGDEBUG2(F("[RCSocketController]"), F("serializeJSON()"), F("OK: Serialized remote sockets"), String(socket.measureLength()), String(maxSize), "");
 }
 
-bool RCSocketController::deserializeJSON(JsonObject & data)
+bool RCSocketController::deserializeJSON(uint8_t set, JsonObject & data)
 {
 	bool success = true;
 
 	if (data.success() == true) {
-		for (uint8_t i = 0; i < RC_SOCKETS * 2; i++) {
-			JsonObject &set = data[String(i)].asObject();
-			success = socketcode[i]->deserializeJSON(set);
-		}
+		success = socketcode[set]->deserializeJSON(data);
 		
 		if (success == true) {
-			LOGDEBUG2(F("[RCSocketController]"), F("deserializeJSON()"), F("OK: Deserialized remote sockets"), F("Data size"), String(data.size()), "");
+			LOGDEBUG2(F("[RCSocketController]"), F("deserializeJSON()"), F("OK: Deserialized remote socket"), String(set), F("Data size"), String(data.size()));
 		}
 		else {
-			LOGDEBUG2(F("[RCSocketController]"), F("deserializeJSON()"), F("ERROR: Sub-data set not serialized successfully"), F("Data size"), String(data.size()), "");
+			LOGDEBUG2(F("[RCSocketController]"), F("deserializeJSON()"), F("ERROR: Deserializing unsuccessful for socket"), String(set), F("Data size"), String(data.size()));
 		}
 	}
 	else {
-		LOGDEBUG2(F("[RCSocketController]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members"), F("Data size"), String(data.size()), "");
+		LOGDEBUG2(F("[RCSocketController]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize socket "), String(set), F("Data size"), String(data.size()));
 	}
 
 	return success;
