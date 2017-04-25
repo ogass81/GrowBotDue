@@ -84,11 +84,11 @@ bool FileSystem::saveSettings(const char* filename)
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Sensor"), F("Id"), String(i), "");
 		}
-		rcsocketcontroller->serializeJSON(json, 2500);
-		file.println(json);
-
-		LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Remote Controlled Sockets"), "", "", "");
-
+		for (uint8_t i = 0; i < RC_SOCKETS * 2; i++) {
+			rcsocketcontroller->serializeJSON(i, json, 2500);
+			file.println(json);
+			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Remote Socket"), F("Id"), String(i), "");
+		}
 		LOGMSG(F("[FileSystem]"), F("OK: Saved Settings to file:"), String(filename), "", "");
 		file.close();
 	}
@@ -172,8 +172,15 @@ bool FileSystem::loadSettings(const char* filename)
 					}
 				}
 				else if (node["type"] == "RCSOCKET") {
-					success = rcsocketcontroller->deserializeJSON(node);
-					LOGDEBUG(F("[FileSystem]"), F("loadSettings()"), F("OK: Loaded Remote Controlled Sockets"), F("Id"), String(id), "");
+					id = (int)node["id"];
+					if (id < RC_SOCKETS * 2) {
+						success = rcsocketcontroller->deserializeJSON(id, node);
+						LOGDEBUG(F("[FileSystem]"), F("loadSettings()"), F("OK: Loaded Remote Controlled Socket"), F("Id"), String(id), "");
+					}
+					else {
+						LOGDEBUG(F("[FileSystem]"), F("loadSettings()"), F("ERROR: Remote Controlled Socket"), F("Id"), String(id), "");
+						success = false;
+					}
 				}
 			}
 			else {

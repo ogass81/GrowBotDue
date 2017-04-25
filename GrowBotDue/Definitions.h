@@ -41,6 +41,7 @@
 //Tact
 #define TASK_FRQ_SEC 1
 #define SENS_FRQ_SEC 5
+#define HALTSTATE 20
 //Log
 #define SENS_VALUES_MIN (60 / SENS_FRQ_SEC) //every 5 sec
 #define SENS_VALUES_HOUR 60 //every Minute
@@ -60,7 +61,7 @@
 #define RULESETS_NUM 32
 
 //Number of Actions
-#define ACTIONS_NUM 16
+#define ACTIONS_NUM 18
 #define ACTIONCHAINS_NUM 16
 #define ACTIONCHAIN_LENGTH 6
 
@@ -100,7 +101,7 @@ enum BoolOp { AND, OR, NOT };
 enum Interval { REALTIME, TENSEC, TWENTYSEC, THIRTYSEC, ONEMIN, TWOMIN, FIVEMIN, QUARTER, HALF, ONE, TWO, THREE, FOUR, SIX, TWELVE, DAILY, BIDAILY, WEEKLY, BIWEEKLY };
 enum DateRange { MINUTE, HOUR, DAY, MONTH, YEAR};
 
-#define LOGLEVEL 4
+#define LOGLEVEL 5
 
 #define LOGMSG(classname, msg, par1, par2, par3)   if(LOGLEVEL >1) { Serial.print(classname); Serial.print(" "); Serial.print(msg); Serial.print(" "); Serial.print(par1); Serial.print(" "); Serial.print(par2); Serial.print(" "); Serial.println(par3); }
 #define LOGMSG2(classname, msg, par1, par2, par3, par4)   if(LOGLEVEL >2) { Serial.print(classname); Serial.print(" "); Serial.print(msg); Serial.print(" "); Serial.print(par1); Serial.print(" "); Serial.print(par2); Serial.print(" "); Serial.print(par3);  }

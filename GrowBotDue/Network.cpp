@@ -145,7 +145,7 @@ void WebServer::checkConnection()
 						}
 						else if (node["action"] == "SET") {
 							success = actionchains[id]->deserializeJSON(node);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: SET"), String(id), "");
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: SET"), String(id), "");
 							client.print(createHtmlResponse("200 OK", "JSON received"));
 						}
 						else {
@@ -154,6 +154,36 @@ void WebServer::checkConnection()
 						}
 					}
 				}
+				else if (node["type"] == "RCSOCKET" && node["id"] != "") {
+					id = (int)node["id"];
+
+					if (id < RC_SOCKETS * 2) {
+						if (node["action"] == "GET") {
+							rcsocketcontroller->serializeJSON(id, json, 2500);
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: GET"), String(id), "");
+							client.print(createPostRequest(json));
+						}
+						else if (node["action"] == "SET") {
+							success = rcsocketcontroller->deserializeJSON(id, node);
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: SET"), String(id), "");
+							client.print(createHtmlResponse("200 OK", "JSON received"));
+						}
+						else if (node["action"] == "LEARN") {
+							if (node["mode"] == "ON") {
+								//TBD
+							}
+							else if (node["mode"] == "OFF") {
+								//TBD
+
+							}
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Remote Socket Action: UNKOWN"), String(id), "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+						}
+					}
+				}
+
 				else if (node["type"] == "SENSOR" && node["id"] != "") {
 					id = (int)node["id"];
 

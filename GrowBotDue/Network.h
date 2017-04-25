@@ -17,7 +17,9 @@
 #include "Ruleset.h"
 #include "Action.h"
 #include "ActionChain.h"
+#include "RCSocketController.h"
 #include "Setting.h"
+#include "TaskManager.h"
 
 extern CurrentTime currenttime;
 extern Sensor *sensors[SENS_NUM];
@@ -25,6 +27,8 @@ extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 extern RuleSet *rulesets[RULESETS_NUM];
 extern Action *actions[ACTIONS_NUM];
 extern ActionChain *actionchains[ACTIONCHAINS_NUM];
+extern RCSocketController *rcsocketcontroller;
+extern TaskManager *taskmanager;
 
 
 class WebServer : public WiFiEspServer {

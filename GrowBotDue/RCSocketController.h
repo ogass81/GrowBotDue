@@ -9,6 +9,7 @@
 	#include "WProgram.h"
 #endif
 #include "Definitions.h"
+#include <RCSwitch.h>
 #include <ArduinoJson.h>
 #include <RCSwitch.h>
 
@@ -50,8 +51,8 @@ public:
 	bool isNewSignal(long dec_val);
 	uint8_t numberSignals();
 
-	void serializeJSON(JsonObject & codeset, uint8_t id);
-	bool deserializeJSON(JsonObject& data);
+	void serializeJSON(JsonObject & codeset);
+	bool deserializeJSON(JsonObject & data);
 };
 
 class RCSocketController : public RCSwitch {
@@ -72,6 +73,7 @@ public:
 	void transmitter_off();
 
 	void learningmode_on();
+	void learningmode_on(int set);
 	void learningmode_off();
 
 	void learnPattern();
@@ -106,8 +108,8 @@ public:
 	static String dec2binWzerofill(unsigned long Dec, unsigned int bitLength);
 
 	//Serialize
-	void serializeJSON(char* json, size_t maxSize);
-	bool deserializeJSON(JsonObject& data);
+	void serializeJSON(uint8_t set, char* json, size_t maxSize);
+	bool deserializeJSON(uint8_t set, JsonObject& data);
 };
 
 #endif

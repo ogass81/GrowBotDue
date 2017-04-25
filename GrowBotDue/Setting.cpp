@@ -120,7 +120,9 @@ void Setting::serializeConstantsJSON(char * json, size_t maxSize)
 	settings["task_queue_length"] = TASK_QUEUE_LENGTH;
 	settings["actionchain_task_maxduration"] = ACTIONCHAIN_TASK_MAXDURATION;
 	settings["task_parallel_sec"] = TASK_PARALLEL_SEC;
-
+	settings["rc_sockets_num"] = RC_SOCKETS;
+	settings["rc_signals_num"] = RC_SIGNALS;
+	
 	settings.printTo(json, maxSize);
 	LOGDEBUG(F("[Setting]"), F("serializeJSONConstants()"), F("OK: Serialized Constants"), String(settings.measureLength()), String(maxSize), "");
 }
