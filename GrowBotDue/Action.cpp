@@ -19,7 +19,7 @@ String Action::getTitle()
 
 void Action::setAntagonist(Action * aObject)
 {
-	LOGDEBUG(F("[Action]"), F("setAntagonist()"), F("OK: Setting Antagonist Object"), "", "", "");
+	LOGDEBUG2(F("[Action]"), F("setAntagonist()"), F("OK: Setting Antagonist Object"), "", "", "");
 	antaObject = aObject;
 }
 
@@ -46,7 +46,7 @@ void SimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t max
 	actions["name"] = name;
 
 	actions.printTo(json, maxSize);
-	LOGDEBUG(F("[SimpleAction]"), F("serializeJSON()"), F("OK: Serialized Action"), String(id), String(actions.measureLength()), String(maxSize));
+	LOGDEBUG2(F("[SimpleAction]"), F("serializeJSON()"), F("OK: Serialized Action"), String(id), String(actions.measureLength()), String(maxSize));
 }
 
 template<class ActionType>
@@ -81,17 +81,23 @@ void ParameterizedSimpleAction<ActionType>::serializeJSON(uint8_t id, char * jso
 	actions["name"] = name;
 
 	actions.printTo(json, maxSize);
-	LOGDEBUG(F("[ParameterizedSimpleAction]"), F("serializeJSON()"), F("OK: Serialized Action"), String(id), String(actions.measureLength()), String(maxSize));
+	LOGDEBUG2(F("[ParameterizedSimpleAction]"), F("serializeJSON()"), F("OK: Serialized Action"), String(id), String(actions.measureLength()), String(maxSize));
 }
 
 template<class ActionType>
 void ParameterizedSimpleAction<ActionType>::execute()
 {
-	if (actionObject != NULL && callback != NULL && parameter != NULL) {
-		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), name, "", "");
-		(actionObject->*callback)(parameter);
+	if (actionObject != NULL) {
+		if (callback != NULL) {
+			if (parameter >= 0) {
+				LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), name, "", "");
+				(actionObject->*callback)(parameter);
+			}
+			else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Argument missing"), name, "", "");
+		}
+		else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Callback missing"), name, "", "");
 	}
-	else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Incomplete task"), name, "", "");
+	else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Action Object missing"), name, "", "");
 }
 //All Types of Templates used:
 template class SimpleAction<RelaisBoard>;

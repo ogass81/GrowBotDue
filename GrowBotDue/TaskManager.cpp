@@ -51,7 +51,7 @@ uint8_t TaskManager::getOffSet(ActionChain *actionchain)
 	
 		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) { //Iterate all Tasks in Chain
 			if (actionchain->assignedAction[i] != NULL) {
-				if (actionchain->actionParameter[i] == 0) {  //Simple Action - only Start, no End
+				if (actionchain->actionPar[i] == 0) {  //Simple Action - only Start, no End
 					 //Empty Spot for Start of Action
 					for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
 						if (queue[current_ptr][j] == NULL) {
@@ -67,7 +67,7 @@ uint8_t TaskManager::getOffSet(ActionChain *actionchain)
 						//Start
 					for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
 						if (queue[current_ptr][j] == NULL) {
-							current_ptr = getNextPositionFrom(current_ptr, actionchain->actionParameter[i]);
+							current_ptr = getNextPositionFrom(current_ptr, actionchain->actionPar[i]);
 							//End
 							for (uint8_t k = 0; k < TASK_PARALLEL_SEC; k++) {
 								if (queue[current_ptr][k] == NULL) {
@@ -123,7 +123,7 @@ void TaskManager::addActions(ActionChain *actionchain)
 
 		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) { //Iterate all Tasks in Chain
 			if (actionchain->assignedAction[i] != NULL) {
-				if (actionchain->actionParameter[i] == 0) {  //Simple Action - only Start, no End
+				if (actionchain->actionPar[i] == 0) {  //Simple Action - only Start, no End
 															 //Empty Spot for Start of Action
 					for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
 						if (queue[current_ptr][j] == NULL) {
@@ -147,7 +147,7 @@ void TaskManager::addActions(ActionChain *actionchain)
 							start_ptr = current_ptr;
 							start_task = j;
 							
-							current_ptr = getNextPositionFrom(current_ptr, actionchain->actionParameter[i]);
+							current_ptr = getNextPositionFrom(current_ptr, actionchain->actionPar[i]);
 							//End
 							for (uint8_t k = 0; k < TASK_PARALLEL_SEC; k++) {
 								if (queue[current_ptr][k] == NULL) {

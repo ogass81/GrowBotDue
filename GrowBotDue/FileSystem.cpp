@@ -60,30 +60,35 @@ bool FileSystem::saveSettings(const char* filename)
 		//Settings
 		Setting::serializeJSON(json, 2500);
 		file.println(json);
-		LOGDEBUG(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Overall Settings"), "", "", "");
+		LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Overall Settings"), "", "", "");
 
 		for (uint8_t i = 0; i < TRIGGER_TYPES; i++) {
 			for (uint8_t j = 0; j < TRIGGER_SETS; j++) {
 				trigger[i][j]->serializeJSON(i, j, json, 2500);
 				file.println(json);
-				LOGDEBUG(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Trigger"), F("Cat | Id"), String(i), String(j));
+				LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Trigger"), F("Cat | Id"), String(i), String(j));
 			}
 		}
 		for (uint8_t i = 0; i < RULESETS_NUM; i++) {
 			rulesets[i]->serializeJSON(i, json, 2500);
 			file.println(json);
-			LOGDEBUG(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Rule"), F("Id"), String(i), "");
+			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Rule"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < ACTIONCHAINS_NUM; i++) {
 			actionchains[i]->serializeJSON(i, json, 2500);
 			file.println(json);
-			LOGDEBUG(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Actionschain"), F("Id"), String(i), "");
+			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Actionschain"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < SENS_NUM; i++) {
 			sensors[i]->serializeJSON(i, json, 2500);
 			file.println(json);
-			LOGDEBUG(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Sensor"), F("Id"), String(i), "");
+			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Sensor"), F("Id"), String(i), "");
 		}
+		rcsocketcontroller->serializeJSON(json, 2500);
+		file.println(json);
+
+		LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Remote Controlled Sockets"), "", "", "");
+
 		LOGMSG(F("[FileSystem]"), F("OK: Saved Settings to file:"), String(filename), "", "");
 		file.close();
 	}
@@ -166,16 +171,9 @@ bool FileSystem::loadSettings(const char* filename)
 						success = false;
 					}
 				}
-					else if (node["type"] == "CHAIN") {
-					id = (int)node["id"];
-					if (id < ACTIONCHAINS_NUM) {
-						success = actionchains[id]->deserializeJSON(node);
-						LOGDEBUG(F("[FileSystem]"), F("loadSettings()"), F("OK: Loaded Actionchain"), F("Id"), String(id), "");
-					}
-					else {
-						LOGDEBUG(F("[FileSystem]"), F("loadSettings()"), F("ERROR: Invalid Actionchain"), F("Id"), String(id), "");
-						success = false;
-					}
+				else if (node["type"] == "RCSOCKET") {
+					success = rcsocketcontroller->deserializeJSON(node);
+					LOGDEBUG(F("[FileSystem]"), F("loadSettings()"), F("OK: Loaded Remote Controlled Sockets"), F("Id"), String(id), "");
 				}
 			}
 			else {

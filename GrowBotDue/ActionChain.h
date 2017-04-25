@@ -19,24 +19,17 @@ extern TaskManager *taskmanager;
 extern Action *actions[ACTIONS_NUM];
 
 
-
 class ActionChain {
 public:
 	bool active;
 	String title;
 
-	//Pointer Values for Serialization
-	uint8_t action1_ptr;
-	uint8_t action2_ptr;
-	uint8_t action3_ptr;
-	uint8_t action4_ptr;
-	uint8_t action5_ptr;
-	uint8_t action6_ptr;
+	//Parameter for Action Objects
+	uint8_t actionPtr[ACTIONCHAIN_LENGTH];
+	uint8_t actionPar[ACTIONCHAIN_LENGTH];
 
 	//Pointer to Action Objects
-	Action *assignedAction[5];
-	//Parameter for Action Objects
-	uint8_t actionParameter[5];
+	Action *assignedAction[ACTIONCHAIN_LENGTH];
 
 	ActionChain(int count);
 
