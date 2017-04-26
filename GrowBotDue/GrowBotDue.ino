@@ -296,17 +296,6 @@ void loop() {
 	
 	//Freeze Sensor, Logic and Taskmanager
 	if (haltstate == true) {
-		//Automatic Resume
-		if (haltstate_start == 0) {
-			haltstate_start = cpu_current;
-		}
-		else if (cpu_current - haltstate_start >= (HALTSTATE * 1000)) {
-			haltstate = false;
-			haltstate_start = 0;
-			currenttime.user_update = true;
-			currenttime.syncTimeObject();
-		}
-		
 		//RC Socket Learning
 		if (rcsocketcontroller->learning == true) {
 			if (rcsocketcontroller->available()) {
