@@ -224,14 +224,15 @@ void RCSocketController::learningmode_on()
 {
 	receiver_on();
 	learning = true;
+	haltstate = true;
+	LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set ON"), String(sensor_cycles), "@", String(currenttime.createTime()));
 }
 
 void RCSocketController::learningmode_on(int set)
 {
 	if (set < 2 * RC_SOCKETS && learning == false) {
 		code_set_ptr = set;
-		receiver_on();
-		learning = true;
+		learningmode_on();
 	}
 }
 
@@ -239,6 +240,9 @@ void RCSocketController::learningmode_off()
 {
 	receiver_off();
 	learning = false;
+	haltstate = false;
+	currenttime.syncCycles();
+	LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set OFF"), String(sensor_cycles), "@", String(currenttime.createTime()));
 }
 
 void RCSocketController::learnPattern()

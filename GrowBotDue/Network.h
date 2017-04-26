@@ -19,6 +19,7 @@
 #include "ActionChain.h"
 #include "RCSocketController.h"
 #include "Setting.h"
+#include "FileSystem.h"
 #include "TaskManager.h"
 
 extern CurrentTime currenttime;
@@ -29,7 +30,7 @@ extern Action *actions[ACTIONS_NUM];
 extern ActionChain *actionchains[ACTIONCHAINS_NUM];
 extern RCSocketController *rcsocketcontroller;
 extern TaskManager *taskmanager;
-
+extern FileSystem filesystem;
 
 class WebServer : public WiFiEspServer {
 private: 

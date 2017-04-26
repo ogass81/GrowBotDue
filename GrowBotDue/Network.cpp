@@ -112,7 +112,6 @@ void WebServer::checkConnection()
 							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
 						}
 					}
-					delay(100);
 				}
 				else if (node["type"] == "RULE" && node["id"] != "") {
 					id = (int)node["id"];
@@ -170,11 +169,12 @@ void WebServer::checkConnection()
 						}
 						else if (node["action"] == "LEARN") {
 							if (node["mode"] == "ON") {
-								//TBD
+								rcsocketcontroller->learningmode_on(id);
+								client.print(createHtmlResponse("200 OK", "Learning mode activated"));
 							}
 							else if (node["mode"] == "OFF") {
-								//TBD
-
+								rcsocketcontroller->learningmode_off();
+								client.print(createHtmlResponse("200 OK", "Learning mode deactivated"));
 							}
 						}
 						else {
@@ -183,7 +183,6 @@ void WebServer::checkConnection()
 						}
 					}
 				}
-
 				else if (node["type"] == "SENSOR" && node["id"] != "") {
 					id = (int)node["id"];
 
@@ -202,12 +201,11 @@ void WebServer::checkConnection()
 							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
 						}
 					}
-					delay(150);
 				}
 				else if (node["type"] == "ACTION" && node["id"] != "") {
 					id = (int)node["id"];
 
-					if (id < SENS_NUM) {
+					if (id < ACTIONS_NUM) {
 						if (node["action"] == "GET") {
 							actions[id]->serializeJSON(id, json, 2500);
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), String(id), "");
@@ -217,30 +215,70 @@ void WebServer::checkConnection()
 							LOGMSG(F("[WebServer]"), F("OK: Invalid HTTP Request"), F("Type: Action Object Action: SET "), "Not Supported", String(id));
 							client.print(createHtmlResponse("501 NOT IMPLEMENTED ", "SET for Action Object not supported"));
 						}
+						else if (node["action"] == "EXECUTE") {
+							actions[id]->execute();
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: EXECUTE"), String(id), "");
+							client.print(createHtmlResponse("200 OK", "Executed action"));
+						}
+						
 						else {
 							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Action Object Action: UNKOWN"), String(id), "");
 							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
 						}
 					}
-					delay(150);
 				}
 				else if (node["type"] == "SETTINGS") {
 					if (node["action"] == "GET") {
 						Setting::serializeJSON(json, 2500);
-						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), String(id), "");
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), "", "");
 						client.print(createPostRequest(json));
 					}
 					else if (node["action"] == "SET") {
 						success = Setting::deserializeJSON(node);
-						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SET"), String(id), "");
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SET"), "", "");
 						client.print(createHtmlResponse("200 OK", "JSON received"));
 					}
+					else if (node["action"] == "SAVE") {
+						if (node["target"] == "ACTIVE") {
+							filesystem.saveActiveConfig();
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SAVE"), "Active Config", "");
+							client.print(createHtmlResponse("200 OK", "Saved Active config"));
+						}
+						else if (node["target"] == "DEFAULT") {
+							filesystem.saveDefaultConfig();
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SAVE"), "Default Config", "");
+							client.print(createHtmlResponse("200 OK", "Saved Default config"));
+						}
+					}
+					else if (node["action"] == "LOAD") {
+						if (node["target"] == "ACTIVE") {
+							filesystem.loadActiveConfig();
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: LOAD"), "Active Config", "");
+							client.print(createHtmlResponse("200 OK", "Loaded Active config"));
+						}
+						else if (node["target"] == "DEFAULT") {
+							filesystem.loadDefaultConfig();
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: LOAD"), "Default Config", "");
+							client.print(createHtmlResponse("200 OK", "Loaded Default config"));
+						}
+					}
+					else if (node["action"] == "RESET") {
+						Setting::reset();
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: RESET"), "", "");
+						client.print(createHtmlResponse("200 OK", "Factory Reset"));
+					}
 					else {
-						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Action Object Action: UNKOWN"), String(id), "");
+						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Action Object Action: UNKOWN"), "", "");
 						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
 					}
 				}
-				delay(150);
+				else if (node["type"] == "CONSTANTS") {
+					if (node["action"] == "GET") {
+						Setting::serializeConstantsJSON(json, 2500);
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Constants Action: GET"), "", "");
+						client.print(createPostRequest(json));
+					}
+				}
 			}
 			else {
 				LOGMSG(F("[WebServer]"), F("ERROR: HTTP Request received"), "JSON parsing failed", "", "");
@@ -253,7 +291,7 @@ void WebServer::checkConnection()
 		}
 		
 		// give the web browser time to receive the data
-		delay(10);
+		delay(200);
 		// close the connection:
 		client.stop();
 		LOGMSG(F("[WebServer]"), F("OK: Client disconnected"), "@" + currenttime.createTime(), F("IPV4"), client.remoteIP());

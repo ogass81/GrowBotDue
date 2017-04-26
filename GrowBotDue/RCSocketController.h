@@ -12,6 +12,10 @@
 #include <RCSwitch.h>
 #include <ArduinoJson.h>
 #include <RCSwitch.h>
+#include "CurrentTime.h"
+
+extern CurrentTime currenttime;
+extern bool haltstate;
 
 class RCSocketCodeSet {
 public:

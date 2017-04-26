@@ -42,6 +42,7 @@ public:
 	
 	//Synch Time Object or update RTC
 	void syncTimeObject();
+	void syncCycles();
 	void updateRTC(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
 	void updateRTCdefault();
 
