@@ -20,14 +20,14 @@
 #define UI_Y_DIVIDER 20
 
 //SD Card Control Pin
-#define SD_CONTROL_PIN  52
+#define SD_CONTROL_PIN  6
 
 //Wifi Control Pin
-#define ESP_CONTROL_PIN 17
+#define ESP_CONTROL_PIN 14
 
 //FS1000A
-#define RTX_DATA_PIN 16
-#define RTS_DATA_PIN 15
+#define RTX_DATA_PIN 15
+#define RTS_DATA_PIN 5
 #define RC_SOCKETS 4
 #define RC_SIGNALS 5
 #define RC_REPEAT 5
@@ -50,7 +50,7 @@
 #define SENS_VALUES_YEAR 52 // every week
 
 //Sensors
-#define SENS_NUM 10
+#define SENS_NUM 2
 
 //Rules Enginge
 //Trigger Categories and number for each category
@@ -61,7 +61,7 @@
 #define RULESETS_NUM 32
 
 //Number of Actions
-#define ACTIONS_NUM 18
+#define ACTIONS_NUM 8
 #define ACTIONCHAINS_NUM 16
 #define ACTIONCHAIN_LENGTH 6
 
@@ -71,7 +71,7 @@
 #define TASK_PARALLEL_SEC 6
 
 //Internal Temperatur Sensor
-#define DHT_DATA_PIN 53
+#define DHT_DATA_PIN 19
 #define DHT_TYPE DHT22
 
 //Relais
@@ -85,10 +85,6 @@
 #define IN_MOS_2 A1
 #define IN_MOS_3 A2
 #define IN_MOS_4 A3
-#define IN_TOP_1 10
-#define IN_TOP_2 11
-#define IN_TOP_3 12
-#define IN_TOP_4 13
 
 //Top Panel
 #define OUT_TOP_1 6
@@ -96,10 +92,11 @@
 #define OUT_TOP_3 8
 #define OUT_TOP_4 9
 
+
 enum RelOp { SMALLER, EQUAL, GREATER };
 enum BoolOp { AND, OR, NOT };
-enum Interval { REALTIME, TENSEC, TWENTYSEC, THIRTYSEC, ONEMIN, TWOMIN, FIVEMIN, QUARTER, HALF, ONE, TWO, THREE, FOUR, SIX, TWELVE, DAILY, BIDAILY, WEEKLY, BIWEEKLY };
-enum DateRange { MINUTE, HOUR, DAY, MONTH, YEAR};
+enum Interval { REALTIME, TENSEC, TWENTYSEC, THIRTYSEC, ONEMIN, TWOMIN, FIVEMIN, QUARTER, HALF, ONE, TWO, THREE, FOUR, SIX, TWELVE, DAILY, BIDAILY, WEEKLY, BIWEEKLY};
+enum DateRange { AVG, MINUTE, HOUR, DAY, MONTH, YEAR, ALL};
 
 #define LOGLEVEL 5
 

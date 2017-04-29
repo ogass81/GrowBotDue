@@ -19,8 +19,6 @@
 
 //Modules
 #include "CurrentTime.h"
-#include "Relais.h"
-#include "DigitalSwitch.h"
 #include "FileSystem.h"
 #include "Network.h"
 #include "Sensor.h"
@@ -29,12 +27,20 @@
 #include "ActionChain.h"
 #include "Ruleset.h"
 #include "TaskManager.h"
+
+/*
 #include "UserInterface.h"
+#include "DigitalSwitch.h"
+#include "Relais.h"
+*/
+
+
 #include "RCSocketController.h"
 #include "Setting.h"
 
 
 //Global Variables
+/*
 int touch_x, touch_y;
 
 extern uint8_t BigFont[];
@@ -44,6 +50,8 @@ int color = 0;
 word colorlist[] = { VGA_WHITE, VGA_BLACK, VGA_RED, VGA_BLUE, VGA_GREEN, VGA_FUCHSIA, VGA_YELLOW, VGA_AQUA, VGA_GRAY, VGA_SILVER };
 int  bsize = 4;
 bool unit = true;
+*/
+
 
 //Tact Generator
 long sensor_cycles = 0;
@@ -58,11 +66,18 @@ String wifi_ssid;
 String wifi_pw;
 String api_secret;
 
+/*
 //Hardware Handles
 //LCD, Touchscreen
 UTFT    myGLCD(SSD1289, 38, 39, 40, 41);
 //Control Pins Touchscreen
 UTouch  myTouch(44, 45, 46, 47, 48);
+//Relaisboard
+RelaisBoard *relaisboard;
+//Digital Switches
+DigitalSwitch *digitalswitches;
+*/
+
 //DHT Hardware
 DHT dht(DHT_DATA_PIN, DHT_TYPE);
 //RealTimeClock
@@ -73,11 +88,6 @@ RCSocketController *rcsocketcontroller;
 
 //Wifi
 WebServer *webserver;
-
-//Relaisboard 
-RelaisBoard *relaisboard;
-//Digital Switches
-DigitalSwitch *digitalswitches;
 
 //Modules
 //Sensors: Abstraction of all Sensors
@@ -99,8 +109,11 @@ RuleSet *rulesets[RULESETS_NUM];
 //FileSystem
 FileSystem filesystem;
 
+/*
 //User Interface: TFT User Interface
 UserInterface myUI;
+*/
+
 
 void setup() {
 	// initialize serial for debugging
@@ -112,16 +125,20 @@ void setup() {
 	//Initialize Tact Generator
 	sensor_cycles = (CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, 0)) / SENS_FRQ_SEC;
 
+	/*
 	//Initialize Relais Board
 	relaisboard = new RelaisBoard();
 	//Initialize Digital Switches
 	digitalswitches = new DigitalSwitch();
+	*/
+	
 	//433Mhz
 	rcsocketcontroller = new RCSocketController(RTX_DATA_PIN, RTS_DATA_PIN);
 			
 	//Initialize Sensors
 	sensors[0] = new	DHTTemperature("Temp.", 'C', true);
 	sensors[1] = new 	DHTHumidity("Humid.", '%', true);
+	/*
 	sensors[2] = new 	AnalogSensor("Moist.", IN_MOS_1, '%', true);
 	sensors[3] = new 	AnalogSensor("Moist.", IN_MOS_2, '%', true);
 	sensors[4] = new 	AnalogSensor("Mosit.", IN_MOS_3, '%', true);
@@ -130,26 +147,28 @@ void setup() {
 	sensors[7] = new 	DigitalSensor("TBD", OUT_TOP_2, 'B', true);
 	sensors[8] = new 	DigitalSensor("TBD", OUT_TOP_3, 'B', true);
 	sensors[9] = new 	DigitalSensor("TBD", OUT_TOP_4, 'B', true);
+	*/
 
 	//Intialize Actions
-	actions[0] = new SimpleAction<RelaisBoard>("R1 On", relaisboard, &RelaisBoard::R1On, true);
-	actions[1] = new SimpleAction<RelaisBoard>("R1 Off", relaisboard, &RelaisBoard::R1Off, true);
-	actions[2] = new SimpleAction<RelaisBoard>("R2 On", relaisboard, &RelaisBoard::R2On, true);
-	actions[3] = new SimpleAction<RelaisBoard>("R2 Off", relaisboard, &RelaisBoard::R2Off, true);
-	actions[4] = new SimpleAction<RelaisBoard>("R3 On", relaisboard, &RelaisBoard::R3On, true);
-	actions[5] = new SimpleAction<RelaisBoard>("R3 Off", relaisboard, &RelaisBoard::R3Off, true);
-	actions[6] = new SimpleAction<RelaisBoard>("R4 On", relaisboard, &RelaisBoard::R4On, true);
-	actions[7] = new SimpleAction<RelaisBoard>("R4 Off", relaisboard, &RelaisBoard::R4Off, true);
-	actions[8] = new ParameterizedSimpleAction<RCSocketController>("RC1 On", rcsocketcontroller, &RCSocketController::sendCode, 0, true);
-	actions[9] = new ParameterizedSimpleAction<RCSocketController>("RC1 Off", rcsocketcontroller, &RCSocketController::sendCode, 1, true);
-	actions[10] = new ParameterizedSimpleAction<RCSocketController>("RC2 On", rcsocketcontroller, &RCSocketController::sendCode, 2, true);
-	actions[11] = new ParameterizedSimpleAction<RCSocketController>("RC2 Off", rcsocketcontroller, &RCSocketController::sendCode, 3, true);
-	actions[12] = new ParameterizedSimpleAction<RCSocketController>("RC3 On", rcsocketcontroller, &RCSocketController::sendCode, 4, true);
-	actions[13] = new ParameterizedSimpleAction<RCSocketController>("RC3 Off", rcsocketcontroller, &RCSocketController::sendCode, 5, true);
-	actions[14] = new ParameterizedSimpleAction<RCSocketController>("RC4 On", rcsocketcontroller, &RCSocketController::sendCode, 6, true);
-	actions[15] = new ParameterizedSimpleAction<RCSocketController>("RC4 Off", rcsocketcontroller, &RCSocketController::sendCode, 7, true);
-	actions[16] = new SimpleAction<RCSocketController>("Learning Mode On", rcsocketcontroller, &RCSocketController::learningmode_on, false);
-	actions[17] = new SimpleAction<RCSocketController>("Learning Mode Off", rcsocketcontroller, &RCSocketController::learningmode_off, false);
+	actions[0] = new ParameterizedSimpleAction<RCSocketController>("RC1 On", rcsocketcontroller, &RCSocketController::sendCode, 0, true);
+	actions[1] = new ParameterizedSimpleAction<RCSocketController>("RC1 Off", rcsocketcontroller, &RCSocketController::sendCode, 1, true);
+	actions[2] = new ParameterizedSimpleAction<RCSocketController>("RC2 On", rcsocketcontroller, &RCSocketController::sendCode, 2, true);
+	actions[3] = new ParameterizedSimpleAction<RCSocketController>("RC2 Off", rcsocketcontroller, &RCSocketController::sendCode, 3, true);
+	actions[4] = new ParameterizedSimpleAction<RCSocketController>("RC3 On", rcsocketcontroller, &RCSocketController::sendCode, 4, true);
+	actions[5] = new ParameterizedSimpleAction<RCSocketController>("RC3 Off", rcsocketcontroller, &RCSocketController::sendCode, 5, true);
+	actions[6] = new ParameterizedSimpleAction<RCSocketController>("RC4 On", rcsocketcontroller, &RCSocketController::sendCode, 6, true);
+	actions[7] = new ParameterizedSimpleAction<RCSocketController>("RC4 Off", rcsocketcontroller, &RCSocketController::sendCode, 7, true);
+	
+	/*
+	actions[8] = new SimpleAction<RelaisBoard>("R1 On", relaisboard, &RelaisBoard::R1On, true);
+	actions[9] = new SimpleAction<RelaisBoard>("R1 Off", relaisboard, &RelaisBoard::R1Off, true);
+	actions[10] = new SimpleAction<RelaisBoard>("R2 On", relaisboard, &RelaisBoard::R2On, true);
+	actions[11] = new SimpleAction<RelaisBoard>("R2 Off", relaisboard, &RelaisBoard::R2Off, true);
+	actions[12] = new SimpleAction<RelaisBoard>("R3 On", relaisboard, &RelaisBoard::R3On, true);
+	actions[13] = new SimpleAction<RelaisBoard>("R3 Off", relaisboard, &RelaisBoard::R3Off, true);
+	actions[14] = new SimpleAction<RelaisBoard>("R4 On", relaisboard, &RelaisBoard::R4On, true);
+	actions[15] = new SimpleAction<RelaisBoard>("R4 Off", relaisboard, &RelaisBoard::R4Off, true);
+	*/
 
 
 	//Define Opposite Action / Antagonist
@@ -221,8 +240,8 @@ void setup() {
 	//Wifi ESP2866
 	pinMode(ESP_CONTROL_PIN, OUTPUT);
 	digitalWrite(ESP_CONTROL_PIN, HIGH);
-	Serial1.begin(115200);
-	WiFi.init(&Serial1);
+	Serial2.begin(115200);
+	WiFi.init(&Serial2);
 
 	//Convert SSID and PW to char[]
 	char ssid[wifi_ssid.length()+1];
@@ -244,6 +263,7 @@ void setup() {
 	webserver = new WebServer();
 	webserver->begin();
 	
+	/*
 	// Initial LCD setup
 	myGLCD.InitLCD();
 	myGLCD.clrScr();
@@ -256,24 +276,15 @@ void setup() {
 	myUI.drawMenue(1);
 	myUI.drawFrame(1);
 
-	/*
-	//Test Data
-	trigger[1][0]->threshold = 30;
-	trigger[1][0]->active = true;
-	trigger[1][0]->relop = SMALLER;
-	trigger[1][0]->interval = QUARTER;
 
-	trigger[1][1]->threshold = 37;
-	trigger[1][1]->active = true;
-	trigger[1][1]->relop = GREATER;
-	trigger[1][1]->interval = QUARTER;
-	*/
+	//Test Data
+
 	for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) sensors[0]->minute_values[i] = random(-25, 30);
 	for (uint8_t i = 0; i < SENS_VALUES_HOUR; i++) sensors[0]->hour_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) sensors[0]->day_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) sensors[0]->month_values[i] = random(-25, 25);
 	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) sensors[0]->year_values[i] = random(-25, 25);
-
+	*/
 }
 
 // the loop function runs over and over again until power down or reset
@@ -284,6 +295,7 @@ void loop() {
 
 	//Constantly check for control input
 	//Touch
+	/*	
 	if (myTouch.dataAvailable())
 	{
 		myTouch.read();
@@ -291,6 +303,7 @@ void loop() {
 		touch_y = myTouch.getY();
 		myUI.checkEvent(touch_x, touch_y);
 	}
+	*/
 	//Webserver
 	webserver->checkConnection();
 	
@@ -301,7 +314,7 @@ void loop() {
 			if (rcsocketcontroller->available()) {
 				rcsocketcontroller->learnPattern();
 				rcsocketcontroller->resetAvailable();
-				myUI.draw();
+				//myUI.draw();
 			}
 		}
 		//more Hardware
@@ -341,7 +354,7 @@ void loop() {
 				//Update Clock
 				currenttime.syncTimeObject();
 				//Draw UI
-				myUI.draw();
+				//myUI.draw();
 			}
 		}
 
