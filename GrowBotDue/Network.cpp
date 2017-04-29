@@ -167,6 +167,11 @@ void WebServer::checkConnection()
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: SET"), String(id), "");
 							client.print(createHtmlResponse("200 OK", "JSON received"));
 						}
+						else if (node["action"] == "RESET") {
+							rcsocketcontroller->resetSettings(id);
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: RESET"), String(id), "");
+							client.print(createHtmlResponse("200 OK", "JSON received"));
+						}
 						else if (node["action"] == "LEARN") {
 							if (node["mode"] == "ON") {
 								rcsocketcontroller->learningmode_on(id);
@@ -188,9 +193,41 @@ void WebServer::checkConnection()
 
 					if (id < SENS_NUM) {
 						if (node["action"] == "GET") {
-							sensors[id]->serializeJSON(id, json, 2500);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), "");
-							client.print(createPostRequest(json));
+							if (node["mode"] == "ALL") {
+								sensors[id]->serializeJSON(id, json, 2500, ALL);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: ALL"));
+								client.print(createPostRequest(json));
+							}
+							else if (node["mode"] == "AVG") {
+								sensors[id]->serializeJSON(id, json, 2500, AVG);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: AVG"));
+								client.print(createPostRequest(json));
+							}
+							else if (node["mode"] == "MINUTE") {
+								sensors[id]->serializeJSON(id, json, 2500, MINUTE);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: MINUTE"));
+								client.print(createPostRequest(json));
+							}
+							else if (node["mode"] == "HOUR") {
+								sensors[id]->serializeJSON(id, json, 2500, HOUR);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: HOUR"));
+								client.print(createPostRequest(json));
+							}
+							else if (node["mode"] == "DAY") {
+								sensors[id]->serializeJSON(id, json, 2500, DAY);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: DAY"));
+								client.print(createPostRequest(json));
+							}
+							else if (node["mode"] == "MONTH") {
+								sensors[id]->serializeJSON(id, json, 2500, MONTH);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: MONTH"));
+								client.print(createPostRequest(json));
+							}
+							else if (node["mode"] == "YEAR") {
+								sensors[id]->serializeJSON(id, json, 2500, YEAR);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: YEAR"));
+								client.print(createPostRequest(json));
+							}
 						}
 						else if (node["action"] == "SET") {
 							LOGMSG(F("[WebServer]"), F("OK: Invalid HTTP Request"), F("Type: Sensor Action: SET "), "Not Supported", String(id));

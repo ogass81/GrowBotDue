@@ -84,6 +84,7 @@ public:
 	void learnPattern(uint8_t code_set);
 	void testSettings();
 	void resetSettings();
+	void resetSettings(uint8_t set);
 
 	void sendCode(int id);
 

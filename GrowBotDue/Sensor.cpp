@@ -647,7 +647,7 @@ void Sensor::reset()
 	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) year_values[i] = -32768;
 }
 
-void Sensor::serializeJSON(uint8_t id, char* json, size_t maxSize)
+void Sensor::serializeJSON(uint8_t id, char* json, size_t maxSize, DateRange range)
 {
 	StaticJsonBuffer<5000> jsonBuffer;
 
@@ -661,17 +661,49 @@ void Sensor::serializeJSON(uint8_t id, char* json, size_t maxSize)
 	sensor["m_ptr"] = month_ptr;
 	sensor["y_ptr"] = year_ptr;
 
-	JsonArray& minutes = sensor.createNestedArray("min_vals");
-	for (uint8_t j = 0; j < SENS_VALUES_MIN; j++) minutes.add(toNAN(minute_values[j]));
-	JsonArray& hours = sensor.createNestedArray("h_vals");
-	for (uint8_t j = 0; j < SENS_VALUES_HOUR ; j++) hours.add(toNAN(hour_values[j]));
-	JsonArray& days = sensor.createNestedArray("d_vals");
-	for (uint8_t j = 0; j < SENS_VALUES_DAY; j++) days.add(toNAN(day_values[j]));
-	JsonArray& month = sensor.createNestedArray("m_vals");
-	for (uint8_t j = 0; j < SENS_VALUES_MONTH; j++) month.add(toNAN(month_values[j]));
-	JsonArray& year = sensor.createNestedArray("y_vals");
-	for (uint8_t j = 0; j < SENS_VALUES_YEAR; j++) year.add(toNAN(year_values[j]));
-	
+	if (range == AVG) {
+		JsonObject& minutes = sensor.createNestedObject("average");
+		sensor["last"] = getLastValue();
+		sensor["tenSec"] = getTenSecAvg();
+		sensor["twentySec"] = getTwentySecAvg();
+		sensor["thirtySec"] = getThirtySecAvg();
+		sensor["oneMin"] = getOneMinAvg();
+		sensor["twoMin"] = getTwoMinAvg();
+		sensor["fiveMin"] = getFiveMinAvg();
+		sensor["quarterHour"] = getQuarterAvg();
+		sensor["halfHour"] = getHalfAvg();
+		sensor["lastHour"] = getHourAvg();
+		sensor["twoHours"] = getTwoHourAvg();
+		sensor["threeHours"] = getThreeHourAvg();
+		sensor["fourHours"] = getFourHourAvg();
+		sensor["sixHours"] = getSixHourAvg();
+		sensor["twelveHours"] = getTwelveHourAvg();
+		sensor["lastDay"] = getDayAvg();
+		sensor["twoDays"] = getTwoDayAvg();
+		sensor["lastWeek"] = getWeekAvg();
+		sensor["twoWeeks"] = getTwoWeekAvg();
+	}
+	if (range == MINUTE || range == ALL) {
+		JsonArray& minutes = sensor.createNestedArray("min_vals");
+		for (uint8_t j = 0; j < SENS_VALUES_MIN; j++) minutes.add(toNAN(minute_values[j]));
+	}
+
+	if (range == MINUTE || range == ALL) {
+		JsonArray& hours = sensor.createNestedArray("h_vals");
+		for (uint8_t j = 0; j < SENS_VALUES_HOUR ; j++) hours.add(toNAN(hour_values[j]));
+	}
+	if (range == MINUTE || range == ALL) {
+		JsonArray& days = sensor.createNestedArray("d_vals");
+		for (uint8_t j = 0; j < SENS_VALUES_DAY; j++) days.add(toNAN(day_values[j]));
+	}
+	if (range == MONTH || range == ALL) {
+		JsonArray& month = sensor.createNestedArray("m_vals");
+		for (uint8_t j = 0; j < SENS_VALUES_MONTH; j++) month.add(toNAN(month_values[j]));
+	}
+	if (range == MONTH || range == ALL) {
+		JsonArray& year = sensor.createNestedArray("y_vals");
+		for (uint8_t j = 0; j < SENS_VALUES_YEAR; j++) year.add(toNAN(year_values[j]));
+	}
 	sensor.printTo(json, maxSize);
 	LOGDEBUG2(F("[Sensor]"), F("serializeJSON()"), F("OK: Serialized members for Sensor"), String(id), String(sensor.measureLength()), String(maxSize));
 }

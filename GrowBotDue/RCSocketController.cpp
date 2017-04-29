@@ -324,6 +324,19 @@ void RCSocketController::resetSettings()
 	socketcode[code_set_ptr]->active = false;
 }
 
+void RCSocketController::resetSettings(uint8_t set)
+{
+	learningmode_off();
+
+	for (uint8_t i = 0; i < RC_SIGNALS; i++) {
+		socketcode[set]->nReceivedDelay[i] = 0;
+		socketcode[set]->nReceivedProtocol[i] = 0;
+		socketcode[set]->nReceivedValue[i] = 0;
+		socketcode[set]->nReceivedBitlength[i] = 0;
+	}
+	socketcode[set]->active = false;
+}
+
 String RCSocketController::getDecimalKey()
 {
 	if (socketcode[code_set_ptr]->getCurrentValue() == 0) {

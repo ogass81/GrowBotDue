@@ -80,7 +80,7 @@ bool FileSystem::saveSettings(const char* filename)
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Actionschain"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < SENS_NUM; i++) {
-			sensors[i]->serializeJSON(i, json, 2500);
+			sensors[i]->serializeJSON(i, json, 2500, ALL);
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Sensor"), F("Id"), String(i), "");
 		}
