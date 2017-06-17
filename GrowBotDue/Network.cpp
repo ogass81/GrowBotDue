@@ -228,6 +228,11 @@ void WebServer::checkConnection()
 								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: YEAR"));
 								client.print(createPostRequest(json));
 							}
+							else if (node["mode"] == "ALL") {
+								sensors[id]->serializeJSON(id, json, 2500, ALL);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: ALL"));
+								client.print(createPostRequest(json));
+							}
 						}
 						else if (node["action"] == "SET") {
 							LOGMSG(F("[WebServer]"), F("OK: Invalid HTTP Request"), F("Type: Sensor Action: SET "), "Not Supported", String(id));
@@ -264,7 +269,7 @@ void WebServer::checkConnection()
 						}
 					}
 				}
-				else if (node["type"] == "SETTINGS") {
+				else if (node["type"] == "SETTING") {
 					if (node["action"] == "GET") {
 						Setting::serializeJSON(json, 2500);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), "", "");
@@ -309,7 +314,7 @@ void WebServer::checkConnection()
 						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
 					}
 				}
-				else if (node["type"] == "CONSTANTS") {
+				else if (node["type"] == "CONSTANT") {
 					if (node["action"] == "GET") {
 						Setting::serializeConstantsJSON(json, 2500);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Constants Action: GET"), "", "");

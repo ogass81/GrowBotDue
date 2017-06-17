@@ -97,6 +97,12 @@ public:
 	String getValue();
 };
 
+class BinarySensor : DigitalSensor {
+
+
+};
+
+
 class DHTTemperature : public Sensor {
 public:
 	DHTTemperature(String source, char unit, bool active);

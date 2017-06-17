@@ -208,7 +208,6 @@ void UserInterface::drawMenue(int nav) {
 		menueElements[4] = NULL;
 		break;
 
-
 		//Analog Trigger
 	case 22:
 		menueElements[0] = new TypedMenueButton<UserInterface>("Front 1", VGA_WHITE, VGA_BLACK, VGA_WHITE, 0, this, this, &UserInterface::setCategoryPtr, 3, true, 22, 211);
@@ -267,10 +266,6 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[2] = new TextBox(String(sensors[2]->getValue()), 2, 6, 4, VGA_WHITE, VGA_WHITE, this);
 		frameElements[3] = new TextLabel("F2:" + sensors[3]->getTitle(), 3, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
 		frameElements[4] = new TextBox(String(sensors[3]->getValue()), 3, 6, 4, VGA_WHITE, VGA_WHITE, this);
-		frameElements[5] = new TextLabel("F3:" + sensors[4]->getTitle(), 4, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[6] = new TextBox(String(sensors[4]->getValue()), 4, 6, 4, VGA_WHITE, VGA_WHITE, this);
-		frameElements[7] = new TextLabel("F4:" + sensors[5]->getTitle(), 5, 0, 0, BACKGROUNDCOLOR, VGA_WHITE, this);
-		frameElements[8] = new TextBox(String(sensors[5]->getValue()), 5, 6, 4, VGA_WHITE, VGA_WHITE, this);
 		frameElements[9] = NULL;
 		break;
 		//Relais Status
