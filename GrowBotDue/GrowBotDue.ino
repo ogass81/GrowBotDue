@@ -142,6 +142,7 @@ void setup() {
 	sensors[1] = new 	DHTHumidity("Humid.", '%', true);
 	sensors[2] = new 	AnalogSensor("Moist.", IN_MOS_1, '%', true);
 	sensors[3] = new 	AnalogSensor("Moist.", IN_MOS_2, '%', true);
+	//Additional Sensors
 	/*
 	sensors[4] = new 	AnalogSensor("Mosit.", IN_MOS_3, '%', true);
 	sensors[5] = new 	AnalogSensor("Moist.", IN_MOS_4, '%', true);
