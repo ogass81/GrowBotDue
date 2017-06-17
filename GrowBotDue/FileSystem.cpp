@@ -11,7 +11,7 @@ FileSystem::FileSystem()
 
 void FileSystem::init()
 {
-	if (!sd.begin(SD_CONTROL_PIN, SPI_HALF_SPEED)) {
+	if (!sd.begin(SD_CONTROL_PIN, SPI_EIGHTH_SPEED)) {
 		sd.initErrorHalt();
 	}
 }

@@ -27,12 +27,12 @@
 #include "ActionChain.h"
 #include "Ruleset.h"
 #include "TaskManager.h"
-
-/*
 #include "UserInterface.h"
+/*
 #include "DigitalSwitch.h"
-#include "Relais.h"
 */
+#include "Relais.h"
+
 
 
 #include "RCSocketController.h"
@@ -40,7 +40,7 @@
 
 
 //Global Variables
-/*
+
 int touch_x, touch_y;
 
 extern uint8_t BigFont[];
@@ -50,7 +50,6 @@ int color = 0;
 word colorlist[] = { VGA_WHITE, VGA_BLACK, VGA_RED, VGA_BLUE, VGA_GREEN, VGA_FUCHSIA, VGA_YELLOW, VGA_AQUA, VGA_GRAY, VGA_SILVER };
 int  bsize = 4;
 bool unit = true;
-*/
 
 
 //Tact Generator
@@ -66,14 +65,17 @@ String wifi_ssid;
 String wifi_pw;
 String api_secret;
 
-/*
+
 //Hardware Handles
 //LCD, Touchscreen
 UTFT    myGLCD(SSD1289, 38, 39, 40, 41);
 //Control Pins Touchscreen
 UTouch  myTouch(44, 45, 46, 47, 48);
+
 //Relaisboard
 RelaisBoard *relaisboard;
+
+/*
 //Digital Switches
 DigitalSwitch *digitalswitches;
 */
@@ -109,10 +111,10 @@ RuleSet *rulesets[RULESETS_NUM];
 //FileSystem
 FileSystem filesystem;
 
-/*
+
 //User Interface: TFT User Interface
 UserInterface myUI;
-*/
+
 
 
 void setup() {
@@ -133,14 +135,14 @@ void setup() {
 	*/
 	
 	//433Mhz
-	rcsocketcontroller = new RCSocketController(RTX_DATA_PIN, RTS_DATA_PIN);
+	rcsocketcontroller = new RCSocketController(TX_DATA_PIN, RX_DATA_PIN);
 			
 	//Initialize Sensors
 	sensors[0] = new	DHTTemperature("Temp.", 'C', true);
 	sensors[1] = new 	DHTHumidity("Humid.", '%', true);
-	/*
 	sensors[2] = new 	AnalogSensor("Moist.", IN_MOS_1, '%', true);
 	sensors[3] = new 	AnalogSensor("Moist.", IN_MOS_2, '%', true);
+	/*
 	sensors[4] = new 	AnalogSensor("Mosit.", IN_MOS_3, '%', true);
 	sensors[5] = new 	AnalogSensor("Moist.", IN_MOS_4, '%', true);
 	sensors[6] = new 	DigitalSensor("TBD", OUT_TOP_1, 'B', true);
@@ -226,16 +228,20 @@ void setup() {
 	//Initialize FileSystem / SD Card
 	filesystem.init();
 	
-	if (filesystem.loadSettings("_CURRENTCONFIG.JSON") == false || DEBUG_RESET == true) {
-		LOGMSG(F("[Setup]"), F("WARNING: Did not load primary config file"), F("Hardreset"), DEBUG_RESET, "");
-		if (filesystem.loadSettings("BACKUPCONFIG.JSON") == false || DEBUG_RESET == true) {
-			LOGMSG(F("[Setup]"), F("WARNING: Did not load backup config file"), F("Hardreset"), DEBUG_RESET, "");
-			if (filesystem.loadSettings("DEFAULTCONFIG.JSON") == false || DEBUG_RESET == true) {
-				LOGMSG(F("[Setup]"), F("WARNING: Did not load default config file"), F("Hardreset"), DEBUG_RESET, "");
-				Setting::reset();
+	if (DEBUG_RESET == false) {
+		if (filesystem.loadSettings("_CURRENTCONFIG.JSON") == false) {
+			LOGMSG(F("[Setup]"), F("WARNING: Did not load primary config file"), F("Hardreset"), DEBUG_RESET, "");
+			if (filesystem.loadSettings("BACKUPCONFIG.JSON") == false) {
+				LOGMSG(F("[Setup]"), F("WARNING: Did not load backup config file"), F("Hardreset"), DEBUG_RESET, "");
+				if (filesystem.loadSettings("DEFAULTCONFIG.JSON") == false) {
+					LOGMSG(F("[Setup]"), F("WARNING: Did not load default config file"), F("Hardreset"), DEBUG_RESET, "");
+					Setting::reset();
+				}
 			}
 		}
 	}
+	else Setting::reset();
+
 
 	//Wifi ESP2866
 	pinMode(ESP_CONTROL_PIN, OUTPUT);
@@ -263,7 +269,7 @@ void setup() {
 	webserver = new WebServer();
 	webserver->begin();
 	
-	/*
+
 	// Initial LCD setup
 	myGLCD.InitLCD();
 	myGLCD.clrScr();
@@ -276,7 +282,7 @@ void setup() {
 	myUI.drawMenue(1);
 	myUI.drawFrame(1);
 
-
+	/*
 	//Test Data
 
 	for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) sensors[0]->minute_values[i] = random(-25, 30);
@@ -295,7 +301,7 @@ void loop() {
 
 	//Constantly check for control input
 	//Touch
-	/*	
+		
 	if (myTouch.dataAvailable())
 	{
 		myTouch.read();
@@ -303,7 +309,7 @@ void loop() {
 		touch_y = myTouch.getY();
 		myUI.checkEvent(touch_x, touch_y);
 	}
-	*/
+
 	//Webserver
 	webserver->checkConnection();
 	
@@ -354,7 +360,7 @@ void loop() {
 				//Update Clock
 				currenttime.syncTimeObject();
 				//Draw UI
-				//myUI.draw();
+				myUI.draw();
 			}
 		}
 

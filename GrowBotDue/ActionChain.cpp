@@ -228,6 +228,7 @@ void ActionChain::reset()
 void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize)
 {
 	StaticJsonBuffer<500> jsonBuffer;
+	String tmp_ptr, tmp_par;
 
 	JsonObject& actions = jsonBuffer.createObject();
 
@@ -236,8 +237,11 @@ void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize)
 	actions["active"] = active;
 	
 	for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
-		actions[String("actPtr" + i)] = actionPtr[i];
-		actions[String("actPar" + i)] = actionPar[i];
+		tmp_ptr = "actrPtr" + String(i);
+		tmp_par = "actPar" + String(i);
+
+		actions[tmp_ptr] = actionPtr[i];
+		actions[tmp_par] = actionPar[i];
 	}
 
 	actions.printTo(json, maxSize);
@@ -246,14 +250,19 @@ void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize)
 
 bool ActionChain::deserializeJSON(JsonObject & data)
 {
+	String tmp_ptr, tmp_par;
+
 	if (data.success() == true) {
 		
 		if (data["active"] != "") active = data["active"];
 		
 		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
+			tmp_ptr = "actrPtr" + String(i);
+			tmp_par = "actPar" + String(i);
+			
 			//Assign Pointers to Action using Index to Action
-			if (data[String("actPtr" + i)] != "") {
-				actionPtr[i] = data[String("actPtr" + i)];
+			if (data[tmp_ptr] != "") {
+				actionPtr[i] = data[tmp_ptr];
 				assignedAction[i] = actions[actionPtr[i]];
 			}
 			else {
@@ -261,7 +270,7 @@ bool ActionChain::deserializeJSON(JsonObject & data)
 				assignedAction[i] = NULL;
 			}
 			//Assign Action Parameter to Member
-			if (data[String("actPar" + i)] != "") actionPar[i] = data[String("actPar" + i)];
+			if (data[tmp_par] != "") actionPar[i] = data[tmp_par];
 			else actionPtr[i] = 0;
 		}
 

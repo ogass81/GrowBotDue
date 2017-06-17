@@ -662,26 +662,26 @@ void Sensor::serializeJSON(uint8_t id, char* json, size_t maxSize, DateRange ran
 	sensor["y_ptr"] = year_ptr;
 
 	if (range == AVG) {
-		JsonObject& minutes = sensor.createNestedObject("average");
-		sensor["last"] = getLastValue();
-		sensor["tenSec"] = getTenSecAvg();
-		sensor["twentySec"] = getTwentySecAvg();
-		sensor["thirtySec"] = getThirtySecAvg();
-		sensor["oneMin"] = getOneMinAvg();
-		sensor["twoMin"] = getTwoMinAvg();
-		sensor["fiveMin"] = getFiveMinAvg();
-		sensor["quarterHour"] = getQuarterAvg();
-		sensor["halfHour"] = getHalfAvg();
-		sensor["lastHour"] = getHourAvg();
-		sensor["twoHours"] = getTwoHourAvg();
-		sensor["threeHours"] = getThreeHourAvg();
-		sensor["fourHours"] = getFourHourAvg();
-		sensor["sixHours"] = getSixHourAvg();
-		sensor["twelveHours"] = getTwelveHourAvg();
-		sensor["lastDay"] = getDayAvg();
-		sensor["twoDays"] = getTwoDayAvg();
-		sensor["lastWeek"] = getWeekAvg();
-		sensor["twoWeeks"] = getTwoWeekAvg();
+		JsonObject& avg = sensor.createNestedObject("avg");
+		avg["last"] = getLastValue();
+		avg["tenSec"] = getTenSecAvg();
+		avg["twentySec"] = getTwentySecAvg();
+		avg["thirtySec"] = getThirtySecAvg();
+		avg["oneMin"] = getOneMinAvg();
+		avg["twoMin"] = getTwoMinAvg();
+		avg["fiveMin"] = getFiveMinAvg();
+		avg["quarterHour"] = getQuarterAvg();
+		avg["halfHour"] = getHalfAvg();
+		avg["lastHour"] = getHourAvg();
+		avg["twoHours"] = getTwoHourAvg();
+		avg["threeHours"] = getThreeHourAvg();
+		avg["fourHours"] = getFourHourAvg();
+		avg["sixHours"] = getSixHourAvg();
+		avg["twelveHours"] = getTwelveHourAvg();
+		avg["lastDay"] = getDayAvg();
+		avg["twoDays"] = getTwoDayAvg();
+		avg["lastWeek"] = getWeekAvg();
+		avg["twoWeeks"] = getTwoWeekAvg();
 	}
 	if (range == MINUTE || range == ALL) {
 		JsonArray& minutes = sensor.createNestedArray("min_vals");
