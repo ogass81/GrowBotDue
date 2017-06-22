@@ -261,88 +261,6 @@ SensorGraph::SensorGraph(Sensor *sensor_ptr, DateRange range) {
 	drawGraph(range);
 }
 
-short SensorGraph::getMaxValue(DateRange range)
-{
-	short max = -32767;
-
-	switch (range) {
-
-	case MINUTE:
-		for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) {
-			if (sensor_ptr->minute_values[i] > max) max = sensor_ptr->minute_values[i];
-		}
-		break;
-	
-	case HOUR:
-		for (uint8_t i = 0; i < SENS_VALUES_HOUR ; i++) {
-			if (sensor_ptr->hour_values[i] > max) max = sensor_ptr->hour_values[i];
-		}
-		break;
-		
-	case DAY:
-		for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) {
-			if (sensor_ptr->day_values[i] > max) max = sensor_ptr->day_values[i];
-		}
-		break;
-		
-	case MONTH:
-		for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) {
-			if (sensor_ptr->month_values[i] > max) max = sensor_ptr->month_values[i];
-		}
-		break;
-		
-	case YEAR:
-		for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) {
-			if (sensor_ptr->year_values[i] > max) max = sensor_ptr->year_values[i];
-		}
-		break;
-	}
-	LOGDEBUG(F("[SensorGraph]"), F("getMaxValue()"), F("OK: Maximum value in Sensor data"), String(max), "", "");
-
-	return max;
-}
-
-short SensorGraph::getMinValue(DateRange range)
-{
-	short min = 32767;
-
-	switch (range) {
-
-	case MINUTE:
-		for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) {
-			if (sensor_ptr->minute_values[i] < min) min = sensor_ptr->minute_values[i];
-		}
-		break;
-
-	case HOUR:
-		for (uint8_t i = 0; i < SENS_VALUES_HOUR ; i++) {
-			if (sensor_ptr->hour_values[i] < min) min = sensor_ptr->hour_values[i];
-		}
-		break;
-		
-	case DAY:
-		for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) {
-			if (sensor_ptr->day_values[i] < min) min = sensor_ptr->day_values[i];
-		}
-		break;
-		
-	case MONTH:
-		for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) {
-			if (sensor_ptr->month_values[i] < min) min = sensor_ptr->month_values[i];
-		}
-		break;
-		
-	case YEAR:
-		for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) {
-			if (sensor_ptr->year_values[i] < min) min = sensor_ptr->year_values[i];
-		}
-		break;
-	}
-	LOGDEBUG(F("[SensorGraph]"), F("getMinValue()"), F("OK: Minimum value in Sensor data"), String(min), "", "");
-
-	return min;
-}
-
 float SensorGraph::getXMultiplier(DateRange range)
 {
 	float multiplier;
@@ -375,7 +293,7 @@ float SensorGraph::getXMultiplier(DateRange range)
 	return (float) multiplier;
 }
 
-float SensorGraph::getYMultiplier(short min, short max)
+float SensorGraph::getYMultiplier(int min, int max)
 {
 	short range;
 	float multiplier;
@@ -435,8 +353,8 @@ void SensorGraph::drawGraph(DateRange range)
 	short base;
 	String label;
 	
-	short min = getMinValue(range);
-	short max = getMaxValue(range);
+	short min = sensor_ptr->getMinValueInt(range);
+	short max = sensor_ptr->getMinValueInt(range);
 	float x_multiplier = getXMultiplier(range);
 	float y_multiplier = getYMultiplier(min, max);
 
@@ -455,7 +373,7 @@ void SensorGraph::drawGraph(DateRange range)
 	case MINUTE:
 		for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) {
 			myGLCD.setColor(VGA_RED);
-			drawValue(i, sensor_ptr->minute_values[i], x_multiplier, y_multiplier, base);
+			drawValue(i, sensor_ptr->getElementValueInt(range, i), x_multiplier, y_multiplier, base);
 			
 			myGLCD.setColor(VGA_WHITE);
 			myGLCD.setBackColor(VGA_TRANSPARENT);
@@ -473,7 +391,7 @@ void SensorGraph::drawGraph(DateRange range)
 	case HOUR:
 		for (uint8_t i = 0; i < SENS_VALUES_HOUR ; i++) {
 			myGLCD.setColor(VGA_FUCHSIA);
-			drawValue(i, sensor_ptr->hour_values[i], x_multiplier, y_multiplier, base);
+			drawValue(i, sensor_ptr->getElementValueInt(range, i), x_multiplier, y_multiplier, base);
 			
 			myGLCD.setColor(VGA_WHITE);
 			myGLCD.setBackColor(VGA_TRANSPARENT);
@@ -491,7 +409,7 @@ void SensorGraph::drawGraph(DateRange range)
 
 		for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) {
 			myGLCD.setColor(VGA_LIME);
-			drawValue(i, sensor_ptr->day_values[i], x_multiplier, y_multiplier, base);
+			drawValue(i, sensor_ptr->getElementValueInt(range, i), x_multiplier, y_multiplier, base);
 		
 			myGLCD.setColor(VGA_WHITE);
 			myGLCD.setBackColor(VGA_TRANSPARENT);
@@ -508,7 +426,7 @@ void SensorGraph::drawGraph(DateRange range)
 	case MONTH:
 		for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) {
 			myGLCD.setColor(VGA_BLUE);
-			drawValue(i, sensor_ptr->month_values[i], x_multiplier, y_multiplier, base);
+			drawValue(i, sensor_ptr->getElementValueInt(range, i), x_multiplier, y_multiplier, base);
 		
 			myGLCD.setColor(VGA_WHITE);
 			myGLCD.setBackColor(VGA_TRANSPARENT);
@@ -525,7 +443,7 @@ void SensorGraph::drawGraph(DateRange range)
 	case YEAR:
 		for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) {
 			myGLCD.setColor(VGA_RED);
-			drawValue(i, sensor_ptr->year_values[i], x_multiplier, y_multiplier, base);
+			drawValue(i, sensor_ptr->getElementValueInt(range, i), x_multiplier, y_multiplier, base);
 		
 			myGLCD.setColor(VGA_WHITE);
 			myGLCD.setBackColor(VGA_TRANSPARENT);
@@ -551,12 +469,10 @@ void SensorGraph::drawGraph(DateRange range)
 	//Labels
 	if (base > 120) {
 		label = "0";
-		label += (String)sensor_ptr->unit;
 		myGLCD.print(label, UI_X_DIVIDER + 3 * UI_PADDING, base - 12);
 	} 
 	else {
 		label = "0";
-		label += (String)sensor_ptr->unit;
 		myGLCD.print(label, UI_X_DIVIDER + 3 * UI_PADDING, base + 12);
 	}
 
@@ -564,14 +480,12 @@ void SensorGraph::drawGraph(DateRange range)
 	if (max > 0 && base > 60) {
 		label = "Max:";
 		label += (String)max;
-		label += (String)sensor_ptr->unit;
 		myGLCD.print(label, UI_X_DIVIDER + 3 * UI_PADDING, UI_Y_DIVIDER + UI_PADDING);
 	}
 	//Min
 	if (min < 0 && base < 180 ) {
 		label = "Min:";
 		label += (String)min;
-		label += (String)sensor_ptr->unit;
 		myGLCD.print(label, UI_X_DIVIDER + 3 * UI_PADDING, 240 - 12 - UI_PADDING);
 	}
 }

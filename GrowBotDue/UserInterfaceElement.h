@@ -123,10 +123,8 @@ public:
 	Sensor *sensor_ptr;
 	DateRange range;
 
-	short getMaxValue(DateRange range);
-	short getMinValue(DateRange range);
 	float getXMultiplier(DateRange range);
-	float getYMultiplier(short min, short max);
+	float getYMultiplier(int min, int max);
 
 	void drawGraph(DateRange range);
 

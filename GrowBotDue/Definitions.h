@@ -92,6 +92,10 @@
 #define OUT_TOP_3 51
 #define OUT_TOP_4 52
 
+//LED
+#define LED1 11
+#define LED2 12
+#define LED3 13
 
 enum RelOp { SMALLER, EQUAL, GREATER };
 enum BoolOp { AND, OR, NOT };

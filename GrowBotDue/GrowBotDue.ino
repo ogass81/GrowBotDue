@@ -5,7 +5,6 @@
 */
 
 //Contants
-
 #include "Definitions.h"
 
 //Hardware Libaries
@@ -18,6 +17,7 @@
 #include <DHT.h>
 
 //Modules
+#include "Led.h"
 #include "CurrentTime.h"
 #include "FileSystem.h"
 #include "Network.h"
@@ -65,6 +65,8 @@ String wifi_ssid;
 String wifi_pw;
 String api_secret;
 
+//Status LED
+Led *led[3];
 
 //Hardware Handles
 //LCD, Touchscreen
@@ -121,6 +123,14 @@ void setup() {
 	// initialize serial for debugging
 	Serial.begin(115200);
 
+	//Status Led
+	led[0] = new Led(LED1, false);
+	led[1] = new Led(LED2, false);
+	led[2] = new Led(LED3, false);
+	
+	//Start Temp/Humidity Sensor
+	dht.begin();
+
 	// initialize RTC
 	currenttime.begin(); 
 	currenttime.syncTimeObject();
@@ -138,10 +148,10 @@ void setup() {
 	rcsocketcontroller = new RCSocketController(TX_DATA_PIN, RX_DATA_PIN);
 			
 	//Initialize Sensors
-	sensors[0] = new	DHTTemperature("Temp.", 'C', true);
-	sensors[1] = new 	DHTHumidity("Humid.", '%', true);
-	sensors[2] = new 	AnalogSensor("Moist.", IN_MOS_1, '%', true);
-	sensors[3] = new 	AnalogSensor("Moist.", IN_MOS_2, '%', true);
+	sensors[0] = new	DHTTemperature(&dht, true, F("Int. Temperature"), F("C"), -127);
+	sensors[1] = new 	DHTHumidity(&dht, true, F("Int. Humidity"), F("%"), -127);
+	sensors[2] = new 	AnalogMoistureSensor<short>(IN_MOS_1, OUT_MOS_1, true, F("Soil Moisture 1"), F("%"), -1, 0, 1000, 0, 1000);
+	sensors[3] = new 	AnalogMoistureSensor<short>(IN_MOS_2, OUT_MOS_2, true, F("Soil Moisture 2"), F("%"), -1, 0, 1000, 0, 1000);
 	//Additional Sensors
 	/*
 	sensors[4] = new 	AnalogSensor("Mosit.", IN_MOS_3, '%', true);
@@ -316,6 +326,8 @@ void loop() {
 	
 	//Freeze Sensor, Logic and Taskmanager
 	if (haltstate == true) {
+		//Led
+		led[1]->turnOn();
 		//RC Socket Learning
 		if (rcsocketcontroller->learning == true) {
 			if (rcsocketcontroller->available()) {
@@ -328,8 +340,11 @@ void loop() {
 	}
 	//Regular Cycle
 	else {
+		led[1]->turnOff();
 		//Sensor
 		if (cpu_current - sensor_last >= (SENS_FRQ_SEC * 1000)) {
+			led[0]->switchState();
+
 			sensor_last = cpu_current;
 
 			//Cycles

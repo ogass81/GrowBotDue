@@ -19,12 +19,14 @@
 #include "ActionChain.h"
 #include "RCSocketController.h"
 #include "Setting.h"
+#include "Led.h"
 
 extern String wifi_ssid;
 extern String wifi_pw;
 extern String api_secret;
 
 extern long sensor_cycles;
+extern Led *led[3];
 extern CurrentTime currenttime;
 extern Sensor *sensors[SENS_NUM];
 extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];

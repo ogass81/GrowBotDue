@@ -19,103 +19,147 @@
 extern DHT dht;
 extern long sensor_cycles;
 
+//Sensor Interface
 class Sensor {
-private:
-	String toNAN(short i);
-	short fromNAN(String str);
-
 public:
-	String source;
-	char unit;
+	//UI Controls
+	virtual int getAvgInt(Interval interval);
+	virtual float getAvgFloat(Interval interval);
+
+	virtual bool compareWithValue(RelOp relop, Interval interval, int value);
+	
+	virtual void serializeJSON(uint8_t id, char* json, size_t maxSize, DateRange range);
+	virtual bool deserializeJSON(JsonObject& data);
+
+	virtual String getTitle();
+	virtual String getValue();
+	
+	virtual int getMaxValueInt(DateRange range);
+	virtual int getMinValueInt(DateRange range);
+	virtual int getElementValueInt(DateRange range, uint8_t element);
+
+	virtual void update();
+
+	//Settings
+	virtual void reset();
+};
+
+
+template <class ReturnType>
+class BaseSensor : public Sensor {
+private:
+	//Methods to prepare NAN values for JSON serialization / deserialization
+	String toNAN(ReturnType i);
+	ReturnType fromNAN(String str);
+public:
+	//Sensor Info
+	String desc;
+	String unit;
+	ReturnType nan_val;
+	ReturnType min_val;
+	ReturnType max_val;
+	ReturnType lower_threshold;
+	ReturnType upper_threshold;
+
+	//Sensor Hardware
 	bool active;
 	uint8_t pin;
 
 	//Sensor Values
-	short minute_values[SENS_VALUES_MIN];
-	short hour_values[SENS_VALUES_HOUR ]; //every minute
-	short day_values[SENS_VALUES_DAY]; //every 15 minutes
-	short month_values[SENS_VALUES_MONTH]; //every 6h
-	short year_values[SENS_VALUES_YEAR]; //every month for three years
+	ReturnType minute_values[SENS_VALUES_MIN];
+	ReturnType hour_values[SENS_VALUES_HOUR]; 
+	ReturnType day_values[SENS_VALUES_DAY];
+	ReturnType month_values[SENS_VALUES_MONTH];
+	ReturnType year_values[SENS_VALUES_YEAR];
 
 	//Pointer to Values
-	int8_t minute_ptr = -1;
-	int8_t hour_ptr = -1;
-	int8_t day_ptr = -1;
-	int8_t month_ptr = -1;
-	int8_t year_ptr = -1;
-	
-	Sensor();
+	uint8_t minute_ptr = 255;
+	uint8_t hour_ptr = 255;
+	uint8_t day_ptr = 255;
+	uint8_t month_ptr = 255;
+	uint8_t year_ptr = 255;
+
+	BaseSensor();
 
 	//UI Controls
-	short getLastValue();
-	short getTenSecAvg();
-	short getTwentySecAvg();
-	short getThirtySecAvg();
-	short getOneMinAvg();
-	short getTwoMinAvg();
-	short getFiveMinAvg();
-	short getQuarterAvg();
-	short getHalfAvg();
-	short getHourAvg();
-	short getTwoHourAvg();
-	short getThreeHourAvg();
-	short getFourHourAvg();
-	short getSixHourAvg();
-	short getTwelveHourAvg();
-	short getDayAvg();
-	short getTwoDayAvg();
-	short getWeekAvg();
-	short getTwoWeekAvg();
+	int getAvgInt(Interval interval);
+	float getAvgFloat(Interval interval);
+
+	ReturnType getLastValue();
+	ReturnType getTenSecAvg();
+	ReturnType getTwentySecAvg();
+	ReturnType getThirtySecAvg();
+	ReturnType getOneMinAvg();
+	ReturnType getTwoMinAvg();
+	ReturnType getFiveMinAvg();
+	ReturnType getQuarterHourAvg();
+	ReturnType getHalfHourAvg();
+	ReturnType getHourAvg();
+	ReturnType getTwoHourAvg();
+	ReturnType getThreeHourAvg();
+	ReturnType getFourHourAvg();
+	ReturnType getSixHourAvg();
+	ReturnType getTwelveHourAvg();
+	ReturnType getDayAvg();
+	ReturnType getTwoDayAvg();
+	ReturnType getWeekAvg();
+	ReturnType getTwoWeekAvg();
 
 	//UI Output
 	virtual String getValue();
 	String getTitle();
+	int getMaxValueInt(DateRange range);
+	int getMinValueInt(DateRange range);
+	int getElementValueInt(DateRange range, uint8_t element);
 
 	//Read new value and write to array
-	virtual float readValue();
+	virtual ReturnType readValue();
+	//Calculate Average
+	ReturnType average(uint8_t start, uint8_t num_elements, ReturnType * values, uint8_t max);
+	ReturnType minValue(ReturnType * values, uint8_t max);
+	ReturnType maxValue(ReturnType * values, uint8_t max);
+
 	void update();
 
 	//Settings
 	void reset();
-
+	
 	//Serialize
 	void serializeJSON(uint8_t id, char* json, size_t maxSize, DateRange range);
 	bool deserializeJSON(JsonObject& data);
 };
 
-class AnalogSensor : public Sensor {
+template <class ReturnType>
+class AnalogMoistureSensor : public BaseSensor<ReturnType> {
 public:
-	AnalogSensor(String source, uint8_t pin, char unit, bool active);
-	float readValue();
+	uint8_t power_pin;
+
+	AnalogMoistureSensor(uint8_t pin, uint8_t power_pin, bool active, String desc, String unit, ReturnType nan_val, ReturnType min_val, ReturnType max_val, ReturnType lower_threshold, ReturnType upper_threshold);
+	ReturnType readValue();
 	String getValue();
+
+	bool compareWithValue(RelOp relop, Interval interval, int value);
 };
 
-class DigitalSensor : public Sensor {
+class DHTTemperature : public BaseSensor<int8_t> {
+private: 
+	DHT *dht = NULL;
 public:
-	DigitalSensor(String source, int pin, char unit, bool active);
-	float readValue();
+	DHTTemperature(DHT *dht, bool active, String desc, String unit, int8_t nan_val);
+	int8_t readValue();
 	String getValue();
+
+	bool compareWithValue(RelOp relop, Interval interval, int value);
 };
 
-class BinarySensor : DigitalSensor {
-
-
-};
-
-
-class DHTTemperature : public Sensor {
+class DHTHumidity : public BaseSensor<int8_t> {
+private:
+	DHT *dht = NULL;
 public:
-	DHTTemperature(String source, char unit, bool active);
-	float readValue();
+	DHTHumidity(DHT *dht, bool active, String desc, String unit, int8_t nan_val);
+	int8_t readValue();
 	String getValue();
-};
 
-class DHTHumidity : public Sensor {
-public:
-	DHTHumidity(String source, char unit, bool active);
-	float readValue();
-	String getValue();
+	bool compareWithValue(RelOp relop, Interval interval, int value);
 };
-
 #endif
-
