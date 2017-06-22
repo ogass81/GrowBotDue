@@ -56,7 +56,7 @@ bool FileSystem::saveSettings(const char* filename)
 	bool success = true;
 		
 	if (file.open(filename, O_CREAT | O_TRUNC | O_WRITE)) {
-		
+		led[2]->turnOn();
 		//Settings
 		Setting::serializeJSON(json, 2500);
 		file.println(json);
@@ -65,31 +65,37 @@ bool FileSystem::saveSettings(const char* filename)
 		for (uint8_t i = 0; i < TRIGGER_TYPES; i++) {
 			for (uint8_t j = 0; j < TRIGGER_SETS; j++) {
 				trigger[i][j]->serializeJSON(i, j, json, 2500);
+				led[2]->switchState();
 				file.println(json);
 				LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Trigger"), F("Cat | Id"), String(i), String(j));
 			}
 		}
 		for (uint8_t i = 0; i < RULESETS_NUM; i++) {
 			rulesets[i]->serializeJSON(i, json, 2500);
+			led[2]->switchState();
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Rule"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < ACTIONCHAINS_NUM; i++) {
 			actionchains[i]->serializeJSON(i, json, 2500);
+			led[2]->switchState();
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Actionschain"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < SENS_NUM; i++) {
 			sensors[i]->serializeJSON(i, json, 2500, ALL);
+			led[2]->switchState();
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Sensor"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < RC_SOCKETS * 2; i++) {
 			rcsocketcontroller->serializeJSON(i, json, 2500);
+			led[2]->switchState();
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Remote Socket"), F("Id"), String(i), "");
 		}
 		LOGMSG(F("[FileSystem]"), F("OK: Saved Settings to file:"), String(filename), "", "");
+		led[2]->turnOff();
 		file.close();
 	}
 	else {
@@ -217,10 +223,14 @@ bool FileSystem::copyFile(const char* source, const char* destination)
 		if (backup_file.open(destination, O_CREAT | O_TRUNC | O_WRITE)) {
 			LOGDEBUG(F("[FileSystem]"), F("copyFile()"), F("OK: Target File open"), F("Filename"), String(destination), "");
 
+			led[2]->turnOn();
 			while ((current_file.read(buf, sizeof(buf))) > 0) {
+				led[2]->switchState();
 				backup_file.write(buf, n);
 				i++;
 			}
+			led[2]->turnOff();
+
 			output = String(i * 64);
 			current_file.close();
 			backup_file.close();

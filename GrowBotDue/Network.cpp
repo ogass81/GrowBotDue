@@ -235,8 +235,9 @@ void WebServer::checkConnection()
 							}
 						}
 						else if (node["action"] == "SET") {
-							LOGMSG(F("[WebServer]"), F("OK: Invalid HTTP Request"), F("Type: Sensor Action: SET "), "Not Supported", String(id));
-							client.print(createHtmlResponse("501 NOT IMPLEMENTED ", "SET for Sensor Object not supported"));
+							success = sensors[id]->deserializeJSON(node);
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Sensor Action: SET"), String(id), "");
+							client.print(createHtmlResponse("200 OK", "JSON received"));
 						}
 						else {
 							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Sensor Action: UNKOWN"), String(id), "");

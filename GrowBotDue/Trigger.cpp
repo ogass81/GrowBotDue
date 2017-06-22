@@ -709,36 +709,11 @@ bool SensorTrigger::checkState()
 
 	//epoch_current = CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, currenttime.current_second);
 	sensor_start = (CurrentTime::epochTime(start_year, start_month, start_day, start_hour, start_minute, 0)) / SENS_FRQ_SEC;
-
 	
-	if (active == true) {
-		if (interval == REALTIME) current_value = sens_ptr->getLastValue();
-		else if (interval == TENSEC) current_value = sens_ptr->getTenSecAvg();
-		else if (interval == TWENTYSEC) current_value = sens_ptr->getTwentySecAvg();
-		else if (interval == THIRTYSEC) current_value = sens_ptr->getThirtySecAvg();
-		else if (interval == ONEMIN) current_value = sens_ptr->getOneMinAvg();
-		else if (interval == TWOMIN) current_value = sens_ptr->getTwoMinAvg();
-		else if (interval == FIVEMIN) current_value = sens_ptr->getFiveMinAvg();
-		else if (interval == QUARTER) current_value = sens_ptr->getQuarterAvg();
-		else if (interval == HALF) current_value = sens_ptr->getHalfAvg();
-		else if (interval == ONE)  current_value = sens_ptr->getHourAvg();
-		else if (interval == TWO) current_value = sens_ptr->getTwoHourAvg();
-		else if (interval == THREE) current_value = sens_ptr->getThreeHourAvg();
-		else if (interval == FOUR) current_value = sens_ptr->getFourHourAvg();
-		else if (interval == SIX) current_value = sens_ptr->getSixHourAvg();
-		else if (interval == TWELVE) current_value = sens_ptr->getTwelveHourAvg();
-		else if (interval == DAILY) current_value = sens_ptr->getDayAvg();
-		else if (interval == BIDAILY) current_value = sens_ptr->getTwoDayAvg();
-		else if (interval == WEEKLY) current_value = sens_ptr->getWeekAvg();
-		else if (interval == BIWEEKLY) current_value = sens_ptr->getTwoWeekAvg();
-		else return false;
+	if (active == true && interval != NULL) state = sens_ptr->compareWithValue(relop, interval, threshold);
+	else state = false;
 
-		if (relop == EQUAL && current_value == threshold) state = true;
-		else if (relop == GREATER && current_value > threshold) state = true;
-		else if (relop == SMALLER && current_value < threshold) state = true;
-		else state = false;
-		LOGMSG(F("[Trigger]"), String("OK: Sensor Trigger Checked " + getTitle()), threshold, current_value, state);
-	}
+	LOGMSG(F("[Trigger]"), String("OK: Sensor Trigger Checked " + getTitle()), threshold, current_value, state);
 	return state;
 }
 
