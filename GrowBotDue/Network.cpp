@@ -8,7 +8,7 @@ String WebServer::createPostRequest(char *json)
 {
 	String load, request;
 
-	load = String(json)+"\r\n";
+	load = String(json) + "\r\n";
 	//request = "POST / HTTP/1.1\r\n";
 	request = "HTTP/1.1 200 OK\r\n";
 	//request += "Host: " + ip.printTo;
@@ -54,7 +54,7 @@ void WebServer::checkConnection()
 
 	//Incoming Data
 	StaticJsonBuffer<2000> jsonBuffer;
-	
+
 	//Outgoing Data
 	char json[2500];
 
@@ -67,14 +67,14 @@ void WebServer::checkConnection()
 
 	int id = 0;
 	int cat = 0;
-	
+
 	if (client == true) {
 		LOGMSG(F("[WebServer]"), F("OK: New Client connected"), "@" + currenttime.createTime(), F("IPV4"), client.remoteIP());
 
 		while (client.connected()) {
 			if (client.available() > 0) {
 				char c = client.read();
-				
+
 				if (c == '{') {
 					begin = true;
 				}
@@ -93,7 +93,14 @@ void WebServer::checkConnection()
 		if (payload == true) {
 			JsonObject& node = jsonBuffer.parseObject(request);
 			if (node.success()) {
-				if (node["type"] == "TRIGGER" && node["cat"] != "" && node["id"] != "") {
+				if (node["type"] == "LOGIN") {
+					if (node["action"] == "GET") {
+						Setting::serializeConstantsJSON(json, 2500);
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Constants Action: GET"), "", "");
+						client.print(createPostRequest(json));
+					}
+				}
+				else if (node["type"] == "TRIGGER" && node["cat"] != "" && node["id"] != "") {
 					id = (int)node["id"];
 					cat = (int)node["cat"];
 					if (cat < TRIGGER_TYPES && id < TRIGGER_SETS) {
@@ -188,61 +195,88 @@ void WebServer::checkConnection()
 						}
 					}
 				}
-				else if (node["type"] == "SENSOR" && node["id"] != "") {
-					id = (int)node["id"];
-
-					if (id < SENS_NUM) {
-						if (node["action"] == "GET") {
-							if (node["mode"] == "ALL") {
-								sensors[id]->serializeJSON(id, json, 2500, ALL);
-								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: ALL"));
-								client.print(createPostRequest(json));
+				else if (node["type"] == "SENSOR") {
+					if (node["action"] == "GET") {
+						if (node["id"] == "") {
+							JsonArray& sensorlist = jsonBuffer.createArray();
+							
+							for (uint8_t i = 0; i < SENS_NUM; i++) {
+								sensors[i]->serializeJSON(i, json, 2500, NONE);
+								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Info:"), String(json), "", "");
+								sensorlist.add(json);
 							}
-							else if (node["mode"] == "AVG") {
-								sensors[id]->serializeJSON(id, json, 2500, AVG);
-								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: AVG"));
-								client.print(createPostRequest(json));
-							}
-							else if (node["mode"] == "MINUTE") {
-								sensors[id]->serializeJSON(id, json, 2500, MINUTE);
-								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: MINUTE"));
-								client.print(createPostRequest(json));
-							}
-							else if (node["mode"] == "HOUR") {
-								sensors[id]->serializeJSON(id, json, 2500, HOUR);
-								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: HOUR"));
-								client.print(createPostRequest(json));
-							}
-							else if (node["mode"] == "DAY") {
-								sensors[id]->serializeJSON(id, json, 2500, DAY);
-								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: DAY"));
-								client.print(createPostRequest(json));
-							}
-							else if (node["mode"] == "MONTH") {
-								sensors[id]->serializeJSON(id, json, 2500, MONTH);
-								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: MONTH"));
-								client.print(createPostRequest(json));
-							}
-							else if (node["mode"] == "YEAR") {
-								sensors[id]->serializeJSON(id, json, 2500, YEAR);
-								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: YEAR"));
-								client.print(createPostRequest(json));
-							}
-							else if (node["mode"] == "ALL") {
-								sensors[id]->serializeJSON(id, json, 2500, ALL);
-								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: ALL"));
-								client.print(createPostRequest(json));
-							}
+							sensorlist.printTo(json);
+							LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Info:"), String(json), "", "");
+							client.print(json);
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), F("List View"), "");
 						}
-						else if (node["action"] == "SET") {
-							success = sensors[id]->deserializeJSON(node);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Sensor Action: SET"), String(id), "");
-							client.print(createHtmlResponse("200 OK", "JSON received"));
+						else if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < SENS_NUM) {
+								if (node["mode"] == "ALL") {
+									sensors[id]->serializeJSON(id, json, 2500, ALL);
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: ALL"));
+									client.print(createPostRequest(json));
+								}
+								else if (node["mode"] == "AVG") {
+									sensors[id]->serializeJSON(id, json, 2500, AVG);
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: AVG"));
+									client.print(createPostRequest(json));
+								}
+								else if (node["mode"] == "MINUTE") {
+									sensors[id]->serializeJSON(id, json, 2500, MINUTE);
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: MINUTE"));
+									client.print(createPostRequest(json));
+								}
+								else if (node["mode"] == "HOUR") {
+									sensors[id]->serializeJSON(id, json, 2500, HOUR);
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: HOUR"));
+									client.print(createPostRequest(json));
+								}
+								else if (node["mode"] == "DAY") {
+									sensors[id]->serializeJSON(id, json, 2500, DAY);
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: DAY"));
+									client.print(createPostRequest(json));
+								}
+								else if (node["mode"] == "MONTH") {
+									sensors[id]->serializeJSON(id, json, 2500, MONTH);
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: MONTH"));
+									client.print(createPostRequest(json));
+								}
+								else if (node["mode"] == "YEAR") {
+									sensors[id]->serializeJSON(id, json, 2500, YEAR);
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: YEAR"));
+									client.print(createPostRequest(json));
+								}
+								else if (node["mode"] == "ALL") {
+									sensors[id]->serializeJSON(id, json, 2500, ALL);
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: ALL"));
+									client.print(createPostRequest(json));
+								}
+							}
 						}
 						else {
-							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Sensor Action: UNKOWN"), String(id), "");
-							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
 						}
+					}
+					else if (node["action"] == "SET") {
+						success = sensors[id]->deserializeJSON(node);
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Sensor Action: SET"), String(id), "");
+						client.print(createHtmlResponse("200 OK", "JSON received"));
+					}
+					else if (node["action"] == "LEARN") {
+						if (node["mode"] == "LOWER") {
+							sensors[id]->setLowerThreshold();
+							client.print(createHtmlResponse("200 OK", "Set lower threshold"));
+						}
+						else if (node["mode"] == "UPPER") {
+							sensors[id]->setUpperThreshold();
+							client.print(createHtmlResponse("200 OK", "Set lower threshold"));
+						}
+					}
+					else {
+						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Sensor Action: UNKOWN"), String(id), "");
+						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
 					}
 				}
 				else if (node["type"] == "ACTION" && node["id"] != "") {
@@ -263,7 +297,7 @@ void WebServer::checkConnection()
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: EXECUTE"), String(id), "");
 							client.print(createHtmlResponse("200 OK", "Executed action"));
 						}
-						
+
 						else {
 							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Action Object Action: UNKOWN"), String(id), "");
 							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
@@ -315,13 +349,6 @@ void WebServer::checkConnection()
 						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
 					}
 				}
-				else if (node["type"] == "CONSTANT") {
-					if (node["action"] == "GET") {
-						Setting::serializeConstantsJSON(json, 2500);
-						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Constants Action: GET"), "", "");
-						client.print(createPostRequest(json));
-					}
-				}
 			}
 			else {
 				LOGMSG(F("[WebServer]"), F("ERROR: HTTP Request received"), "JSON parsing failed", "", "");
@@ -332,7 +359,7 @@ void WebServer::checkConnection()
 			LOGMSG(F("[WebServer]"), F("ERROR: HTTP Request received"), "No payload", "", "");
 			client.print(createHtmlResponse("400 BAD REQUEST", "No Payload"));
 		}
-		
+
 		// give the web browser time to receive the data
 		delay(200);
 		// close the connection:

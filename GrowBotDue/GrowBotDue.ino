@@ -17,7 +17,7 @@
 #include <DHT.h>
 
 //Modules
-#include "Led.h"
+//#include "Led.h"
 #include "CurrentTime.h"
 #include "FileSystem.h"
 #include "Network.h"
@@ -148,10 +148,10 @@ void setup() {
 	rcsocketcontroller = new RCSocketController(TX_DATA_PIN, RX_DATA_PIN);
 			
 	//Initialize Sensors
-	sensors[0] = new	DHTTemperature(&dht, true, F("Int. Temperature"), F("C"), -127);
-	sensors[1] = new 	DHTHumidity(&dht, true, F("Int. Humidity"), F("%"), -127);
-	sensors[2] = new 	AnalogMoistureSensor<short>(IN_MOS_1, OUT_MOS_1, true, F("Soil Moisture 1"), F("%"), -1, 0, 1000, 0, 1000);
-	sensors[3] = new 	AnalogMoistureSensor<short>(IN_MOS_2, OUT_MOS_2, true, F("Soil Moisture 2"), F("%"), -1, 0, 1000, 0, 1000);
+	sensors[0] = new	DHTTemperature(&dht, true, F("Int. Temperature"), F("C"), -127, -50, 100);
+	sensors[1] = new 	DHTHumidity(&dht, true, F("Int. Humidity"), F("%"), -127, 0, 100);
+	sensors[2] = new 	AnalogMoistureSensor<short>(IN_MOS_1, OUT_MOS_1, true, F("Soil Moisture 1"), F("%"), -1, 0, 1000, 150, 600);
+	sensors[3] = new 	AnalogMoistureSensor<short>(IN_MOS_2, OUT_MOS_2, true, F("Soil Moisture 2"), F("%"), -1, 0, 1000, 150, 600);
 	//Additional Sensors
 	/*
 	sensors[4] = new 	AnalogSensor("Mosit.", IN_MOS_3, '%', true);

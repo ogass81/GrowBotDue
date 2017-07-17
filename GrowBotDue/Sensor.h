@@ -38,6 +38,9 @@ public:
 	virtual int getMinValueInt(DateRange range);
 	virtual int getElementValueInt(DateRange range, uint8_t element);
 
+	virtual void setUpperThreshold();
+	virtual void setLowerThreshold();
+
 	virtual void update();
 
 	//Settings
@@ -112,7 +115,11 @@ public:
 	int getMinValueInt(DateRange range);
 	int getElementValueInt(DateRange range, uint8_t element);
 
+	virtual void setUpperThreshold();
+	virtual void setLowerThreshold();
+
 	//Read new value and write to array
+	virtual ReturnType readRaw();
 	virtual ReturnType readValue();
 	//Calculate Average
 	ReturnType average(uint8_t start, uint8_t num_elements, ReturnType * values, uint8_t max);
@@ -135,8 +142,12 @@ public:
 	uint8_t power_pin;
 
 	AnalogMoistureSensor(uint8_t pin, uint8_t power_pin, bool active, String desc, String unit, ReturnType nan_val, ReturnType min_val, ReturnType max_val, ReturnType lower_threshold, ReturnType upper_threshold);
+	ReturnType readRaw();
 	ReturnType readValue();
 	String getValue();
+	
+	void setUpperThreshold();
+	void setLowerThreshold();
 
 	bool compareWithValue(RelOp relop, Interval interval, int value);
 };
@@ -145,9 +156,13 @@ class DHTTemperature : public BaseSensor<int8_t> {
 private: 
 	DHT *dht = NULL;
 public:
-	DHTTemperature(DHT *dht, bool active, String desc, String unit, int8_t nan_val);
+	DHTTemperature(DHT *dht, bool active, String desc, String unit, int8_t nan_val, int8_t min_val, int8_t max_val);
+	int8_t readRaw();
 	int8_t readValue();
 	String getValue();
+
+	void setUpperThreshold();
+	void setLowerThreshold();
 
 	bool compareWithValue(RelOp relop, Interval interval, int value);
 };
@@ -156,9 +171,13 @@ class DHTHumidity : public BaseSensor<int8_t> {
 private:
 	DHT *dht = NULL;
 public:
-	DHTHumidity(DHT *dht, bool active, String desc, String unit, int8_t nan_val);
+	DHTHumidity(DHT *dht, bool active, String desc, String unit, int8_t nan_val, int8_t min_val, int8_t max_val);
+	int8_t readRaw();
 	int8_t readValue();
 	String getValue();
+
+	void setUpperThreshold();
+	void setLowerThreshold();
 
 	bool compareWithValue(RelOp relop, Interval interval, int value);
 };

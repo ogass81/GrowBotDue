@@ -52,6 +52,14 @@ int Sensor::getElementValueInt(DateRange range, uint8_t element)
 	return 0;
 }
 
+void Sensor::setUpperThreshold()
+{
+}
+
+void Sensor::setLowerThreshold()
+{
+}
+
 void Sensor::update()
 {
 }
@@ -528,6 +536,24 @@ int BaseSensor<ReturnType>::getElementValueInt(DateRange range, uint8_t element)
 }
 
 template<class ReturnType>
+void BaseSensor<ReturnType>::setUpperThreshold()
+{
+
+}
+
+template<class ReturnType>
+void BaseSensor<ReturnType>::setLowerThreshold()
+{
+
+}
+
+template<class ReturnType>
+ReturnType BaseSensor<ReturnType>::readRaw()
+{
+	return ReturnType();
+}
+
+template<class ReturnType>
 ReturnType BaseSensor<ReturnType>::readValue()
 {
 	return ReturnType();
@@ -566,6 +592,7 @@ ReturnType BaseSensor<ReturnType>::average(uint8_t start, uint8_t num_elements, 
 	else {
 		avg = nan_val;
 		LOGDEBUG(F("[Sensor]"), F("average()"), F("Warning: Division by Zero. Returning NaN Value"), String(dividend), String(divisor), String(nan_val));
+		
 	}
 
 	return ReturnType(avg);
@@ -705,9 +732,14 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 	StaticJsonBuffer<5000> jsonBuffer;
 
 	JsonObject& sensor = jsonBuffer.createObject();
-
+	
 	sensor["type"] = "SENSOR";
 	sensor["id"] = id;
+	sensor["desc"] = desc;
+	sensor["unit"] = unit;
+	sensor["nan_val"] = nan_val;
+	sensor["min_val"] = min_val;
+	sensor["max_val"] = max_val;
 	sensor["low_thresh"] = lower_threshold;
 	sensor["up_thresh"] = upper_threshold;
 	sensor["min_ptr"] = minute_ptr;
@@ -716,7 +748,7 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 	sensor["m_ptr"] = month_ptr;
 	sensor["y_ptr"] = year_ptr;
 
-	if (range == AVG) {
+	if (range == AVG || range == ALL) {
 		JsonObject& avg = sensor.createNestedObject("avg");
 		avg["last"] = getLastValue();
 		avg["tenSec"] = getTenSecAvg();
@@ -811,7 +843,7 @@ AnalogMoistureSensor<ReturnType>::AnalogMoistureSensor(uint8_t pin, uint8_t powe
 }
 
 template<class ReturnType>
-ReturnType AnalogMoistureSensor<ReturnType>::readValue()
+ReturnType AnalogMoistureSensor<ReturnType>::readRaw()
 {
 	int dividend = 0;
 	int divisor = 0;
@@ -820,37 +852,55 @@ ReturnType AnalogMoistureSensor<ReturnType>::readValue()
 
 	//Turn on Power supply
 	digitalWrite(power_pin, HIGH);
-	delay(50);
 	//Read 5 times just to make sure
-	for (uint8_t i = 0; i < 5; i++) {
+	for (uint8_t i = 0; i < 3; i++) {
+		delay(100);
 		current_value = analogRead(this->pin);
+		//LOGDEBUG(F("[Sensor]"), F("readValue()"), F("Info: Analog Moisture Raw Value"), String(current_value), "", "");
 		if (current_value != this->nan_val) {
 			dividend += current_value;
 			divisor++;
 		}
-		delay(25);
 	}
-	
+
 	if (divisor > 0) {
 		adj_val = round(dividend / divisor);
+		//LOGDEBUG(F("[Sensor]"), F("readValue()"), F("Info: Analog Moisture Average Reading"), String(adj_val), "", "");
 	}
 	else adj_val = this->nan_val;
-	
+
 	//Turn Power Off
 	digitalWrite(power_pin, LOW);
+	
+	
+	return ReturnType(adj_val);
+}
 
+template<class ReturnType>
+ReturnType AnalogMoistureSensor<ReturnType>::readValue()
+{
+	ReturnType adj_val;
+	
+	adj_val = readRaw();
+
+	//Caluclate Percentage if NaN not set
 	if (adj_val != this->nan_val) {
-		if (adj_val >= this->upper_threshold) return ReturnType(100);
-		else if (adj_val <= this->lower_threshold) return ReturnType(0);
+		if (adj_val >= this->upper_threshold) {
+			adj_val = ReturnType(0);
+		}
+		else if (adj_val <= this->lower_threshold) {
+			adj_val = ReturnType(100);
+		}
 		else {
-			return ReturnType(round((adj_val - this->lower_threshold) / (this->upper_threshold - this->lower_threshold)));
+			adj_val = ReturnType(round(float(this->upper_threshold - adj_val) / float(this->upper_threshold - this->lower_threshold)*100));
 		}
 	}
-	else return ReturnType(this->nan_val);
+	//LOGDEBUG(F("[Sensor]"), F("readValue()"), F("Info: Moisture Value % "), String(adj_val), String(this->lower_threshold), String(this->upper_threshold));
+	return adj_val;
 }
 
 template<>
-float AnalogMoistureSensor<float>::readValue()
+float AnalogMoistureSensor<float>::readRaw() 
 {
 	float dividend = 0;
 	int divisor = 0;
@@ -859,33 +909,46 @@ float AnalogMoistureSensor<float>::readValue()
 
 	//Turn on Power supply
 	digitalWrite(power_pin, HIGH);
-	delay(50);
+
 	//Read 5 times just to make sure
-	for (uint8_t i = 0; i < 5; i++) {
+	for (uint8_t i = 0; i < 3; i++) {
+		delay(150);
 		current_value = analogRead(pin);
+		//LOGDEBUG(F("[Sensor]"), F("readValue()"), F("Info: Analog Moisture Raw Value"), String(current_value), "", "");
 		if (current_value != nan_val) {
-				dividend += current_value;
-				divisor++;
-			}
-		delay(25);
+			dividend += current_value;
+			divisor++;
+		}
 	}
 
 	if (divisor > 0) {
 		adj_val = dividend / divisor;
+		//LOGDEBUG(F("[Sensor]"), F("readValue()"), F("Info: Analog Moisture Average Raw"), String(adj_val), "", "");
 	}
 	else adj_val = nan_val;
 
 	//Turn Power Off
 	digitalWrite(power_pin, LOW);
+}
 
+template<>
+float AnalogMoistureSensor<float>::readValue()
+{
+	float adj_val = 0;
+	
+	adj_val = readRaw();
+
+	//Caluclate Percentage if NaN not set
 	if (adj_val != nan_val) {
-		if (adj_val >= this->upper_threshold) return float(100);
-		else if (adj_val <= this->lower_threshold) return float(0);
+		if (adj_val >= this->upper_threshold) adj_val = float(0);
+		else if (adj_val <= this->lower_threshold) adj_val = float(100);
 		else {
-			return float((adj_val - this->lower_threshold) / (this->upper_threshold - this->lower_threshold));
+			adj_val = float(float(adj_val - this->lower_threshold) / float(this->upper_threshold - this->lower_threshold)*100);
 		}
 	}
-	else return float(nan_val);
+
+	LOGDEBUG(F("[Sensor]"), F("readValue()"), F("Info: Moisture Value % "), String(adj_val), String(this->upper_threshold), String(this->lower_threshold));
+	return adj_val;
 }
 
 
@@ -893,6 +956,20 @@ template<class ReturnType>
 String AnalogMoistureSensor<ReturnType>::getValue()
 {
 	return String(readValue()) + String(this->unit);
+}
+
+template<class ReturnType>
+void AnalogMoistureSensor<ReturnType>::setUpperThreshold()
+{
+	this->upper_threshold = readRaw();
+	LOGDEBUG(F("[Sensor]"), F("setUpperThreshold()"), F("Info: Set Lower Threshold to "), String(this->upper_threshold), "", "");
+}
+
+template<class ReturnType>
+void AnalogMoistureSensor<ReturnType>::setLowerThreshold()
+{
+	this->lower_threshold = readRaw();
+	LOGDEBUG(F("[Sensor]"), F("setUpperThreshold()"), F("Info: Set Lower Threshold to "), String(this->lower_threshold), "", "");
 }
 
 template<class ReturnType>
@@ -937,7 +1014,7 @@ String AnalogMoistureSensor<float>::getValue()
 }
 
 
-DHTTemperature::DHTTemperature(DHT *hardware, bool active, String desc, String unit, int8_t nan_val)
+DHTTemperature::DHTTemperature(DHT *hardware, bool active, String desc, String unit, int8_t nan_val, int8_t min_val, int8_t max_val)
 {
 	this->dht = hardware;
 
@@ -945,11 +1022,16 @@ DHTTemperature::DHTTemperature(DHT *hardware, bool active, String desc, String u
 	this->active = active;
 	this->unit = unit;
 	this->nan_val = nan_val;
-	this->max_val = 127;
-	this->min_val = -127;
+	this->max_val = max_val;
+	this->min_val = min_val;
 
 	this->lower_threshold = 0;
 	this->upper_threshold = 0;
+}
+
+int8_t DHTTemperature::readRaw()
+{
+	return int8_t(round(dht->readTemperature()));
 }
 
 
@@ -961,6 +1043,14 @@ int8_t DHTTemperature::readValue()
 String DHTTemperature::getValue()
 {
 	return String(dht->readTemperature(), 2) + String(unit);
+}
+
+void DHTTemperature::setUpperThreshold()
+{
+}
+
+void DHTTemperature::setLowerThreshold()
+{
 }
 
 bool DHTTemperature::compareWithValue(RelOp relop, Interval interval, int value)
@@ -979,7 +1069,7 @@ bool DHTTemperature::compareWithValue(RelOp relop, Interval interval, int value)
 	return state;
 }
 
-DHTHumidity::DHTHumidity(DHT *hardware, bool active, String desc, String unit, int8_t nan_val)
+DHTHumidity::DHTHumidity(DHT *hardware, bool active, String desc, String unit, int8_t nan_val, int8_t min_val, int8_t max_val)
 {
 	this->dht = hardware;
 
@@ -987,11 +1077,16 @@ DHTHumidity::DHTHumidity(DHT *hardware, bool active, String desc, String unit, i
 	this->active = active;
 	this->unit = unit;
 	this->nan_val = nan_val;
-	this->max_val = 127;
-	this->min_val = -127;
+	this->max_val = max_val;
+	this->min_val = min_val;
 
 	this->lower_threshold = 0;
 	this->upper_threshold = 0;
+}
+
+int8_t DHTHumidity::readRaw()
+{
+	return int8_t(round(dht->readHumidity()));
 }
 
 int8_t DHTHumidity::readValue()
@@ -1002,6 +1097,14 @@ int8_t DHTHumidity::readValue()
 String DHTHumidity::getValue()
 {
 	return String(dht->readHumidity(), 2) + String(unit);
+}
+
+void DHTHumidity::setUpperThreshold()
+{
+}
+
+void DHTHumidity::setLowerThreshold()
+{
 }
 
 bool DHTHumidity::compareWithValue(RelOp relop, Interval interval, int value)
