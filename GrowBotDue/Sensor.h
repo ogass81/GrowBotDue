@@ -12,15 +12,14 @@
 #include <DHT_U.h>
 #include <DHT.h>
 #include <ArduinoJson.h>
-
 #include "Definitions.h"
-
+#include "SerializationInterface.h"
 
 extern DHT dht;
 extern long sensor_cycles;
 
 //Sensor Interface
-class Sensor {
+class Sensor : public SerializationInterface {
 public:
 	//UI Controls
 	virtual int getAvgInt(Interval interval);
@@ -28,15 +27,12 @@ public:
 
 	virtual bool compareWithValue(RelOp relop, Interval interval, int value);
 	
-	virtual void serializeJSON(uint8_t id, char* json, size_t maxSize, DateRange range);
-	virtual bool deserializeJSON(JsonObject& data);
-
 	virtual String getTitle();
 	virtual String getValue();
 	
-	virtual int getMaxValueInt(DateRange range);
-	virtual int getMinValueInt(DateRange range);
-	virtual int getElementValueInt(DateRange range, uint8_t element);
+	virtual int getMaxValueInt(Scope scope);
+	virtual int getMinValueInt(Scope scope);
+	virtual int getElementValueInt(Scope scope, uint8_t element);
 
 	virtual void setUpperThreshold();
 	virtual void setLowerThreshold();
@@ -56,7 +52,7 @@ private:
 	ReturnType fromNAN(String str);
 public:
 	//Sensor Info
-	String desc;
+	String title;
 	String unit;
 	ReturnType nan_val;
 	ReturnType min_val;
@@ -111,9 +107,9 @@ public:
 	//UI Output
 	virtual String getValue();
 	String getTitle();
-	int getMaxValueInt(DateRange range);
-	int getMinValueInt(DateRange range);
-	int getElementValueInt(DateRange range, uint8_t element);
+	int getMaxValueInt(Scope scope);
+	int getMinValueInt(Scope scope);
+	int getElementValueInt(Scope scope, uint8_t element);
 
 	virtual void setUpperThreshold();
 	virtual void setLowerThreshold();
@@ -132,7 +128,7 @@ public:
 	void reset();
 	
 	//Serialize
-	void serializeJSON(uint8_t id, char* json, size_t maxSize, DateRange range);
+	void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
 	bool deserializeJSON(JsonObject& data);
 };
 
@@ -141,7 +137,7 @@ class AnalogMoistureSensor : public BaseSensor<ReturnType> {
 public:
 	uint8_t power_pin;
 
-	AnalogMoistureSensor(uint8_t pin, uint8_t power_pin, bool active, String desc, String unit, ReturnType nan_val, ReturnType min_val, ReturnType max_val, ReturnType lower_threshold, ReturnType upper_threshold);
+	AnalogMoistureSensor(uint8_t pin, uint8_t power_pin, bool active, String title, String unit, ReturnType nan_val, ReturnType min_val, ReturnType max_val, ReturnType lower_threshold, ReturnType upper_threshold);
 	ReturnType readRaw();
 	ReturnType readValue();
 	String getValue();
@@ -156,7 +152,7 @@ class DHTTemperature : public BaseSensor<int8_t> {
 private: 
 	DHT *dht = NULL;
 public:
-	DHTTemperature(DHT *dht, bool active, String desc, String unit, int8_t nan_val, int8_t min_val, int8_t max_val);
+	DHTTemperature(DHT *dht, bool active, String title, String unit, int8_t nan_val, int8_t min_val, int8_t max_val);
 	int8_t readRaw();
 	int8_t readValue();
 	String getValue();
@@ -171,7 +167,7 @@ class DHTHumidity : public BaseSensor<int8_t> {
 private:
 	DHT *dht = NULL;
 public:
-	DHTHumidity(DHT *dht, bool active, String desc, String unit, int8_t nan_val, int8_t min_val, int8_t max_val);
+	DHTHumidity(DHT *dht, bool active, String title, String unit, int8_t nan_val, int8_t min_val, int8_t max_val);
 	int8_t readRaw();
 	int8_t readValue();
 	String getValue();

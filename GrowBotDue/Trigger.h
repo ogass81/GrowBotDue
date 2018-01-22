@@ -24,6 +24,7 @@ class Trigger {
 public:
 	//Basic Information
 	uint8_t id;
+	String title;
 	bool active;
 
 	//Trigger valid timeframe
@@ -101,8 +102,8 @@ public:
 	void reset();
 
 	//Serialization
-	void serializeJSON(uint8_t cat, uint8_t id, char* json, size_t maxSize);
-	bool deserializeJSON(JsonObject& data);
+	virtual void serializeJSON(uint8_t cat, uint8_t id, char* json, size_t maxSize, Scope scope);
+	virtual bool deserializeJSON(JsonObject& data);
 };
 
 //Specialization of Trigger with predefined methods for RTC access
@@ -111,6 +112,9 @@ public:
 	TimeTrigger(int id);
 	bool checkState();
 	String getTitle();
+
+	void serializeJSON(uint8_t cat, uint8_t id, char* json, size_t maxSize, Scope scope);
+	bool deserializeJSON(JsonObject& data);
 };
 
 //Specialization of Trigger with predefined methods for generic sensors
@@ -123,6 +127,9 @@ public:
 
 	bool checkState();
 	String getTitle();
+
+	void serializeJSON(uint8_t cat, uint8_t id, char* json, size_t maxSize, Scope scope);
+	bool deserializeJSON(JsonObject& data);
 };
 
 #endif

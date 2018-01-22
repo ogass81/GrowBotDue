@@ -8,13 +8,13 @@ void Action::execute()
 {
 }
 
-void Action::serializeJSON(uint8_t id, char * json, size_t maxSize)
+void Action::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
 {
 }
 
 String Action::getTitle()
 {
-	return String(name);
+	return String(title);
 }
 
 void Action::setAntagonist(Action * aObject)
@@ -25,25 +25,27 @@ void Action::setAntagonist(Action * aObject)
 
 
 template<class ActionType>
-SimpleAction<ActionType>::SimpleAction(String name, ActionType * actionObj, void(ActionType::*cFunct)(), bool visible)
+SimpleAction<ActionType>::SimpleAction(String title, ActionType * actionObj, void(ActionType::*cFunct)(), bool visible)
 {
-	this->name = name;
+	this->title = title;
 	this->actionObject = actionObj;
 	this->callback = cFunct;
 	this->visible = visible;
 }
 
 template<class ActionType>
-void SimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t maxSize)
+void SimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
 {
 	StaticJsonBuffer<500> jsonBuffer;
 
 	JsonObject& actions = jsonBuffer.createObject();
 
-	actions["type"] = "ACTION";
-	actions["id"] = id;
-	actions["visible"] = visible;
-	actions["name"] = name;
+	if (scope == LIST || scope == DETAILS) {
+		actions["type"] = "ACTION";
+		actions["id"] = id;
+		actions["title"] = title;
+		actions["visible"] = visible;
+	}
 
 	actions.printTo(json, maxSize);
 	LOGDEBUG2(F("[SimpleAction]"), F("serializeJSON()"), F("OK: Serialized Action"), String(id), String(actions.measureLength()), String(maxSize));
@@ -53,15 +55,15 @@ template<class ActionType>
 void SimpleAction<ActionType>::execute()
 {
 	if (actionObject != NULL && callback != NULL) {
-		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), name, "", "");
+		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), title, "", "");
 		(actionObject->*callback)();
 	}
 }
 
 template<class ActionType>
-ParameterizedSimpleAction<ActionType>::ParameterizedSimpleAction(String name, ActionType * actionObj, void(ActionType::*cFunct)(int), int par, bool visible)
+ParameterizedSimpleAction<ActionType>::ParameterizedSimpleAction(String title, ActionType * actionObj, void(ActionType::*cFunct)(int), int par, bool visible)
 {
-	this->name = name;
+	this->title = title;
 	this->actionObject = actionObj;
 	this->callback = cFunct;
 	this->visible = visible;
@@ -69,16 +71,19 @@ ParameterizedSimpleAction<ActionType>::ParameterizedSimpleAction(String name, Ac
 }
 
 template<class ActionType>
-void ParameterizedSimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t maxSize)
+void ParameterizedSimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
 {
 	StaticJsonBuffer<500> jsonBuffer;
 
 	JsonObject& actions = jsonBuffer.createObject();
 
-	actions["type"] = "ACTION";
-	actions["id"] = id;
-	actions["visible"] = visible;
-	actions["name"] = name;
+	if (scope == LIST || scope == DETAILS) {
+		actions["type"] = "ACTION";
+		actions["id"] = id;
+		actions["title"] = title;
+		actions["visible"] = visible;
+		actions["parameter"] = parameter;
+	}
 
 	actions.printTo(json, maxSize);
 	LOGDEBUG2(F("[ParameterizedSimpleAction]"), F("serializeJSON()"), F("OK: Serialized Action"), String(id), String(actions.measureLength()), String(maxSize));
@@ -90,14 +95,14 @@ void ParameterizedSimpleAction<ActionType>::execute()
 	if (actionObject != NULL) {
 		if (callback != NULL) {
 			if (parameter >= 0) {
-				LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), name, "", "");
+				LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), title, "", "");
 				(actionObject->*callback)(parameter);
 			}
-			else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Argument missing"), name, "", "");
+			else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Argument missing"), title, "", "");
 		}
-		else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Callback missing"), name, "", "");
+		else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Callback missing"), title, "", "");
 	}
-	else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Action Object missing"), name, "", "");
+	else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Action Object missing"), title, "", "");
 }
 //All Types of Templates used:
 template class SimpleAction<RelaisBoard>;

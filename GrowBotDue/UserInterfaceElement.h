@@ -121,16 +121,16 @@ public:
 class SensorGraph : public UserInterfaceElement {
 public:
 	Sensor *sensor_ptr;
-	DateRange range;
+	Scope scope;
 
-	float getXMultiplier(DateRange range);
+	float getXMultiplier(Scope scope);
 	float getYMultiplier(int min, int max);
 
-	void drawGraph(DateRange range);
+	void drawGraph(Scope scope);
 
 	void drawValue(uint8_t counter, short value, float x_multiplier, float y_multiplier, short base);
 
-	SensorGraph(Sensor *sensor_ptr, DateRange range);
+	SensorGraph(Sensor *sensor_ptr, Scope scope);
 };
 
 #endif

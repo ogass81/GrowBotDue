@@ -93,6 +93,9 @@ void WebServer::checkConnection()
 		if (payload == true) {
 			JsonObject& node = jsonBuffer.parseObject(request);
 			if (node.success()) {
+				
+				//Login Request
+				//New API 18.07.2017
 				if (node["type"] == "LOGIN") {
 					if (node["action"] == "GET") {
 						Setting::serializeConstantsJSON(json, 2500);
@@ -100,178 +103,374 @@ void WebServer::checkConnection()
 						client.print(createPostRequest(json));
 					}
 				}
-				else if (node["type"] == "TRIGGER" && node["cat"] != "" && node["id"] != "") {
-					id = (int)node["id"];
-					cat = (int)node["cat"];
-					if (cat < TRIGGER_TYPES && id < TRIGGER_SETS) {
-						if (node["action"] == "GET") {
-							trigger[cat][id]->serializeJSON(cat, id, json, 2500);
-							client.print(createPostRequest(json));
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET"), String(cat), String(id));
-						}
-						else if (node["action"] == "SET") {
-							success = trigger[cat][id]->deserializeJSON(node);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: SET"), String(cat), String(id));
-							client.print(createHtmlResponse("200 OK", "JSON received"));
-						}
-						else {
-							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Trigger Action: UNKNOWN"), String(cat), String(id));
-							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
-						}
-					}
-				}
-				else if (node["type"] == "RULE" && node["id"] != "") {
-					id = (int)node["id"];
-
-					if (id < RULESETS_NUM) {
-						if (node["action"] == "GET") {
-							rulesets[id]->serializeJSON(id, json, 2500);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: GET"), String(id), "");
-							client.print(createPostRequest(json));
-						}
-						else if (node["action"] == "SET") {
-							success = rulesets[id]->deserializeJSON(node);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: SET"), String(id), "");
-							client.print(createHtmlResponse("200 OK", "JSON received"));
-						}
-						else {
-							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Ruleset Action: UNKOWN"), String(id), "");
-							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
-						}
-					}
-				}
-				else if (node["type"] == "CHAIN" && node["id"] != "") {
-					id = (int)node["id"];
-
-					if (id < ACTIONCHAINS_NUM) {
-						if (node["action"] == "GET") {
-							actionchains[id]->serializeJSON(id, json, 2500);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: GET"), String(id), "");
-							client.print(createPostRequest(json));
-						}
-						else if (node["action"] == "SET") {
-							success = actionchains[id]->deserializeJSON(node);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: SET"), String(id), "");
-							client.print(createHtmlResponse("200 OK", "JSON received"));
-						}
-						else {
-							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Actionchain Action: UNKOWN"), String(id), "");
-							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
-						}
-					}
-				}
-				else if (node["type"] == "RCSOCKET" && node["id"] != "") {
-					id = (int)node["id"];
-
-					if (id < RC_SOCKETS * 2) {
-						if (node["action"] == "GET") {
-							rcsocketcontroller->serializeJSON(id, json, 2500);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: GET"), String(id), "");
-							client.print(createPostRequest(json));
-						}
-						else if (node["action"] == "SET") {
-							success = rcsocketcontroller->deserializeJSON(id, node);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: SET"), String(id), "");
-							client.print(createHtmlResponse("200 OK", "JSON received"));
-						}
-						else if (node["action"] == "RESET") {
-							rcsocketcontroller->resetSettings(id);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: RESET"), String(id), "");
-							client.print(createHtmlResponse("200 OK", "JSON received"));
-						}
-						else if (node["action"] == "LEARN") {
-							if (node["mode"] == "ON") {
-								rcsocketcontroller->learningmode_on(id);
-								client.print(createHtmlResponse("200 OK", "Learning mode activated"));
+			
+				//Trigger Request
+				//New API 18.07.2017
+				else if (node["type"] == "TRIGGER") {
+					if (node["action"] == "GET") {
+						if (node["cat"] != "") {
+							cat = (int)node["cat"];
+							if (node["id"] == "") {
+								ListGenerator<Trigger> list(trigger[cat], TRIGGER_SETS);
+								list.generateList(cat, json);
+								client.print(createPostRequest(json));
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET"), F("List View"), "");
 							}
-							else if (node["mode"] == "OFF") {
-								rcsocketcontroller->learningmode_off();
-								client.print(createHtmlResponse("200 OK", "Learning mode deactivated"));
+							else if (node["id"] != "") {
+								id = (int)node["id"];
+
+								if (id < TRIGGER_SETS) {
+									trigger[cat][id]->serializeJSON(cat, id, json, 2500, DETAILS);
+									client.print(createPostRequest(json));
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET"), String(cat), String(id));
+								}
+								else {
+									LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+									client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+								}
 							}
 						}
 						else {
-							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Remote Socket Action: UNKOWN"), String(id), "");
-							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No Category provided"), "", "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No Category provided"));
 						}
 					}
+					else if (node["action"] == "SET") {
+						if (node["cat"] != "") {
+							cat = (int)node["cat"];
+
+							if (node["id"] != "") {
+								id = (int)node["id"];
+
+								if (id < TRIGGER_SETS) {
+									success = trigger[cat][id]->deserializeJSON(node);
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: SET"), String(cat), String(id));
+									client.print(createHtmlResponse("200 OK", "JSON received"));
+								}
+								else {
+									LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+									client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+								}
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No ID provided"), "", "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "No ID provided"));
+							}
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No Category provided"), "", "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No Category provided"));
+						}
+					}
+					else {
+						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Actionchain Action: UNKOWN"), String(id), "");
+						client.print(createHtmlResponse("400 BAD REQUEST", "Unknow Action Method"));
+					}
 				}
+
+			
+				//Ruleset Request
+				//New API 18.07.2017
+				else if (node["type"] == "RULE") {
+					if (node["action"] == "GET") {
+						if (node["id"] == "") {
+							ListGenerator<RuleSet> list(rulesets, RULESETS_NUM);
+							list.generateList(json);
+							client.print(createPostRequest(json));
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: GET"), F("List View"), "");
+						}
+						else if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < RULESETS_NUM) {
+								rulesets[id]->serializeJSON(id, json, 2500, DETAILS);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: GET"), String(id), "");
+								client.print(createPostRequest(json));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+					}
+					else if (node["action"] == "SET") {
+						if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < RULESETS_NUM) {
+								success = rulesets[id]->deserializeJSON(node);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: SET"), String(id), "");
+								client.print(createHtmlResponse("200 OK", "JSON received"));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No ID provided"), "", "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No ID provided"));
+						}
+					}
+					else {
+						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Ruleset Action: UNKOWN"), String(id), "");
+						client.print(createHtmlResponse("400 BAD REQUEST", "Unknow Action Method"));
+					}
+				}
+				
+				//ActionChain Request
+				//New API 18.07.2017
+				else if (node["type"] == "CHAIN") {
+					if (node["action"] == "GET") {
+						if (node["id"] == "") {
+							ListGenerator<ActionChain> list(actionchains, ACTIONCHAINS_NUM);
+							list.generateList(json);
+							client.print(createPostRequest(json));
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: GET"), F("List View"), "");
+						}
+						else if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < ACTIONCHAINS_NUM) {
+								actionchains[id]->serializeJSON(id, json, 2500, DETAILS);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: GET"), String(id), "");
+								client.print(createPostRequest(json));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+					}
+					else if (node["action"] == "SET") {
+						if(node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < ACTIONCHAINS_NUM) {
+								success = actionchains[id]->deserializeJSON(node);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: SET"), String(id), "");
+								client.print(createHtmlResponse("200 OK", "JSON received"));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No ID provided"), "", "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No ID provided"));
+						}
+					}
+					else {
+						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Actionchain Action: UNKOWN"), String(id), "");
+						client.print(createHtmlResponse("400 BAD REQUEST", "Unknow Action Method"));
+					}
+				}
+
+
+				//RCSocket Request
+				//New API 18.07.2017
+				else if (node["type"] == "RCSOCKET") {
+					if (node["action"] == "GET") {
+						if (node["id"] == "") {
+							ListGenerator<RCSocketController> list(&rcsocketcontroller, RC_SOCKETS);
+							list.generateList(json);
+							client.print(createPostRequest(json));
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: ### Action: GET"), F("List View"), "");
+						}
+						else if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < RC_SOCKETS) {
+								rcsocketcontroller->serializeJSON(id, json, 2500, DETAILS);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: GET"), String(id), "");
+								client.print(createPostRequest(json));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+					}
+					else if (node["action"] == "SET") {
+						if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < RC_SOCKETS) {
+								success = rcsocketcontroller->deserializeJSON(id, node);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: SET"), String(id), "");
+								client.print(createHtmlResponse("200 OK", "JSON received"));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No ID provided"), String(id), "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No ID provided"));
+						}
+					}
+					else if (node["action"] == "LEARN") {
+						if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < RC_SOCKETS) {
+								if (node["mode"] == "ON") {
+									rcsocketcontroller->learningmode_on(id);
+									client.print(createHtmlResponse("200 OK", "Learning mode activated"));
+								}
+								else if (node["mode"] == "OFF") {
+									rcsocketcontroller->learningmode_off();
+									client.print(createHtmlResponse("200 OK", "Learning mode deactivated"));
+								}
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No ID provided"), String(id), "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No ID provided"));
+						}
+					}
+					else if (node["action"] == "RESET") {
+						if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < RC_SOCKETS) {
+								rcsocketcontroller->resetSettings(id);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: RESET"), String(id), "");
+								client.print(createHtmlResponse("200 OK", "JSON received"));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No ID provided"), String(id), "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No ID provided"));
+						}
+					}
+					else {
+						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: RCSocket Action: UNKOWN"), String(id), "");
+						client.print(createHtmlResponse("400 BAD REQUEST", "Unknow Action Method"));
+					}
+				}
+				
+				
+				//Sensor Request
+				//New API 18.07.2017
 				else if (node["type"] == "SENSOR") {
 					if (node["action"] == "GET") {
 						if (node["id"] == "") {
-							JsonArray& sensorlist = jsonBuffer.createArray();
-							
-							for (uint8_t i = 0; i < SENS_NUM; i++) {
-								sensors[i]->serializeJSON(i, json, 2500, NONE);
-								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Info:"), String(json), "", "");
-								sensorlist.add(json);
-							}
-							sensorlist.printTo(json);
-							LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Info:"), String(json), "", "");
-							client.print(json);
+							ListGenerator<Sensor> list(sensors, SENS_NUM);
+							list.generateList(json);
+							client.print(createPostRequest(json));
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), F("List View"), "");
 						}
 						else if (node["id"] != "") {
 							id = (int)node["id"];
 
 							if (id < SENS_NUM) {
-								if (node["mode"] == "ALL") {
-									sensors[id]->serializeJSON(id, json, 2500, ALL);
-									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: ALL"));
-									client.print(createPostRequest(json));
-								}
-								else if (node["mode"] == "AVG") {
+								if (node["mode"] == "AVG") {
 									sensors[id]->serializeJSON(id, json, 2500, AVG);
 									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: AVG"));
 									client.print(createPostRequest(json));
 								}
-								else if (node["mode"] == "MINUTE") {
-									sensors[id]->serializeJSON(id, json, 2500, MINUTE);
+								else if (node["mode"] == "DATE_MINUTE") {
+									sensors[id]->serializeJSON(id, json, 2500, DATE_MINUTE);
 									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: MINUTE"));
 									client.print(createPostRequest(json));
 								}
-								else if (node["mode"] == "HOUR") {
-									sensors[id]->serializeJSON(id, json, 2500, HOUR);
+								else if (node["mode"] == "DATE_HOUR") {
+									sensors[id]->serializeJSON(id, json, 2500, DATE_HOUR);
 									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: HOUR"));
 									client.print(createPostRequest(json));
 								}
-								else if (node["mode"] == "DAY") {
-									sensors[id]->serializeJSON(id, json, 2500, DAY);
+								else if (node["mode"] == "DATE_DAY") {
+									sensors[id]->serializeJSON(id, json, 2500, DATE_DAY);
 									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: DAY"));
 									client.print(createPostRequest(json));
 								}
-								else if (node["mode"] == "MONTH") {
-									sensors[id]->serializeJSON(id, json, 2500, MONTH);
+								else if (node["mode"] == "DATE_MONTH") {
+									sensors[id]->serializeJSON(id, json, 2500, DATE_MONTH);
 									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: MONTH"));
 									client.print(createPostRequest(json));
 								}
-								else if (node["mode"] == "YEAR") {
-									sensors[id]->serializeJSON(id, json, 2500, YEAR);
+								else if (node["mode"] == "DATE_YEAR") {
+									sensors[id]->serializeJSON(id, json, 2500, DATE_YEAR);
 									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: YEAR"));
 									client.print(createPostRequest(json));
 								}
-								else if (node["mode"] == "ALL") {
-									sensors[id]->serializeJSON(id, json, 2500, ALL);
+								else if (node["mode"] == "DATE_ALL") {
+									sensors[id]->serializeJSON(id, json, 2500, DATE_ALL);
 									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: ALL"));
 									client.print(createPostRequest(json));
 								}
+								else if (node["mode"] == "DETAILS") {
+									sensors[id]->serializeJSON(id, json, 2500, DETAILS);
+									LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(id), F("Mode: DETAILS"));
+									client.print(createPostRequest(json));
+								}
+								else {
+									LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Unknown mode"), String(id), "");
+									client.print(createHtmlResponse("400 BAD REQUEST", "Unknown mode"));
+								}
 							}
-						}
-						else {
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
 						}
 					}
 					else if (node["action"] == "SET") {
-						success = sensors[id]->deserializeJSON(node);
-						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Sensor Action: SET"), String(id), "");
-						client.print(createHtmlResponse("200 OK", "JSON received"));
+						if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < SENS_NUM) {
+								success = sensors[id]->deserializeJSON(node);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Sensor Action: SET"), String(id), "");
+								client.print(createHtmlResponse("200 OK", "JSON received"));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No ID provided"), "", "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No ID provided"));
+						}
 					}
 					else if (node["action"] == "LEARN") {
-						if (node["mode"] == "LOWER") {
-							sensors[id]->setLowerThreshold();
-							client.print(createHtmlResponse("200 OK", "Set lower threshold"));
+						if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < SENS_NUM) {
+								if (node["mode"] == "LOWER") {
+									sensors[id]->setLowerThreshold();
+									client.print(createHtmlResponse("200 OK", "Set lower threshold"));
+								}
+								else if (node["mode"] == "UPPER") {
+									sensors[id]->setUpperThreshold();
+									client.print(createHtmlResponse("200 OK", "Set lower threshold"));
+								}
+								else {
+									LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Unknown variable"), String(id), "");
+									client.print(createHtmlResponse("400 BAD REQUEST", "Unknown variable"));
+								}
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No ID provided"), "", "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "No ID provided"));
+							}
 						}
-						else if (node["mode"] == "UPPER") {
-							sensors[id]->setUpperThreshold();
-							client.print(createHtmlResponse("200 OK", "Set lower threshold"));
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
 						}
 					}
 					else {
@@ -279,31 +478,77 @@ void WebServer::checkConnection()
 						client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
 					}
 				}
-				else if (node["type"] == "ACTION" && node["id"] != "") {
-					id = (int)node["id"];
 
-					if (id < ACTIONS_NUM) {
-						if (node["action"] == "GET") {
-							actions[id]->serializeJSON(id, json, 2500);
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), String(id), "");
+				//Action Request
+				//New API 18.07.2017
+				else if (node["type"] == "ACTION") {
+
+					if (node["action"] == "GET") {
+						if (node["id"] == "") {
+							ListGenerator<Action> list(actions, ACTIONS_NUM);
+							list.generateList(json);
 							client.print(createPostRequest(json));
+							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actions - Action: GET"), F("List View"), "");
 						}
-						else if (node["action"] == "SET") {
-							LOGMSG(F("[WebServer]"), F("OK: Invalid HTTP Request"), F("Type: Action Object Action: SET "), "Not Supported", String(id));
-							client.print(createHtmlResponse("501 NOT IMPLEMENTED ", "SET for Action Object not supported"));
-						}
-						else if (node["action"] == "EXECUTE") {
-							actions[id]->execute();
-							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: EXECUTE"), String(id), "");
-							client.print(createHtmlResponse("200 OK", "Executed action"));
-						}
+						else if (node["id"] != "") {
+							id = (int)node["id"];
 
-						else {
-							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Action Object Action: UNKOWN"), String(id), "");
-							client.print(createHtmlResponse("400 BAD REQUEST", "No Action Method"));
+							if (id < ACTIONS_NUM) {
+								actions[id]->serializeJSON(id, json, 2500, DETAILS);
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), String(id), "");
+								client.print(createPostRequest(json));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
 						}
 					}
+					else if (node["action"] == "SET") {
+						if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < ACTIONS_NUM) {
+								LOGMSG(F("[WebServer]"), F("OK: Invalid HTTP Request"), F("Type: Action Object Action: SET "), "Not Supported", String(id));
+								client.print(createHtmlResponse("501 NOT IMPLEMENTED ", "SET for Action Object not supported"));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No ID provided"), "", "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No ID provided"));
+						}
+					}
+					else if (node["action"] == "EXECUTE") {
+						if (node["id"] != "") {
+							id = (int)node["id"];
+
+							if (id < ACTIONS_NUM) {
+								actions[id]->execute();
+								LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: EXECUTE"), String(id), "");
+								client.print(createHtmlResponse("200 OK", "Executed action"));
+							}
+							else {
+								LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: ID out of bound"), String(id), "");
+								client.print(createHtmlResponse("400 BAD REQUEST", "ID out of bound"));
+							}
+						}
+						else {
+							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: No ID provided"), "", "");
+							client.print(createHtmlResponse("400 BAD REQUEST", "No ID provided"));
+						}
+					}
+					else {
+						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Action Action: UNKOWN"), String(id), "");
+						client.print(createHtmlResponse("400 BAD REQUEST", "Unknow Action Method"));
+					}
 				}
+					
+					
+		
 				else if (node["type"] == "SETTING") {
 					if (node["action"] == "GET") {
 						Setting::serializeJSON(json, 2500);
@@ -365,5 +610,49 @@ void WebServer::checkConnection()
 		// close the connection:
 		client.stop();
 		LOGMSG(F("[WebServer]"), F("OK: Client disconnected"), "@" + currenttime.createTime(), F("IPV4"), client.remoteIP());
+	}
+}
+
+template<class ObjectType>
+ListGenerator<ObjectType>::ListGenerator(ObjectType **objects, int8_t num)
+{
+	this->objectarray = objects;
+	this->object_count = num;
+
+}
+
+template<class ObjectType>
+inline void ListGenerator<ObjectType>::generateList(char * json)
+{
+	String jsonarray = "{\"list\":[";
+
+	for (uint8_t i = 0; i < object_count; i++) {
+		objectarray[i]->serializeJSON(i, json, 2500, LIST);
+		jsonarray += json;
+		if (object_count - i > 1) {
+			jsonarray += ",";
+		}
+		else jsonarray += "]}";
+	}
+	if (jsonarray.length() > 0) {
+		jsonarray.toCharArray(json, jsonarray.length() + 1);
+	}
+}
+
+template<class ObjectType>
+void ListGenerator<ObjectType>::generateList(uint8_t cat, char * json)
+{
+	String jsonarray = "{\"list\":[";
+
+	for (uint8_t i = 0; i < object_count; i++) {
+		objectarray[i]->serializeJSON(cat, i, json, 2500, LIST);
+		jsonarray += json;
+		if (object_count - i > 1) {
+			jsonarray += ",";
+		}
+		else jsonarray += "]}";
+	}
+	if (jsonarray.length() > 0) {
+		jsonarray.toCharArray(json, jsonarray.length() + 1);
 	}
 }

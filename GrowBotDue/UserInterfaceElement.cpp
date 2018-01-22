@@ -256,34 +256,34 @@ void TypedControlButton<ActionType>::executeAction() {
 }
 
 
-SensorGraph::SensorGraph(Sensor *sensor_ptr, DateRange range) {
+SensorGraph::SensorGraph(Sensor *sensor_ptr, Scope scope) {
 	this->sensor_ptr = sensor_ptr;
-	drawGraph(range);
+	drawGraph(scope);
 }
 
-float SensorGraph::getXMultiplier(DateRange range)
+float SensorGraph::getXMultiplier(Scope scope)
 {
 	float multiplier;
 
-	switch (range) {
+	switch (scope) {
 
-	case MINUTE:
+	case DATE_MINUTE:
 		multiplier = (320 - UI_X_DIVIDER - 4 * UI_PADDING) / SENS_VALUES_MIN;
 		break;
 
-	case HOUR:
+	case DATE_HOUR:
 		multiplier = (320 - UI_X_DIVIDER - 4 * UI_PADDING) / SENS_VALUES_HOUR ;
 		break;
 
-	case DAY:
+	case DATE_DAY:
 		multiplier = (320 - UI_X_DIVIDER - 4 * UI_PADDING) / SENS_VALUES_DAY;
 		break;
 
-	case MONTH:
+	case DATE_MONTH:
 		multiplier = (320 - UI_X_DIVIDER - 4 * UI_PADDING) / SENS_VALUES_MONTH;
 		break;
 
-	case YEAR:
+	case DATE_YEAR:
 		multiplier = (320 - UI_X_DIVIDER - 4 * UI_PADDING) / SENS_VALUES_YEAR;
 		break;
 
@@ -295,29 +295,29 @@ float SensorGraph::getXMultiplier(DateRange range)
 
 float SensorGraph::getYMultiplier(int min, int max)
 {
-	short range;
+	short scope;
 	float multiplier;
 
 	if (max > 0 && min < 0) {
-		range = max + abs(min);
+		scope = max + abs(min);
 	}
 	else if (max < 0 && min < 0) {
-		range = abs(min);
+		scope = abs(min);
 	}
 	else if (max > 0 && min > 0) {
-		range = abs(max);
+		scope = abs(max);
 	}
 	else {
 		Serial.println("Error: Range 0");
-		range = 0;
+		scope = 0;
 	}
 
-	if (range > 0) {
-		multiplier = (float)(240 - UI_Y_DIVIDER - 2 * UI_PADDING) / (float)range;
+	if (scope > 0) {
+		multiplier = (float)(240 - UI_Y_DIVIDER - 2 * UI_PADDING) / (float)scope;
 	}
 	else multiplier = 0;
 
-	LOGDEBUG(F("[SensorGraph]"), F("getYMultiplier()"), F("OK: Y Multiplier"), String(multiplier), String(range), "");
+	LOGDEBUG(F("[SensorGraph]"), F("getYMultiplier()"), F("OK: Y Multiplier"), String(multiplier), String(scope), "");
 	
 	return (float)multiplier; 
 }
@@ -348,14 +348,14 @@ void SensorGraph::drawValue(uint8_t counter, short value, float x_multiplier, fl
 	myGLCD.fillRect(x1, y1, x2, y2);
 }
 
-void SensorGraph::drawGraph(DateRange range)
+void SensorGraph::drawGraph(Scope scope)
 {
 	short base;
 	String label;
 	
-	short min = sensor_ptr->getMinValueInt(range);
-	short max = sensor_ptr->getMinValueInt(range);
-	float x_multiplier = getXMultiplier(range);
+	short min = sensor_ptr->getMinValueInt(scope);
+	short max = sensor_ptr->getMinValueInt(scope);
+	float x_multiplier = getXMultiplier(scope);
 	float y_multiplier = getYMultiplier(min, max);
 
 
@@ -368,12 +368,12 @@ void SensorGraph::drawGraph(DateRange range)
 
 	LOGDEBUG(F("[SensorGraph]"), F("drawGraph()"), F("OK: Baseline"), String(base), "", "");
 	
-	switch (range) {
+	switch (scope) {
 
-	case MINUTE:
+	case DATE_MINUTE:
 		for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) {
 			myGLCD.setColor(VGA_RED);
-			drawValue(i, sensor_ptr->getElementValueInt(range, i), x_multiplier, y_multiplier, base);
+			drawValue(i, sensor_ptr->getElementValueInt(scope, i), x_multiplier, y_multiplier, base);
 			
 			myGLCD.setColor(VGA_WHITE);
 			myGLCD.setBackColor(VGA_TRANSPARENT);
@@ -388,10 +388,10 @@ void SensorGraph::drawGraph(DateRange range)
 		
 		break;
 
-	case HOUR:
+	case DATE_HOUR:
 		for (uint8_t i = 0; i < SENS_VALUES_HOUR ; i++) {
 			myGLCD.setColor(VGA_FUCHSIA);
-			drawValue(i, sensor_ptr->getElementValueInt(range, i), x_multiplier, y_multiplier, base);
+			drawValue(i, sensor_ptr->getElementValueInt(scope, i), x_multiplier, y_multiplier, base);
 			
 			myGLCD.setColor(VGA_WHITE);
 			myGLCD.setBackColor(VGA_TRANSPARENT);
@@ -405,11 +405,11 @@ void SensorGraph::drawGraph(DateRange range)
 		}
 		break;
 
-	case DAY:
+	case DATE_DAY:
 
 		for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) {
 			myGLCD.setColor(VGA_LIME);
-			drawValue(i, sensor_ptr->getElementValueInt(range, i), x_multiplier, y_multiplier, base);
+			drawValue(i, sensor_ptr->getElementValueInt(scope, i), x_multiplier, y_multiplier, base);
 		
 			myGLCD.setColor(VGA_WHITE);
 			myGLCD.setBackColor(VGA_TRANSPARENT);
@@ -423,10 +423,10 @@ void SensorGraph::drawGraph(DateRange range)
 		}
 		break;
 
-	case MONTH:
+	case DATE_MONTH:
 		for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) {
 			myGLCD.setColor(VGA_BLUE);
-			drawValue(i, sensor_ptr->getElementValueInt(range, i), x_multiplier, y_multiplier, base);
+			drawValue(i, sensor_ptr->getElementValueInt(scope, i), x_multiplier, y_multiplier, base);
 		
 			myGLCD.setColor(VGA_WHITE);
 			myGLCD.setBackColor(VGA_TRANSPARENT);
@@ -440,10 +440,10 @@ void SensorGraph::drawGraph(DateRange range)
 		}
 		break;
 
-	case YEAR:
+	case DATE_YEAR:
 		for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) {
 			myGLCD.setColor(VGA_RED);
-			drawValue(i, sensor_ptr->getElementValueInt(range, i), x_multiplier, y_multiplier, base);
+			drawValue(i, sensor_ptr->getElementValueInt(scope, i), x_multiplier, y_multiplier, base);
 		
 			myGLCD.setColor(VGA_WHITE);
 			myGLCD.setBackColor(VGA_TRANSPARENT);

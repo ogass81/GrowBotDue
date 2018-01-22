@@ -295,26 +295,43 @@ void RuleSet::reset()
 	chain_ptr = ACTIONCHAINS_NUM;
 }
 
-void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize)
+void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
 {
-	StaticJsonBuffer<500> jsonBuffer;
+	StaticJsonBuffer<1000> jsonBuffer;
 
 	JsonObject& rules = jsonBuffer.createObject();
 
-	rules["type"] = "RULE";
-	rules["id"] = id;
-	rules["active"] = active;
-	rules["tset1_ptr"] = triggerset1_ptr;
-	rules["tcat1_ptr"] = triggercat1_ptr;
-	rules["tset2_ptr"] = triggerset2_ptr;
-	rules["tcat2_ptr"] = triggercat2_ptr;
-	rules["tset3_ptr"] = triggerset3_ptr;
-	rules["tcat3_ptr"] = triggercat3_ptr;
-	rules["chain_ptr"] = chain_ptr;
+	if (scope == LIST || scope == DETAILS) {
+		rules["type"] = "RULE";
+		rules["id"] = id;
+		rules["title"] = title;
+		rules["active"] = active;
+	}
+	/*
+	if (scope == LIST) {
+		if (triggerset1_ptr != TRIGGER_SETS && triggercat1_ptr != TRIGGER_TYPES) rules["trigger1"] = trigger[triggercat1_ptr][triggerset1_ptr]->getTitle();
+		else rules["trigger1"] = F("None");
+		if (triggerset2_ptr != TRIGGER_SETS && triggercat2_ptr != TRIGGER_TYPES) rules["trigger2"] = trigger[triggercat2_ptr][triggerset2_ptr]->getTitle();
+		else rules["trigger2"] = F("None");
+		if (triggerset3_ptr != TRIGGER_SETS && triggercat3_ptr != TRIGGER_TYPES) rules["trigger3"] = trigger[triggercat3_ptr][triggerset3_ptr]->getTitle();
+		else rules["trigger3"] = F("None");
+		if (chain_ptr != ACTIONCHAINS_NUM) rules["actionchain"] = actionchains[chain_ptr]->getTitle();
+		else rules["actionchain"] = F("None");
+	}
+	*/
+	if (scope == DETAILS) {
+		rules["tset1_ptr"] = triggerset1_ptr;
+		rules["tcat1_ptr"] = triggercat1_ptr;
+		rules["tset2_ptr"] = triggerset2_ptr;
+		rules["tcat2_ptr"] = triggercat2_ptr;
+		rules["tset3_ptr"] = triggerset3_ptr;
+		rules["tcat3_ptr"] = triggercat3_ptr;
+		rules["chain_ptr"] = chain_ptr;
 
-	JsonArray& boolop = rules.createNestedArray("Bool");
-	boolop.add(static_cast<int>(assignedBoolOp[0]));
-	boolop.add(static_cast<int>(assignedBoolOp[1]));
+		JsonArray& boolop = rules.createNestedArray("Bool");
+		boolop.add(static_cast<int>(assignedBoolOp[0]));
+		boolop.add(static_cast<int>(assignedBoolOp[1]));
+	}
 
 	rules.printTo(json, maxSize);
 	LOGDEBUG2(F("[Ruleset]"), F("serializeJSON()"), F("OK: Serialized Members for Ruleset"), String(id), String(rules.measureLength()), String(maxSize));

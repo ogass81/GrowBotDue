@@ -65,7 +65,7 @@ public:
 	UserInterfaceElement *frameElements[47];
 
 	int current_menue, current_frame, sensor_ptr = 0, trigger_ptr = 0, category_ptr = 0, ruleset_ptr = 0, action_ptr = 0;
-	DateRange daterange;
+	Scope scope;
 
 	UserInterface();
 

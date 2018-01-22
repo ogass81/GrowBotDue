@@ -32,6 +32,17 @@ extern RCSocketController *rcsocketcontroller;
 extern TaskManager *taskmanager;
 extern FileSystem filesystem;
 
+template <class ObjectType>
+class ListGenerator {
+public:
+	ObjectType **objectarray;
+	int8_t object_count;
+
+	ListGenerator(ObjectType **objects, int8_t num);
+	void generateList(char *json);
+	void generateList(uint8_t id, char *json);
+};
+
 class WebServer : public WiFiEspServer {
 private: 
 	//Create POST Request with JSON in HTTP body
@@ -43,6 +54,4 @@ public:
 	WebServer();
 	void checkConnection();
 };
-
 #endif
-

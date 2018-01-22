@@ -17,7 +17,7 @@
 //Abstract Class for Actions
 class Action {
 public:
-	String name;
+	String title;
 	bool visible;
 	//Pointer to Action that does the opposite
 	Action *antaObject = NULL;
@@ -25,7 +25,7 @@ public:
 	void setAntagonist(Action *aObject);
 	virtual void execute();
 	//Serialize
-	virtual void serializeJSON(uint8_t id, char* json, size_t maxSize);
+	virtual void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
 
 	//UI Output
 	String getTitle();
@@ -40,7 +40,7 @@ public:
 	SimpleAction(String title, ActionType *actionObj, void (ActionType::*cFunct)(), bool visible = false);
 
 	//Serialize
-	void serializeJSON(uint8_t id, char* json, size_t maxSize);
+	void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
 
 	void execute();
 };
@@ -55,7 +55,7 @@ public:
 	ParameterizedSimpleAction(String title, ActionType *actionObj, void (ActionType::*cFunct)(int), int par, bool visible = false);
 
 	//Serialize
-	void serializeJSON(uint8_t id, char* json, size_t maxSize);
+	void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
 
 	void execute();
 };

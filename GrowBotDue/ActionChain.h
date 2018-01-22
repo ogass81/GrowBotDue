@@ -73,7 +73,7 @@ public:
 	void reset();
 
 	//Serialize
-	void serializeJSON(uint8_t id, char* json, size_t maxSize);
+	void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
 	bool deserializeJSON(JsonObject& data);
 
 	//Execute all Actions in Chain

@@ -64,32 +64,32 @@ bool FileSystem::saveSettings(const char* filename)
 
 		for (uint8_t i = 0; i < TRIGGER_TYPES; i++) {
 			for (uint8_t j = 0; j < TRIGGER_SETS; j++) {
-				trigger[i][j]->serializeJSON(i, j, json, 2500);
+				trigger[i][j]->serializeJSON(i, j, json, 2500, DETAILS);
 				led[2]->switchState();
 				file.println(json);
 				LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Trigger"), F("Cat | Id"), String(i), String(j));
 			}
 		}
 		for (uint8_t i = 0; i < RULESETS_NUM; i++) {
-			rulesets[i]->serializeJSON(i, json, 2500);
+			rulesets[i]->serializeJSON(i, json, 2500, DETAILS);
 			led[2]->switchState();
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Rule"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < ACTIONCHAINS_NUM; i++) {
-			actionchains[i]->serializeJSON(i, json, 2500);
+			actionchains[i]->serializeJSON(i, json, 2500, DETAILS);
 			led[2]->switchState();
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Actionschain"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < SENS_NUM; i++) {
-			sensors[i]->serializeJSON(i, json, 2500, ALL);
+			sensors[i]->serializeJSON(i, json, 2500, DETAILS);
 			led[2]->switchState();
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Sensor"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < RC_SOCKETS * 2; i++) {
-			rcsocketcontroller->serializeJSON(i, json, 2500);
+			rcsocketcontroller->serializeJSON(i, json, 2500, DETAILS);
 			led[2]->switchState();
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Remote Socket"), F("Id"), String(i), "");

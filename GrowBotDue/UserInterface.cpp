@@ -12,7 +12,7 @@ UserInterface::UserInterface() {
 	sensor_ptr = 0;
 	action_ptr = 0;
 
-	daterange = MINUTE;
+	scope = DATE_MINUTE;
 }
 
 void UserInterface::inCategoryPtr()
@@ -49,21 +49,21 @@ void UserInterface::decSensorPtr()
 
 void UserInterface::changeDateRange()
 {
-	switch (daterange) {
-	case MINUTE:
-		daterange = HOUR;
+	switch (scope) {
+	case DATE_MINUTE:
+		scope = DATE_HOUR;
 		break;
-	case HOUR:
-		daterange = DAY;
+	case DATE_HOUR:
+		scope = DATE_DAY;
 		break;
-	case DAY:
-		daterange = MONTH;
+	case DATE_DAY:
+		scope = DATE_MONTH;
 		break;
-	case MONTH:
-		daterange = YEAR;
+	case DATE_MONTH:
+		scope = DATE_YEAR;
 		break;
-	case YEAR:
-		daterange = MINUTE;
+	case DATE_YEAR:
+		scope = DATE_MINUTE;
 		break;
 	}
 }
@@ -302,7 +302,7 @@ void UserInterface::drawFrame(int nav) {
 		frameElements[9] = NULL;
 		break;
 	case 114:
-		frameElements[0] = new SensorGraph(sensors[this->sensor_ptr], this->daterange);
+		frameElements[0] = new SensorGraph(sensors[this->sensor_ptr], this->scope);
 		frameElements[1] = new TypedControlButton<UserInterface>(this->getDateRange(), 9, 5, 1, 2, VGA_WHITE, VGA_BLACK, this, this, &UserInterface::changeDateRange, true, current_menue, current_frame);
 		frameElements[2] = new TypedControlButton<UserInterface>("<<", 9, 7, 1, 2, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::decSensorPtr, true, current_menue, current_frame);
 		frameElements[3] = new TypedControlButton<UserInterface>(">>", 9, 9, 1, 2, VGA_YELLOW, VGA_BLACK, this, this, &UserInterface::incSensorPtr, true, current_menue, current_frame);
@@ -615,20 +615,20 @@ String UserInterface::getDateRange()
 {
 	String label;
 
-	switch (this->daterange) {
-	case MINUTE:
+	switch (this->scope) {
+	case DATE_MINUTE:
 		label = "Min";
 		break;
-	case HOUR:
+	case DATE_HOUR:
 		label = "Hour";
 		break;
-	case DAY:
+	case DATE_DAY:
 		label = "Day";
 		break;
-	case MONTH:
+	case DATE_MONTH:
 		label = "Month";
 		break;
-	case YEAR:
+	case DATE_YEAR:
 		label = "Year";
 		break;
 	}

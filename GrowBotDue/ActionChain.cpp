@@ -6,7 +6,8 @@
 
 ActionChain::ActionChain(int count)
 {
-	title = String(count);
+	this->title = "Sequence ";
+	this->title += String(count);
 	reset();
 }
 
@@ -225,23 +226,28 @@ void ActionChain::reset()
 	}
 }
 
-void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize)
+void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
 {
 	StaticJsonBuffer<500> jsonBuffer;
 	String tmp_ptr, tmp_par;
 
 	JsonObject& actions = jsonBuffer.createObject();
 
-	actions["type"] = "CHAIN";
-	actions["id"] = id;
-	actions["active"] = active;
-	
-	for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
-		tmp_ptr = "actrPtr" + String(i);
-		tmp_par = "actPar" + String(i);
+	if (scope == LIST || scope == DETAILS) {
+		actions["type"] = "CHAIN";
+		actions["id"] = id;
+		actions["title"] = title;
+		actions["active"] = active;
+	}
 
-		actions[tmp_ptr] = actionPtr[i];
-		actions[tmp_par] = actionPar[i];
+	if (scope == DETAILS) {
+		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
+			tmp_ptr = "actrPtr" + String(i);
+			tmp_par = "actPar" + String(i);
+
+			actions[tmp_ptr] = actionPtr[i];
+			actions[tmp_par] = actionPar[i];
+		}
 	}
 
 	actions.printTo(json, maxSize);
@@ -289,7 +295,7 @@ void ActionChain::execute()
 
 String ActionChain::getTitle()
 {
-	return String("Action Chain #" + String(title));
+	return String(title);
 }
 
 String ActionChain::getChainAction1()

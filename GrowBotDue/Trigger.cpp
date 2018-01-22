@@ -547,36 +547,50 @@ void Trigger::reset()
 	threshold = 0;
 }
 
-void Trigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize)
+void Trigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize, Scope scope)
+{
+}
+
+bool Trigger::deserializeJSON(JsonObject & data)
+{
+	return false;
+}
+
+void TimeTrigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize, Scope scope)
 {
 	StaticJsonBuffer<500> jsonBuffer;
 
 	JsonObject& trigger = jsonBuffer.createObject();
 	
-	trigger["type"] = "TRIGGER";
-	trigger["cat"] = cat;
-	trigger["id"] = id;
+	if (scope == LIST || scope == DETAILS) {
+		trigger["type"] = "TRIGGER";
+		trigger["cat"] = cat;
+		trigger["id"] = id;
+		trigger["title"] = getTitle();
+		trigger["active"] = active;
+		trigger["start_day"] = start_day;
+		trigger["start_month"] = start_month;
+		trigger["start_year"] = start_year;
+		trigger["interval"] = static_cast<int>(interval);
+	}
 
-	trigger["active"] = active;
-	trigger["start_minute"] = start_minute;
-	trigger["start_hour"] = start_hour;
-	trigger["start_day"] = start_day;
-	trigger["start_month"] = start_month;
-	trigger["start_year"] = start_year;
-	trigger["end_minute"] = end_minute;
-	trigger["end_hour"] = end_hour;
-	trigger["end_day"] = end_day;
-	trigger["end_month"] = end_month;
-	trigger["end_year"] = end_year;
-	trigger["relop"] = static_cast<int>(relop);
-	trigger["threshold"] = threshold;
-	trigger["interval"] = static_cast<int>(interval);
+	if (scope == DETAILS) {
+		trigger["start_minute"] = start_minute;
+		trigger["start_hour"] = start_hour;
+		trigger["end_minute"] = end_minute;
+		trigger["end_hour"] = end_hour;
+		trigger["end_day"] = end_day;
+		trigger["end_month"] = end_month;
+		trigger["end_year"] = end_year;
+		trigger["relop"] = static_cast<int>(relop);
+		trigger["threshold"] = threshold;
+	}
 
 	trigger.printTo(json, maxSize);
 	LOGDEBUG2(F("[Trigger]"), F("serializeJSON()"), F("OK: Serialized Members for Trigger"), String(getTitle()), String(trigger.measureLength()), String(maxSize));
 }
 
-bool Trigger::deserializeJSON(JsonObject& data)
+bool TimeTrigger::deserializeJSON(JsonObject& data)
 {
 	if (data.success() == true) {
 		if (data["active"] != "") active = data["active"];
@@ -639,6 +653,7 @@ TimeTrigger::TimeTrigger(int id)
 	: Trigger()
 {
 	this->id = id;
+	this->title = "Timer " + String(id);
 }
 
 bool TimeTrigger::checkState()
@@ -681,17 +696,17 @@ bool TimeTrigger::checkState()
 
 String TimeTrigger::getTitle()
 {
-	String name;
+	String title;
 
-	name = String(id) + ':';
-	name += currenttime.getTitle();
-	name += '(';
-	name += (String)start_hour;
-	name += ':';
-	name += (String)start_minute;
-	name += ')';
+	title = String(id) + ':';
+	title += currenttime.getTitle();
+	title += '(';
+	title += (String)start_hour;
+	title += ':';
+	title += (String)start_minute;
+	title += ')';
 
-	return String(name);
+	return String(title);
 }
 
 SensorTrigger::SensorTrigger(int id, Sensor *ptr)
@@ -699,6 +714,9 @@ SensorTrigger::SensorTrigger(int id, Sensor *ptr)
 {
 	this->id = id;
 	this->sens_ptr = ptr;
+	this->title = this->sens_ptr->getTitle();
+	this->title += "Trigger ";
+	this->title += String(id);
 }
 
 bool SensorTrigger::checkState()
@@ -719,14 +737,107 @@ bool SensorTrigger::checkState()
 
 String SensorTrigger::getTitle()
 {
-	String name;
+	String title;
 
-	name = String(this->id) + ':';
-	name += sens_ptr->getTitle();
-	name += "(#";
-	name += (String)this->getRelOp();
-	name += (String)this->threshold;
-	name += ')';
+	title = this->title;
+	title += "(#";
+	title += (String)this->getRelOp();
+	title += (String)this->threshold;
+	title += ')';
 
-	return String(name);
+	return String(title);
+}
+
+void SensorTrigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize, Scope scope)
+{
+	StaticJsonBuffer<500> jsonBuffer;
+
+	JsonObject& trigger = jsonBuffer.createObject();
+
+	if (scope == LIST || scope == DETAILS) {
+		trigger["type"] = "TRIGGER";
+		trigger["cat"] = cat;
+		trigger["id"] = id;
+		trigger["title"] = title;
+		trigger["active"] = active;
+		if (sens_ptr != NULL) trigger["sensor"] = sens_ptr->getTitle();
+		trigger["relop"] = static_cast<int>(relop);
+		trigger["threshold"] = threshold;
+	}
+
+	if (scope == DETAILS) {
+		trigger["start_minute"] = start_minute;
+		trigger["start_hour"] = start_hour;
+		trigger["end_minute"] = end_minute;
+		trigger["end_hour"] = end_hour;
+		trigger["end_day"] = end_day;
+		trigger["end_month"] = end_month;
+		trigger["end_year"] = end_year;
+		trigger["start_day"] = start_day;
+		trigger["start_month"] = start_month;
+		trigger["start_year"] = start_year;
+		trigger["interval"] = static_cast<int>(interval);
+	}
+
+	trigger.printTo(json, maxSize);
+	LOGDEBUG2(F("[Trigger]"), F("serializeJSON()"), F("OK: Serialized Members for Trigger"), String(getTitle()), String(trigger.measureLength()), String(maxSize));
+}
+
+bool SensorTrigger::deserializeJSON(JsonObject& data)
+{
+	if (data.success() == true) {
+		if (data["active"] != "") active = data["active"];
+		if (data["start_minute"] != "") start_minute = data["start_minute"];
+		if (data["start_hour"] != "") start_hour = data["start_hour"];
+		if (data["start_day"] != "") start_day = data["start_day"];
+		if (data["start_month"] != "") start_month = data["start_month"];
+		if (data["start_year"] != "") start_year = data["start_year"];
+		if (data["end_minute"] != "") end_minute = data["end_minute"];
+		if (data["end_hour"] != "") end_hour = data["end_hour"];
+		if (data["end_day"] != "") end_day = data["end_day"];
+		if (data["end_month"] != "") end_month = data["end_month"];
+		if (data["end_year"] != "") end_year = data["end_year"];
+		if (data["threshold"] != "") threshold = data["threshold"];
+
+		if (data["relop"] != "") {
+			if (data["relop"] == 0) relop = SMALLER;
+			else if (data["relop"] == 1) relop = EQUAL;
+			else if (data["relop"] == 2) relop = GREATER;
+			else {
+				relop = EQUAL;
+				active = false;
+			}
+		}
+
+		if (data["interval"] != "") {
+			if (data["interval"] == 0) interval = REALTIME;
+			else if (data["interval"] == 1) interval = TENSEC;
+			else if (data["interval"] == 2) interval = TWENTYSEC;
+			else if (data["interval"] == 3) interval = THIRTYSEC;
+			else if (data["interval"] == 4) interval = ONEMIN;
+			else if (data["interval"] == 5) interval = TWOMIN;
+			else if (data["interval"] == 6) interval = FIVEMIN;
+			else if (data["interval"] == 7) interval = QUARTER;
+			else if (data["interval"] == 8) interval = HALF;
+			else if (data["interval"] == 9) interval = ONE;
+			else if (data["interval"] == 10) interval = TWO;
+			else if (data["interval"] == 11) interval = THREE;
+			else if (data["interval"] == 12) interval = FOUR;
+			else if (data["interval"] == 13) interval = SIX;
+			else if (data["interval"] == 14) interval = TWELVE;
+			else if (data["interval"] == 15) interval = DAILY;
+			else if (data["interval"] == 16) interval = BIDAILY;
+			else if (data["interval"] == 17) interval = WEEKLY;
+			else if (data["interval"] == 18) interval = BIWEEKLY;
+			else {
+				interval = ONEMIN;
+				active = false;
+			}
+		}
+		LOGDEBUG2(F("[Trigger]"), F("deserializeJSON()"), F("OK: Deserialized members for Trigger"), String(data["cat"].asString()), String(data["id"].asString()), "");
+	}
+	else {
+		LOGDEBUG2(F("[Trigger]"), F("deserializeJSON()"), F("ERROR: No Data to deserialize members of Trigger"), F("Datasize"), String(data.size()), "");
+	}
+	return data.success();
 }

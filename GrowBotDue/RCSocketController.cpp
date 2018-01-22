@@ -3,9 +3,9 @@
 // 
 
 #include "RCSocketController.h"
-RCSocketCodeSet::RCSocketCodeSet(String name, int repeat)
+RCSocketCodeSet::RCSocketCodeSet(String title, int repeat)
 {
-	this->name = name;
+	this->title = title;
 	this->repeat = repeat;
 
 	for (uint8_t i = 0; i < RC_SIGNALS; i++) {
@@ -133,11 +133,14 @@ uint8_t RCSocketCodeSet::numberSignals()
 	return RC_SIGNALS;
 }
 
-void RCSocketCodeSet::serializeJSON(JsonObject &codeset)
+void RCSocketCodeSet::serializeJSON(JsonObject &codeset, Scope scope)
 {
-	codeset["active"] = active;
-	codeset["tol"] = nReceiveTolerance;
-	codeset["rep"] = repeat;
+	if(scope == LIST || scope == DETAILS) codeset["active"] = active;
+	if (scope == LIST || scope == DETAILS) codeset["title"] = title;
+	if (scope == DETAILS) codeset["tol"] = nReceiveTolerance;
+	if (scope == DETAILS) codeset["rep"] = repeat;
+	
+	if (scope == DETAILS) {
 	JsonArray& values = codeset.createNestedArray("value");
 	for (uint8_t j = 0; j < RC_SIGNALS; j++) values.add(nReceivedValue[j]);
 	JsonArray& delays = codeset.createNestedArray("delay");
@@ -146,6 +149,7 @@ void RCSocketCodeSet::serializeJSON(JsonObject &codeset)
 	for (uint8_t j = 0; j < RC_SIGNALS; j++) lengths.add(nReceivedBitlength[j]);
 	JsonArray& protocols = codeset.createNestedArray("proto");
 	for (uint8_t j = 0; j < RC_SIGNALS; j++) protocols.add(nReceivedProtocol[j]);
+	}
 
 	LOGDEBUG2(F("[Sensor]"), F("serializeJSON()"), F("OK: Sub-routine serialized codeset"), String(codeset.measureLength()), "", "");
 }
@@ -181,13 +185,13 @@ RCSocketController::RCSocketController(uint8_t transmitter, uint8_t receiver)
 
 	for (uint8_t i = 0; i < 2 * RC_SOCKETS; i++) {
 		if (on == true) {
-			set_name = "Set " + String(set);
-			set_name += " ON";
+			set_name = "Socket " + String(set);
+			set_name += " - On";
 			on = false;
 		}
 		else {
-			set_name = "Set " + String(set);
-			set_name += " OFF";
+			set_name = "Socket " + String(set);
+			set_name += " - Off";
 			on = true;
 			set++;
 		}
@@ -385,7 +389,7 @@ String RCSocketController::getActive()
 
 String RCSocketController::getName()
 {
-	return String(socketcode[code_set_ptr]->name);
+	return String(socketcode[code_set_ptr]->title);
 }
 
 String RCSocketController::getSignalPointer()
@@ -504,15 +508,19 @@ String RCSocketController::dec2binWzerofill(unsigned long Dec, unsigned int bitL
 	return String(bin);
 }
 
-void RCSocketController::serializeJSON(uint8_t set, char * json, size_t maxSize)
+void RCSocketController::serializeJSON(uint8_t set, char * json, size_t maxSize, Scope scope)
 {
 	StaticJsonBuffer<5000> jsonBuffer;
 
 	JsonObject& socket = jsonBuffer.createObject();
-	socket["type"] = "RCSOCKET";
-	socket["id"] = set;
-	//Add data from each codeset, pass overall JSON by reference
-	socketcode[set]->serializeJSON(socket);
+	
+	if (scope == LIST || scope == DETAILS) {
+		socket["type"] = "RCSOCKET";
+		socket["id"] = set;
+		//Add data from each codeset, pass overall JSON by reference
+		socketcode[set]->serializeJSON(socket, scope);
+	}
+
 	socket.printTo(json, maxSize);
 	LOGDEBUG2(F("[RCSocketController]"), F("serializeJSON()"), F("OK: Serialized remote sockets"), String(socket.measureLength()), String(maxSize), "");
 }

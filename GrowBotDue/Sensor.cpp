@@ -18,15 +18,6 @@ bool Sensor::compareWithValue(RelOp relop, Interval interval, int value)
 	return false;
 }
 
-void Sensor::serializeJSON(uint8_t id, char * json, size_t maxSize, DateRange range)
-{
-}
-
-bool Sensor::deserializeJSON(JsonObject & data)
-{
-	return false;
-}
-
 String Sensor::getTitle()
 {
 	return String();
@@ -37,17 +28,17 @@ String Sensor::getValue()
 	return String();
 }
 
-int Sensor::getMaxValueInt(DateRange range)
+int Sensor::getMaxValueInt(Scope scope)
 {
 	return 0;
 }
 
-int Sensor::getMinValueInt(DateRange range)
+int Sensor::getMinValueInt(Scope scope)
 {
 	return 0;
 }
 
-int Sensor::getElementValueInt(DateRange range, uint8_t element)
+int Sensor::getElementValueInt(Scope scope, uint8_t element)
 {
 	return 0;
 }
@@ -437,33 +428,33 @@ String BaseSensor<ReturnType>::getValue()
 template<class ReturnType>
 String BaseSensor<ReturnType>::getTitle()
 {
-	return String(desc);
+	return String(title);
 }
 
 template<class ReturnType>
-int BaseSensor<ReturnType>::getMaxValueInt(DateRange range)
+int BaseSensor<ReturnType>::getMaxValueInt(Scope scope)
 {
 	int max = 0;
 
-	switch (range) {
+	switch (scope) {
 
-	case MINUTE:
+	case DATE_MINUTE:
 		max = maxValue(minute_values, SENS_VALUES_MIN);
 		break;
 
-	case HOUR:
+	case DATE_HOUR:
 		max = maxValue(hour_values, SENS_VALUES_HOUR);
 		break;
 
-	case DAY:
+	case DATE_DAY:
 		max = maxValue(day_values, SENS_VALUES_DAY);
 		break;
 
-	case MONTH:
+	case DATE_MONTH:
 		max = maxValue(month_values, SENS_VALUES_MONTH);
 		break;
 
-	case YEAR:
+	case DATE_YEAR:
 		max = maxValue(year_values, SENS_VALUES_YEAR);
 		break;
 	}
@@ -471,29 +462,29 @@ int BaseSensor<ReturnType>::getMaxValueInt(DateRange range)
 }
 
 template<class ReturnType>
-int BaseSensor<ReturnType>::getMinValueInt(DateRange range)
+int BaseSensor<ReturnType>::getMinValueInt(Scope scope)
 {
 	int min = 0;
 
-	switch (range) {
+	switch (scope) {
 
-	case MINUTE:
+	case DATE_MINUTE:
 		min = minValue(minute_values, SENS_VALUES_MIN);
 		break;
 
-	case HOUR:
+	case DATE_HOUR:
 		min = minValue(hour_values, SENS_VALUES_HOUR);
 		break;
 
-	case DAY:
+	case DATE_DAY:
 		min = minValue(day_values, SENS_VALUES_DAY);
 		break;
 
-	case MONTH:
+	case DATE_MONTH:
 		min = minValue(month_values, SENS_VALUES_MONTH);
 		break;
 
-	case YEAR:
+	case DATE_YEAR:
 		min = minValue(year_values, SENS_VALUES_YEAR);
 		break;
 	}
@@ -501,33 +492,33 @@ int BaseSensor<ReturnType>::getMinValueInt(DateRange range)
 }
 
 template<class ReturnType>
-int BaseSensor<ReturnType>::getElementValueInt(DateRange range, uint8_t element)
+int BaseSensor<ReturnType>::getElementValueInt(Scope scope, uint8_t element)
 {
 	int element_val = 0;
 
-	switch (range) {
+	switch (scope) {
 
-	case MINUTE:
+	case DATE_MINUTE:
 		if (element >= 0 && element < SENS_VALUES_MIN) element_val = minute_values[element];
 		else element_val = nan_val;
 		break;
 
-	case HOUR:
+	case DATE_HOUR:
 		if (element >= 0 && element < SENS_VALUES_HOUR) element_val = hour_values[element];
 		else element_val = nan_val;
 		break;
 
-	case DAY:
+	case DATE_DAY:
 		if (element >= 0 && element < SENS_VALUES_DAY) element_val = day_values[element];
 		else element_val = nan_val;
 		break;
 
-	case MONTH:
+	case DATE_MONTH:
 		if (element >= 0 && element < SENS_VALUES_MONTH) element_val = month_values[element];
 		else element_val = nan_val;
 		break;
 
-	case YEAR:
+	case DATE_YEAR:
 		if (element >= 0 && element < SENS_VALUES_YEAR) element_val = year_values[element];
 		else element_val = nan_val;
 		break;
@@ -727,28 +718,33 @@ void BaseSensor<ReturnType>::reset()
 }
 
 template<class ReturnType>
-void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSize, DateRange range)
+void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
 {
 	StaticJsonBuffer<5000> jsonBuffer;
 
 	JsonObject& sensor = jsonBuffer.createObject();
 	
-	sensor["type"] = "SENSOR";
-	sensor["id"] = id;
-	sensor["desc"] = desc;
-	sensor["unit"] = unit;
-	sensor["nan_val"] = nan_val;
-	sensor["min_val"] = min_val;
-	sensor["max_val"] = max_val;
-	sensor["low_thresh"] = lower_threshold;
-	sensor["up_thresh"] = upper_threshold;
-	sensor["min_ptr"] = minute_ptr;
-	sensor["h_ptr"] = hour_ptr;
-	sensor["d_ptr"] = day_ptr;
-	sensor["m_ptr"] = month_ptr;
-	sensor["y_ptr"] = year_ptr;
+	if (scope == LIST || scope == DETAILS || scope == AVG || scope == DATE_MINUTE || scope == DATE_HOUR || scope == DATE_DAY || scope == DATE_MONTH || scope == DATE_YEAR || scope == DATE_ALL) {
+		sensor["type"] = "SENSOR";
+		sensor["id"] = id;
+		sensor["title"] = title;
+		sensor["unit"] = unit;
+		sensor["nan_val"] = nan_val;
+		sensor["min_val"] = min_val;
+		sensor["max_val"] = max_val;
+		sensor["low_thresh"] = lower_threshold;
+		sensor["up_thresh"] = upper_threshold;
+	}
+	
+	if (scope == DETAILS || scope == AVG || scope == DATE_MINUTE || scope == DATE_HOUR || scope == DATE_DAY || scope == DATE_MONTH || scope == DATE_YEAR || scope == DATE_ALL) {
+		sensor["min_ptr"] = minute_ptr;
+		sensor["h_ptr"] = hour_ptr;
+		sensor["d_ptr"] = day_ptr;
+		sensor["m_ptr"] = month_ptr;
+		sensor["y_ptr"] = year_ptr;
+	}
 
-	if (range == AVG || range == ALL) {
+	if (scope == DETAILS || scope == AVG) {
 		JsonObject& avg = sensor.createNestedObject("avg");
 		avg["last"] = getLastValue();
 		avg["tenSec"] = getTenSecAvg();
@@ -770,24 +766,24 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 		avg["lastWeek"] = getWeekAvg();
 		avg["twoWeeks"] = getTwoWeekAvg();
 	}
-	if (range == MINUTE || range == ALL) {
+	if (scope == DETAILS || scope == DATE_MINUTE || scope == DATE_ALL) {
 		JsonArray& minutes = sensor.createNestedArray("min_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_MIN; j++) minutes.add(toNAN(minute_values[j]));
 	}
 
-	if (range == MINUTE || range == ALL) {
+	if (scope == DETAILS || scope == DATE_HOUR || scope == DATE_ALL) {
 		JsonArray& hours = sensor.createNestedArray("h_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_HOUR; j++) hours.add(toNAN(hour_values[j]));
 	}
-	if (range == MINUTE || range == ALL) {
+	if (scope == DETAILS || scope == DATE_DAY || scope == DATE_ALL) {
 		JsonArray& days = sensor.createNestedArray("d_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_DAY; j++) days.add(toNAN(day_values[j]));
 	}
-	if (range == MONTH || range == ALL) {
+	if (scope == DETAILS || scope == DATE_MONTH || scope == DATE_ALL) {
 		JsonArray& month = sensor.createNestedArray("m_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_MONTH; j++) month.add(toNAN(month_values[j]));
 	}
-	if (range == MONTH || range == ALL) {
+	if (scope == DETAILS || scope == DATE_YEAR || scope == DATE_ALL) {
 		JsonArray& year = sensor.createNestedArray("y_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_YEAR; j++) year.add(toNAN(year_values[j]));
 	}
@@ -823,12 +819,12 @@ bool BaseSensor<ReturnType>::deserializeJSON(JsonObject & data)
 }
 
 template<class ReturnType>
-AnalogMoistureSensor<ReturnType>::AnalogMoistureSensor(uint8_t pin, uint8_t power_pin, bool active, String desc, String unit, ReturnType nan_val, ReturnType min_val, ReturnType max_val, ReturnType lower_threshold, ReturnType upper_threshold)
+AnalogMoistureSensor<ReturnType>::AnalogMoistureSensor(uint8_t pin, uint8_t power_pin, bool active, String title, String unit, ReturnType nan_val, ReturnType min_val, ReturnType max_val, ReturnType lower_threshold, ReturnType upper_threshold)
 {
 	this->pin = pin;
 	this->power_pin = power_pin;
 	this->active = active;
-	this->desc = desc;
+	this->title = title;
 	this->unit = unit;
 	this->nan_val = nan_val;
 	this->min_val = min_val;
@@ -1014,11 +1010,11 @@ String AnalogMoistureSensor<float>::getValue()
 }
 
 
-DHTTemperature::DHTTemperature(DHT *hardware, bool active, String desc, String unit, int8_t nan_val, int8_t min_val, int8_t max_val)
+DHTTemperature::DHTTemperature(DHT *hardware, bool active, String title, String unit, int8_t nan_val, int8_t min_val, int8_t max_val)
 {
 	this->dht = hardware;
 
-	this->desc = desc;
+	this->title = title;
 	this->active = active;
 	this->unit = unit;
 	this->nan_val = nan_val;
@@ -1069,11 +1065,11 @@ bool DHTTemperature::compareWithValue(RelOp relop, Interval interval, int value)
 	return state;
 }
 
-DHTHumidity::DHTHumidity(DHT *hardware, bool active, String desc, String unit, int8_t nan_val, int8_t min_val, int8_t max_val)
+DHTHumidity::DHTHumidity(DHT *hardware, bool active, String title, String unit, int8_t nan_val, int8_t min_val, int8_t max_val)
 {
 	this->dht = hardware;
 
-	this->desc = desc;
+	this->title = title;
 	this->active = active;
 	this->unit = unit;
 	this->nan_val = nan_val;
