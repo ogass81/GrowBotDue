@@ -5,12 +5,6 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GrowBotDue", "GrowBotDue\GrowBotDue.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArduinoJson", "..\libraries\ArduinoJson\ArduinoJson.vcxitems", "{9E62D9DF-2964-4B28-868D-8F3B2924BC72}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "aREST-master", "..\libraries\aREST-master\aREST-master.vcxitems", "{3F757FC4-A4B2-46AD-A7C5-C82519F08C8B}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WiFi", "C:\Arduino\libraries\WiFi\WiFi.vcxitems", "{39F19BBB-1C17-4B5E-BA22-62636D2CB953}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86

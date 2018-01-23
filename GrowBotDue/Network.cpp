@@ -48,6 +48,15 @@ WebServer::WebServer() : WiFiEspServer(80)
 	LOGMSG(F("[WebServer]"), F("OK: Webserver started"), F("IPV4"), ip, "");
 }
 
+void parse_request(String row) {
+
+
+
+}
+
+
+
+
 void WebServer::checkConnection()
 {
 	WiFiEspClient client = this->available();
@@ -58,15 +67,16 @@ void WebServer::checkConnection()
 	//Outgoing Data
 	char json[2500];
 
-	String request = "";
-	bool begin = false;
-	bool payload = false;
-	bool blankline = true;
-	bool success = false;
-	int counter = 0;
+	String line = "";
+	int8_t line_count = 0;
+	bool header = true;
 
-	int id = 0;
-	int cat = 0;
+	String http_method = "";
+	String uri[REST_URI_DEPTH];
+	int content_length = 0;
+	String password = "";
+	String payload = "";
+
 
 	if (client == true) {
 		LOGMSG(F("[WebServer]"), F("OK: New Client connected"), "@" + currenttime.createTime(), F("IPV4"), client.remoteIP());
@@ -74,22 +84,133 @@ void WebServer::checkConnection()
 		while (client.connected()) {
 			if (client.available() > 0) {
 				char c = client.read();
+				line += c;
 
-				if (c == '{') {
-					begin = true;
+
+				if (line.endsWith("\n") && line != "\r\n") {
+					if (line_count == 0) {
+
+						String parts[3];
+						int8_t i = 0;
+
+						//Break up line in Command and Resource
+
+
+						char temp[line.length() + 1];
+						line.toCharArray(temp, line.length() + 1);
+						char *token = strtok(temp, " ");
+
+						while (token != NULL && i < 3) {
+							parts[i] = token;
+							token = strtok(NULL, " ");
+							i++;
+						}
+
+						//Parse command
+						if (parts[0] != NULL) {
+							if ((parts[0].indexOf("GET")) > -1) {
+								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("HTTP Method detected"), F("GET"), "", "");
+								http_method = "GET";
+							}
+							else if ((parts[0].indexOf("POST")) > -1) {
+								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("HTTP Method detected"), F("POST"), "", "");
+								http_method = "POST";
+							}
+							else if ((parts[0].indexOf("PATCH")) > -1) {
+								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("HTTP Method detected"), F("PATCH"), "", "");
+								http_method = "PATCH";
+							}
+						}
+
+						//Parse URI
+						if (parts[1] != NULL) {
+							int8_t i = 0;
+
+							char temp[parts[1].length() + 1];
+							parts[1].toCharArray(temp, parts[1].length() + 1);
+							char *token = strtok(temp, "/");
+
+							while (token != NULL && i < REST_URI_DEPTH) {
+								uri[i] = token;
+								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("URI Collection / Element found"), i, uri[i], "");
+								token = strtok(NULL, "/");
+								i++;
+							}
+						}
+					}
+					//Check for Authorization or other tags
+					else {
+
+						//Check for Authorization Token
+						if (line.startsWith("authorization:")) {
+
+							String parts[3];
+							int8_t i = 0;
+
+							//Break up line in Command and Resource
+							char temp[line.length() + 1];
+							line.toCharArray(temp, line.length() + 1);
+							char *token = strtok(temp, " ");
+
+							while (token != NULL && i < 3) {
+								parts[i] = token;
+								token = strtok(NULL, " ");
+								i++;
+							}
+
+							if (parts[1] == "Basic" && parts[2] != NULL) {
+								password = parts[2];
+								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Authorization Token detected"), password, "", "");
+							}
+						}
+
+						//Check for Content Length Token
+						if (line.startsWith("content-length:")) {
+
+							String parts[3];
+							int8_t i = 0;
+
+							//Break up line in Command and Resource
+							char temp[line.length() + 1];
+							line.toCharArray(temp, line.length() + 1);
+							char *token = strtok(temp, " ");
+
+							while (token != NULL && i < 3) {
+								parts[i] = token;
+								token = strtok(NULL, " ");
+								i++;
+							}
+
+							if (parts[1] != NULL) {
+								content_length = parts[1].toInt();
+								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Content Lenght"), content_length, "", "");
+							}
+						}
+
+					}
+					line_count++;
+					line = "";
 				}
-				if (begin == true) {
-					request += c;
-					if (c == '}') {
-						payload = true;
+				//Detect Empty Line at end of header
+				else if (line == "\r\n") {
+					header = false;
+					line = "";
+					LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("End of HTTP Header detected"), "", "", "");
+				}
+
+				//Read Http Body
+				if (header == false) {
+					if (line.length() == content_length) {
+						payload = line;
+						LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Payload detected"), payload, "", "");
 						break;
 					}
 				}
 			}
-			else break;
 		}
-		LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("OK: Payload"), F("#START#"), String(request), F("#END#"));
 
+	
+		/*
 		if (payload == true) {
 			JsonObject& node = jsonBuffer.parseObject(request);
 			if (node.success()) {
@@ -604,6 +725,8 @@ void WebServer::checkConnection()
 			LOGMSG(F("[WebServer]"), F("ERROR: HTTP Request received"), "No payload", "", "");
 			client.print(createHtmlResponse("400 BAD REQUEST", "No Payload"));
 		}
+
+		*/
 
 		// give the web browser time to receive the data
 		delay(200);
