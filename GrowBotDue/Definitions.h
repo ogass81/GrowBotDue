@@ -8,6 +8,9 @@
 #else
 	#include "WProgram.h"
 #endif
+
+#define GROWBOT_FIRMWARE 1
+
 #define SERIAL_BUFFER_SIZE 256
 //User Interface
 #define BACKGROUNDCOLOR VGA_BLACK
@@ -98,7 +101,7 @@
 #define LED3 13
 
 //REST API 
-#define REST_URI_DEPTH 3
+#define REST_URI_DEPTH 4
 
 enum RelOp { SMALLER, EQUAL, GREATER };
 enum BoolOp { AND, OR, NOT };

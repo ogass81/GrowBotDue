@@ -110,6 +110,9 @@ void Setting::serializeConstantsJSON(char * json, size_t maxSize)
 	StaticJsonBuffer<500> jsonBuffer;
 
 	JsonObject& settings = jsonBuffer.createObject();
+	settings["firm_version"] = GROWBOT_FIRMWARE;
+	settings["firm_date"] = __DATE__;
+	settings["firm_time"] = __TIME__;
 	settings["actions_num"] = ACTIONS_NUM;
 	settings["actionschains_num"] = ACTIONCHAINS_NUM;
 	settings["actionschains_length"] = ACTIONCHAIN_LENGTH;
