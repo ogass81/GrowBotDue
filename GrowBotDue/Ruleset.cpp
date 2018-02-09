@@ -6,7 +6,8 @@
 
 RuleSet::RuleSet(int count)
 {
-	title = String(count);
+	title = "Ruleset ";
+	title += String(count);
 	reset();
 }
 
@@ -328,7 +329,7 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope
 		rules["tcat3_ptr"] = triggercat3_ptr;
 		rules["chain_ptr"] = chain_ptr;
 
-		JsonArray& boolop = rules.createNestedArray("Bool");
+		JsonArray& boolop = rules.createNestedArray("bool");
 		boolop.add(static_cast<int>(assignedBoolOp[0]));
 		boolop.add(static_cast<int>(assignedBoolOp[1]));
 	}
@@ -341,6 +342,7 @@ bool RuleSet::deserializeJSON(JsonObject & data)
 {
 	if (data.success() == true) {
 		
+		if (data["title"] != "") title = data["title"].asString();
 		if (data["active"] != "") active = data["active"];
 		if (data["tset1_ptr"] != "") triggerset1_ptr = data["tset1_ptr"];
 		if (data["tcat1_ptr"] != "") triggercat1_ptr = data["tcat1_ptr"];
@@ -352,20 +354,20 @@ bool RuleSet::deserializeJSON(JsonObject & data)
 		
 		//Assigning Pointers
 		
-		if (data["Bool"][0] != "") {
-			if (data["Bool"][0] == 0) assignedBoolOp[0] = AND;
-			else if (data["Bool"][0] == 1) assignedBoolOp[0] = OR;
-			else if (data["Bool"][0] == 2) assignedBoolOp[0] = NOT;
+		if (data["bool"][0] != "") {
+			if (data["bool"][0] == 0) assignedBoolOp[0] = AND;
+			else if (data["bool"][0] == 1) assignedBoolOp[0] = OR;
+			else if (data["bool"][0] == 2) assignedBoolOp[0] = NOT;
 			else {
 				assignedBoolOp[0] = OR;
 				active = false;
 			}
 		}
 
-		if (data["Bool"][1] != "") {
-			if (data["Bool"][1] == 0) assignedBoolOp[1] = AND;
-			else if (data["Bool"][1] == 1) assignedBoolOp[1] = OR;
-			else if (data["Bool"][1] == 2) assignedBoolOp[1] = NOT;
+		if (data["bool"][1] != "") {
+			if (data["bool"][1] == 0) assignedBoolOp[1] = AND;
+			else if (data["bool"][1] == 1) assignedBoolOp[1] = OR;
+			else if (data["bool"][1] == 2) assignedBoolOp[1] = NOT;
 			else {
 				assignedBoolOp[1] = OR;
 				active = false;

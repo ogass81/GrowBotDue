@@ -26,6 +26,7 @@ public:
 	uint8_t id;
 	String title;
 	bool active;
+	TriggerTypes type;
 
 	//Trigger valid timeframe
 	uint8_t start_minute;

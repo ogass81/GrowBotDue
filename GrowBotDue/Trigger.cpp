@@ -568,13 +568,14 @@ void TimeTrigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t max
 		trigger["id"] = id;
 		trigger["title"] = getTitle();
 		trigger["active"] = active;
-		trigger["start_day"] = start_day;
-		trigger["start_month"] = start_month;
-		trigger["start_year"] = start_year;
-		trigger["interval"] = static_cast<int>(interval);
+		trigger["type"] = static_cast<int>(type);
+
 	}
 
 	if (scope == DETAILS) {
+		trigger["start_day"] = start_day;
+		trigger["start_month"] = start_month;
+		trigger["start_year"] = start_year;
 		trigger["start_minute"] = start_minute;
 		trigger["start_hour"] = start_hour;
 		trigger["end_minute"] = end_minute;
@@ -584,6 +585,7 @@ void TimeTrigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t max
 		trigger["end_year"] = end_year;
 		trigger["relop"] = static_cast<int>(relop);
 		trigger["threshold"] = threshold;
+		trigger["interval"] = static_cast<int>(interval);
 	}
 
 	trigger.printTo(json, maxSize);
@@ -605,6 +607,15 @@ bool TimeTrigger::deserializeJSON(JsonObject& data)
 		if (data["end_month"] != "") end_month = data["end_month"];
 		if (data["end_year"] != "") end_year = data["end_year"];
 		if (data["threshold"] != "") threshold = data["threshold"];
+
+		if (data["type"] != "") {
+			if (data["type"] == 0) type = TIME;
+			else if (data["type"] == 1) type = SENSOR;
+			else {
+				relop = EQUAL;
+				active = false;
+			}
+		}
 
 		if (data["relop"] != "") {
 			if (data["relop"] == 0) relop = SMALLER;
@@ -654,6 +665,7 @@ TimeTrigger::TimeTrigger(int id)
 {
 	this->id = id;
 	this->title = "Timer " + String(id);
+	this->type = TIME;
 }
 
 bool TimeTrigger::checkState()
@@ -717,6 +729,7 @@ SensorTrigger::SensorTrigger(int id, Sensor *ptr)
 	this->title = this->sens_ptr->getTitle();
 	this->title += "Trigger ";
 	this->title += String(id);
+	this->type = SENSOR;
 }
 
 bool SensorTrigger::checkState()

@@ -62,6 +62,8 @@ void WebServer::checkConnection()
 	int content_length = 0;
 	String password = "";
 	String payload = "";
+	//Debug
+	String http_request;
 
 	bool success;
 
@@ -73,10 +75,9 @@ void WebServer::checkConnection()
 			if (client.available() > 0) {
 				char c = client.read();
 				line += c;
-
+				http_request += c;
 
 				if (line.endsWith("\n") && line != "\r\n") {
-					LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Request"), line_count, line, "");
 					if (line_count == 0) {
 
 						String parts[3];
@@ -98,15 +99,15 @@ void WebServer::checkConnection()
 						//Parse command
 						if (parts[0] != NULL) {
 							if ((parts[0].indexOf("GET")) > -1) {
-								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("HTTP Method detected"), F("GET"), "", "");
+								LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("HTTP Method detected"), F("GET"), "", "");
 								http_method = "GET";
 							}
 							else if ((parts[0].indexOf("POST")) > -1) {
-								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("HTTP Method detected"), F("POST"), "", "");
+								LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("HTTP Method detected"), F("POST"), "", "");
 								http_method = "POST";
 							}
 							else if ((parts[0].indexOf("PATCH")) > -1) {
-								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("HTTP Method detected"), F("PATCH"), "", "");
+								LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("HTTP Method detected"), F("PATCH"), "", "");
 								http_method = "PATCH";
 							}
 						}
@@ -121,7 +122,7 @@ void WebServer::checkConnection()
 
 							while (token != NULL && i < REST_URI_DEPTH) {
 								uri[i] = token;
-								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("URI Collection / Element found"), i, uri[i], "");
+								LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("URI Collection / Element found"), i, uri[i], "");
 								token = strtok(NULL, "/");
 								i++;
 							}
@@ -152,7 +153,7 @@ void WebServer::checkConnection()
 
 							if (parts[1] == "Basic" && parts[2] != NULL) {
 								password = parts[2];
-								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Authorization Token detected"), password, "", "");
+								LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("Authorization Token detected"), password, "", "");
 							}
 						}
 
@@ -160,7 +161,7 @@ void WebServer::checkConnection()
 						if (searchbase.startsWith("content-type:") == true && searchbase.indexOf("json") > -1) {
 							
 							content_type = true;
-							LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Content Type"), F("JSON"), "", "");
+							LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("Content Type"), F("JSON"), "", "");
 						}
 
 
@@ -183,7 +184,7 @@ void WebServer::checkConnection()
 
 							if (parts[1] != NULL) {
 								content_length = parts[1].toInt();
-								LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Content Lenght"), content_length, "", "");
+								LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("Content Lenght"), content_length, "", "");
 							}
 						}
 
@@ -195,19 +196,21 @@ void WebServer::checkConnection()
 				else if (line == "\r\n") {
 					header = false;
 					line = "";
-					LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("End of HTTP Header detected"), "", "", "");
+					LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("End of HTTP Header detected"), "", "", "");
 				}
 
 				//Read Http Body
 				if (header == false) {
 					if (line.length() == content_length) {
 						payload = line;
-						LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Payload detected"), payload, "", "");
+						LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("Payload detected"), payload, "", "");
 						break;
 					}
 				}
 			}
 		}
+		//Debug
+		LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Complete Http Request"), F("#"), http_request, F("#"));
 		
 		if (http_method == "GET") {
 			//Variable for Outgoing Data
@@ -335,7 +338,7 @@ void WebServer::checkConnection()
 					}
 				}
 			}
-			else if (uri[0] == "rule") {
+			else if (uri[0] == "ruleset") {
 				if (uri[1] == "") {
 					ListGenerator<RuleSet> list(rulesets, RULESETS_NUM);
 					list.generateList(json);
@@ -512,7 +515,7 @@ void WebServer::checkConnection()
 							client.print(createHtmlResponse("400 BAD REQUEST", "Unknown URI"));
 						}
 					}
-					else if (uri[0] == "rule") {
+					else if (uri[0] == "ruleset") {
 						if (uri[1] != "" && uri[1].toInt() < RULESETS_NUM) {
 							success = rulesets[uri[1].toInt()]->deserializeJSON(node);
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: SET"), String(uri[1]), "");
