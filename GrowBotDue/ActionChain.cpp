@@ -234,7 +234,7 @@ void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope s
 	JsonObject& actions = jsonBuffer.createObject();
 
 	if (scope == LIST || scope == DETAILS) {
-		actions["type"] = "CHAIN";
+		actions["obj"] = "CHAIN";
 		actions["id"] = id;
 		actions["title"] = title;
 		actions["active"] = active;
@@ -260,6 +260,7 @@ bool ActionChain::deserializeJSON(JsonObject & data)
 
 	if (data.success() == true) {
 		
+		if (data["title"] != "") title = data["title"].asString();
 		if (data["active"] != "") active = data["active"];
 		
 		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {

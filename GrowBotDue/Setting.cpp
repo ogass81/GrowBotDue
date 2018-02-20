@@ -44,7 +44,7 @@ void Setting::serializeJSON(char * json, size_t maxSize)
 	StaticJsonBuffer<500> jsonBuffer;
 
 	JsonObject& settings = jsonBuffer.createObject();
-	settings["type"] = "SETTING";
+	settings["obj"] = "SETTING";
 	settings["wifi_SSID"] = wifi_ssid;
 	settings["wifi_pw"] = wifi_pw;
 	settings["api_secret"] = api_secret;

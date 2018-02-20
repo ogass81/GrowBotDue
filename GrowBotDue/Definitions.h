@@ -31,7 +31,7 @@
 //FS1000A
 #define TX_DATA_PIN 14
 #define RX_DATA_PIN 15
-#define RC_SOCKETS 4
+#define RC_SOCKETS 8
 #define RC_SIGNALS 5
 #define RC_REPEAT 5
 
@@ -39,7 +39,7 @@
 #define ARDUINOJSON_ENABLE_PROGMEM 1
 
 //Settings
-#define DEBUG_RESET false
+#define DEBUG_RESET true
 
 //Tact
 #define TASK_FRQ_SEC 1
@@ -57,7 +57,7 @@
 
 //Rules Enginge
 //Trigger Categories and number for each category
-#define TRIGGER_TYPES 3
+#define TRIGGER_TYPES 5
 #define TRIGGER_SETS 8
 
 //Number of Rulesssets

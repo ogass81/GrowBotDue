@@ -303,24 +303,13 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope
 	JsonObject& rules = jsonBuffer.createObject();
 
 	if (scope == LIST || scope == DETAILS) {
-		rules["type"] = "RULE";
-		rules["id"] = id;
 		rules["title"] = title;
 		rules["active"] = active;
 	}
-	/*
-	if (scope == LIST) {
-		if (triggerset1_ptr != TRIGGER_SETS && triggercat1_ptr != TRIGGER_TYPES) rules["trigger1"] = trigger[triggercat1_ptr][triggerset1_ptr]->getTitle();
-		else rules["trigger1"] = F("None");
-		if (triggerset2_ptr != TRIGGER_SETS && triggercat2_ptr != TRIGGER_TYPES) rules["trigger2"] = trigger[triggercat2_ptr][triggerset2_ptr]->getTitle();
-		else rules["trigger2"] = F("None");
-		if (triggerset3_ptr != TRIGGER_SETS && triggercat3_ptr != TRIGGER_TYPES) rules["trigger3"] = trigger[triggercat3_ptr][triggerset3_ptr]->getTitle();
-		else rules["trigger3"] = F("None");
-		if (chain_ptr != ACTIONCHAINS_NUM) rules["actionchain"] = actionchains[chain_ptr]->getTitle();
-		else rules["actionchain"] = F("None");
-	}
-	*/
+
 	if (scope == DETAILS) {
+		rules["id"] = id;
+		rules["obj"] = "RULE";
 		rules["tset1_ptr"] = triggerset1_ptr;
 		rules["tcat1_ptr"] = triggercat1_ptr;
 		rules["tset2_ptr"] = triggerset2_ptr;
@@ -341,7 +330,6 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope
 bool RuleSet::deserializeJSON(JsonObject & data)
 {
 	if (data.success() == true) {
-		
 		if (data["title"] != "") title = data["title"].asString();
 		if (data["active"] != "") active = data["active"];
 		if (data["tset1_ptr"] != "") triggerset1_ptr = data["tset1_ptr"];

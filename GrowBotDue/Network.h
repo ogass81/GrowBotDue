@@ -37,6 +37,7 @@ class ListGenerator {
 public:
 	ObjectType **objectarray;
 	int8_t object_count;
+	int8_t category_count;
 
 	ListGenerator(ObjectType **objects, int8_t num);
 	void generateList(char *json);

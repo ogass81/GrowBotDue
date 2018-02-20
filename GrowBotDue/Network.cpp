@@ -284,7 +284,7 @@ void WebServer::checkConnection()
 					client.print(createHtmlResponse("400 BAD REQUEST", "Unknown URI"));
 				}
 			}
-			else if (uri[0] == "chain") {
+			else if (uri[0] == "actionchain") {
 				if (uri[1] == "") {
 					ListGenerator<ActionChain> list(actionchains, ACTIONCHAINS_NUM);
 					list.generateList(json);
@@ -428,7 +428,17 @@ void WebServer::checkConnection()
 				}
 			}
 			else if (uri[0] == "trigger") {
-				if (uri[1] != "" && uri[1].toInt() < TRIGGER_TYPES) {
+				if (uri[1] == "") {
+					TriggerCategory::serializeJSON(trigger, json, 1000, LIST);
+					client.print(createPostRequest(json));
+					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET Categories"), String(uri[1]), String(uri[2]));
+				}
+				else if (uri[1] == "all") {
+					TriggerCategory::serializeJSON(trigger, json, 2500, DETAILS);
+					client.print(createPostRequest(json));
+					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET Flat List"), String(uri[1]), String(uri[2]));
+				}
+				else if (uri[1] != "" && uri[1].toInt() < TRIGGER_TYPES) {
 					if (uri[2] == "") {
 						ListGenerator<Trigger> list(trigger[uri[1].toInt()], TRIGGER_SETS);
 						list.generateList(uri[1].toInt(), json);
@@ -493,7 +503,7 @@ void WebServer::checkConnection()
 						LOGMSG(F("[WebServer]"), F("OK: Invalid HTTP Request"), F("Type: Action Object Action: SET "), "Not Supported", "");
 						client.print(createHtmlResponse("400 BAD REQUEST", "Not supported"));
 					}
-					else if (uri[0] == "chain") {
+					else if (uri[0] == "actionchain") {
 						if (uri[1] != "" && uri[1].toInt() < ACTIONS_NUM) {
 							success = actionchains[uri[1].toInt()]->deserializeJSON(node);
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: SET"), String(uri[1]), "");
@@ -585,8 +595,8 @@ ListGenerator<ObjectType>::ListGenerator(ObjectType **objects, int8_t num)
 {
 	this->objectarray = objects;
 	this->object_count = num;
-
 }
+
 
 template<class ObjectType>
 inline void ListGenerator<ObjectType>::generateList(char * json)

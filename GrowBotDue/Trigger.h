@@ -19,12 +19,12 @@ extern CurrentTime currenttime;
 extern Sensor *sensors[SENS_NUM];
 extern long sensor_cycles;
 
-//Trigger is a pair of sensor values and thresholds linked by a boolean operator -> can be TRUE or FALSE, repeatly checked
 class Trigger {
 public:
 	//Basic Information
 	uint8_t id;
 	String title;
+	String source;
 	bool active;
 	TriggerTypes type;
 
@@ -81,7 +81,9 @@ public:
 	void changeActive();
 
 	//UI Output
-	virtual String getTitle();
+	String getTitle();
+	String getSource();
+
 	String getActive();
 
 	String getStartDay();
@@ -100,7 +102,7 @@ public:
 	String getThresh();
 
 	//Settings
-	void reset();
+	virtual void reset();
 
 	//Serialization
 	virtual void serializeJSON(uint8_t cat, uint8_t id, char* json, size_t maxSize, Scope scope);
@@ -112,10 +114,11 @@ class TimeTrigger : public Trigger {
 public:
 	TimeTrigger(int id);
 	bool checkState();
-	String getTitle();
 
 	void serializeJSON(uint8_t cat, uint8_t id, char* json, size_t maxSize, Scope scope);
 	bool deserializeJSON(JsonObject& data);
+
+	void reset();
 };
 
 //Specialization of Trigger with predefined methods for generic sensors
@@ -127,11 +130,17 @@ public:
 	SensorTrigger(int id, Sensor *ptr);
 
 	bool checkState();
-	String getTitle();
 
 	void serializeJSON(uint8_t cat, uint8_t id, char* json, size_t maxSize, Scope scope);
 	bool deserializeJSON(JsonObject& data);
+
+	void reset();
 };
 
+//Trigger is a pair of sensor values and thresholds linked by a boolean operator -> can be TRUE or FALSE, repeatly checked
+class TriggerCategory {
+public:
+	static void serializeJSON(Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS], char* json, size_t maxSize, Scope scope);
+};
 #endif
 

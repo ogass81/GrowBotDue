@@ -725,7 +725,7 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 	JsonObject& sensor = jsonBuffer.createObject();
 	
 	if (scope == LIST || scope == DETAILS || scope == AVG || scope == DATE_MINUTE || scope == DATE_HOUR || scope == DATE_DAY || scope == DATE_MONTH || scope == DATE_YEAR || scope == DATE_ALL) {
-		sensor["type"] = "SENSOR";
+		sensor["obj"] = "SENSOR";
 		sensor["id"] = id;
 		sensor["title"] = title;
 		sensor["unit"] = unit;

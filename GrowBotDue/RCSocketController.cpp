@@ -157,6 +157,7 @@ void RCSocketCodeSet::serializeJSON(JsonObject &codeset, Scope scope)
 bool RCSocketCodeSet::deserializeJSON(JsonObject &data)
 {
 	if (data.success() == true) {
+		if (data["title"] != "") title = data["title"].asString();
 		if (data["active"] != "") active = data["active"];
 		if (data["tol"] != "") nReceiveTolerance = data["tol"];
 		if (data["rep"] != "") repeat = data["rep"];
@@ -179,23 +180,8 @@ RCSocketController::RCSocketController(uint8_t transmitter, uint8_t receiver)
 	receiver_pin = receiver;
 	transmitter_pin = transmitter;
 
-	bool on = true;
-	uint8_t set = 0;
-	String set_name;
-
-	for (uint8_t i = 0; i < 2 * RC_SOCKETS; i++) {
-		if (on == true) {
-			set_name = "Socket " + String(set);
-			set_name += " - On";
-			on = false;
-		}
-		else {
-			set_name = "Socket " + String(set);
-			set_name += " - Off";
-			on = true;
-			set++;
-		}
-		socketcode[i] = new RCSocketCodeSet(String(set_name), RC_REPEAT);
+	for (uint8_t i = 0; i < RC_SOCKETS; i++) {
+		socketcode[i] = new RCSocketCodeSet(String(i), RC_REPEAT);
 	}
 	LOGMSG(F("[RCSocketController]"), F("OK: Started 433Mhz Controller."), F("Supported Sockets"), String(RC_SOCKETS), "");
 }
@@ -234,7 +220,7 @@ void RCSocketController::learningmode_on()
 
 void RCSocketController::learningmode_on(int set)
 {
-	if (set < 2 * RC_SOCKETS && learning == false) {
+	if (set < RC_SOCKETS && learning == false) {
 		code_set_ptr = set;
 		learningmode_on();
 	}
@@ -417,7 +403,7 @@ void RCSocketController::incCodeSet_Ptr()
 {
 	learningmode_off();
 
-	if (code_set_ptr < (RC_SOCKETS * 2) - 1) code_set_ptr++;
+	if (code_set_ptr < RC_SOCKETS - 1) code_set_ptr++;
 	else code_set_ptr = 0;
 
 	socketcode[code_set_ptr]->signal_ptr = 0;
@@ -515,7 +501,7 @@ void RCSocketController::serializeJSON(uint8_t set, char * json, size_t maxSize,
 	JsonObject& socket = jsonBuffer.createObject();
 	
 	if (scope == LIST || scope == DETAILS) {
-		socket["type"] = "RCSOCKET";
+		socket["obj"] = "RCSOCKET";
 		socket["id"] = set;
 		//Add data from each codeset, pass overall JSON by reference
 		socketcode[set]->serializeJSON(socket, scope);

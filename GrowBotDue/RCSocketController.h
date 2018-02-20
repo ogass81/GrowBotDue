@@ -65,7 +65,7 @@ private:
 	uint8_t transmitter_pin;
 	uint8_t code_set_ptr = 0;
 public:
-	RCSocketCodeSet *socketcode[2*RC_SOCKETS];
+	RCSocketCodeSet *socketcode[RC_SOCKETS];
 	bool learning = false;
 
 

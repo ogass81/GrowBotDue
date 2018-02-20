@@ -19,7 +19,7 @@ String Action::getTitle()
 
 void Action::setAntagonist(Action * aObject)
 {
-	LOGDEBUG2(F("[Action]"), F("setAntagonist()"), F("OK: Setting Antagonist Object"), "", "", "");
+	//LOGDEBUG2(F("[Action]"), F("setAntagonist()"), F("OK: Setting Antagonist Object"), "", "", "");
 	antaObject = aObject;
 }
 
@@ -41,9 +41,10 @@ void SimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t max
 	JsonObject& actions = jsonBuffer.createObject();
 
 	if (scope == LIST || scope == DETAILS) {
-		actions["type"] = "ACTION";
+		actions["obj"] = "ACTION";
 		actions["id"] = id;
 		actions["title"] = title;
+		actions["antagonist"] = antaObject->title;
 		actions["visible"] = visible;
 	}
 
@@ -78,9 +79,10 @@ void ParameterizedSimpleAction<ActionType>::serializeJSON(uint8_t id, char * jso
 	JsonObject& actions = jsonBuffer.createObject();
 
 	if (scope == LIST || scope == DETAILS) {
-		actions["type"] = "ACTION";
+		actions["obj"] = "ACTION";
 		actions["id"] = id;
 		actions["title"] = title;
+		actions["antagonist"] = antaObject->title;
 		actions["visible"] = visible;
 		actions["parameter"] = parameter;
 	}

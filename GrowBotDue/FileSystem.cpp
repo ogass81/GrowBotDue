@@ -88,7 +88,7 @@ bool FileSystem::saveSettings(const char* filename)
 			file.println(json);
 			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Sensor"), F("Id"), String(i), "");
 		}
-		for (uint8_t i = 0; i < RC_SOCKETS * 2; i++) {
+		for (uint8_t i = 0; i < RC_SOCKETS; i++) {
 			rcsocketcontroller->serializeJSON(i, json, 2500, DETAILS);
 			led[2]->switchState();
 			file.println(json);
@@ -128,10 +128,10 @@ bool FileSystem::loadSettings(const char* filename)
 			id = 0;
 
 			if (node.success()) {
-				if (node["type"] == "SETTING") {
+				if (node["obj"] == "SETTING") {
 					success = Setting::deserializeJSON(node);
 				}
-				else if (node["type"] == "SENSOR") {
+				else if (node["obj"] == "SENSOR") {
 					id = (int)node["id"];
 					if (id < SENS_NUM) {
 						success = sensors[id]->deserializeJSON(node);
@@ -142,7 +142,7 @@ bool FileSystem::loadSettings(const char* filename)
 						success = false;
 					}
 				}
-				else if (node["type"] == "TRIGGER") {
+				else if (node["obj"] == "TRIGGER") {
 					id = (int)node["id"];
 					cat = (int)node["cat"];
 
@@ -155,7 +155,7 @@ bool FileSystem::loadSettings(const char* filename)
 						success = false;
 					}
 				}
-				else if (node["type"] == "RULE") {
+				else if (node["obj"] == "RULE") {
 					id = (int)node["id"];
 					if (id < RULESETS_NUM) {
 						success = rulesets[id]->deserializeJSON(node);
@@ -166,7 +166,7 @@ bool FileSystem::loadSettings(const char* filename)
 						success = false;
 					}
 				}
-				else if (node["type"] == "CHAIN") {
+				else if (node["obj"] == "CHAIN") {
 					id = (int)node["id"];
 					if (id < ACTIONCHAINS_NUM) {
 						success = actionchains[id]->deserializeJSON(node);
@@ -177,9 +177,9 @@ bool FileSystem::loadSettings(const char* filename)
 						success = false;
 					}
 				}
-				else if (node["type"] == "RCSOCKET") {
+				else if (node["obj"] == "RCSOCKET") {
 					id = (int)node["id"];
-					if (id < RC_SOCKETS * 2) {
+					if (id < RC_SOCKETS) {
 						success = rcsocketcontroller->deserializeJSON(id, node);
 						LOGDEBUG(F("[FileSystem]"), F("loadSettings()"), F("OK: Loaded Remote Controlled Socket"), F("Id"), String(id), "");
 					}
