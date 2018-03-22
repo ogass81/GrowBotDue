@@ -234,20 +234,26 @@ void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope s
 	JsonObject& actions = jsonBuffer.createObject();
 
 	if (scope == LIST || scope == DETAILS) {
-		actions["obj"] = "CHAIN";
-		actions["id"] = id;
-		actions["title"] = title;
-		actions["active"] = active;
+		actions["tit"] = title;
+		actions["act"] = active;
 	}
 
 	if (scope == DETAILS) {
-		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
-			tmp_ptr = "actrPtr" + String(i);
-			tmp_par = "actPar" + String(i);
+		actions["id"] = id;
+		actions["obj"] = "ACTIONCHAIN";
 
-			actions[tmp_ptr] = actionPtr[i];
-			actions[tmp_par] = actionPar[i];
+		JsonArray& ptr = actions.createNestedArray("actptr");
+		
+		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
+			ptr.add(actionPtr[i]);	
 		}
+
+		JsonArray& par = actions.createNestedArray("actpar");
+
+		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
+			par.add(actionPar[i]);
+		}
+		
 	}
 
 	actions.printTo(json, maxSize);
@@ -256,20 +262,15 @@ void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope s
 
 bool ActionChain::deserializeJSON(JsonObject & data)
 {
-	String tmp_ptr, tmp_par;
-
 	if (data.success() == true) {
 		
-		if (data["title"] != "") title = data["title"].asString();
-		if (data["active"] != "") active = data["active"];
+		if (data["tit"] != "") title = data["tit"].asString();
+		if (data["act"] != "") active = data["act"];
 		
-		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
-			tmp_ptr = "actrPtr" + String(i);
-			tmp_par = "actPar" + String(i);
-			
+		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {	
 			//Assign Pointers to Action using Index to Action
-			if (data[tmp_ptr] != "") {
-				actionPtr[i] = data[tmp_ptr];
+			if (data["actptr"][i] != "") {
+				actionPtr[i] = data["actptr"][i];
 				assignedAction[i] = actions[actionPtr[i]];
 			}
 			else {
@@ -277,8 +278,8 @@ bool ActionChain::deserializeJSON(JsonObject & data)
 				assignedAction[i] = NULL;
 			}
 			//Assign Action Parameter to Member
-			if (data[tmp_par] != "") actionPar[i] = data[tmp_par];
-			else actionPtr[i] = 0;
+			if (data["actpar"][i] != "") actionPar[i] = data["actpar"][i];
+			else actionPar[i] = 0;
 		}
 
 		LOGDEBUG2(F("[ActionChain]"), F("deserializeJSON()"), F("OK: Deserialized members for Actionchain"), String(data["id"].asString()), "", "");

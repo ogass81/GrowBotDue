@@ -303,13 +303,13 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope
 	JsonObject& rules = jsonBuffer.createObject();
 
 	if (scope == LIST || scope == DETAILS) {
-		rules["title"] = title;
-		rules["active"] = active;
+		rules["tit"] = title;
+		rules["act"] = active;
 	}
 
 	if (scope == DETAILS) {
 		rules["id"] = id;
-		rules["obj"] = "RULE";
+		rules["obj"] = "RULESET";
 		rules["tset1_ptr"] = triggerset1_ptr;
 		rules["tcat1_ptr"] = triggercat1_ptr;
 		rules["tset2_ptr"] = triggerset2_ptr;
@@ -330,8 +330,8 @@ void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope
 bool RuleSet::deserializeJSON(JsonObject & data)
 {
 	if (data.success() == true) {
-		if (data["title"] != "") title = data["title"].asString();
-		if (data["active"] != "") active = data["active"];
+		if (data["tit"] != "") title = data["tit"].asString();
+		if (data["act"] != "") active = data["act"];
 		if (data["tset1_ptr"] != "") triggerset1_ptr = data["tset1_ptr"];
 		if (data["tcat1_ptr"] != "") triggercat1_ptr = data["tcat1_ptr"];
 		if (data["tset2_ptr"] != "") triggerset2_ptr = data["tset2_ptr"];

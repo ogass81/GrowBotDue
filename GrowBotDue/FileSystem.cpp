@@ -155,7 +155,7 @@ bool FileSystem::loadSettings(const char* filename)
 						success = false;
 					}
 				}
-				else if (node["obj"] == "RULE") {
+				else if (node["obj"] == "RULESET") {
 					id = (int)node["id"];
 					if (id < RULESETS_NUM) {
 						success = rulesets[id]->deserializeJSON(node);
@@ -166,7 +166,7 @@ bool FileSystem::loadSettings(const char* filename)
 						success = false;
 					}
 				}
-				else if (node["obj"] == "CHAIN") {
+				else if (node["obj"] == "ACTIONCHAIN") {
 					id = (int)node["id"];
 					if (id < ACTIONCHAINS_NUM) {
 						success = actionchains[id]->deserializeJSON(node);

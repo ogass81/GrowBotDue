@@ -20,7 +20,7 @@ String WebServer::createPostRequest(char *json)
 	request += "Content-Type: application/json\r\n";
 	request += "\r\n";
 	request += load;
-	request += "\r\n";
+	//request += "\r\n";
 
 	return String(request);
 }
@@ -36,7 +36,7 @@ String WebServer::createHtmlResponse(String code, String text)
 	request += "<html><title>GrowBot V1.0<\\title><body>";
 	request += (String)text;
 	request += "<\\body><\\html>";
-	request += "\r\n";
+	//request += "\r\n";
 
 	return String(request);
 }
@@ -201,17 +201,18 @@ void WebServer::checkConnection()
 
 				//Read Http Body
 				if (header == false) {
-					if (line.length() == content_length) {
-						payload = line;
-						LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("Payload detected"), payload, "", "");
-						break;
+					if (content_length > 0) {
+						if (line.length() == content_length) {
+							payload = line;
+							LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("Payload detected"), payload, "", "");
+							break;
+						}
 					}
+					else break;
 				}
 			}
 		}
-		//Debug
-		LOGDEBUG2(F("[WebServer]"), F("checkConnection()"), F("Complete Http Request"), F("#"), http_request, F("#"));
-		
+			
 		if (http_method == "GET") {
 			//Variable for Outgoing Data
 			char json[2500];
@@ -257,7 +258,7 @@ void WebServer::checkConnection()
 			else if (uri[0] == "action") {
 				if (uri[1] == "") {
 					ListGenerator<Action> list(actions, ACTIONS_NUM);
-					list.generateList(json);
+					list.generateList(F("ACTION"), json);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actions - Action: GET"), F("List View"), "");
 					client.print(createPostRequest(json));
 				}
@@ -287,7 +288,7 @@ void WebServer::checkConnection()
 			else if (uri[0] == "actionchain") {
 				if (uri[1] == "") {
 					ListGenerator<ActionChain> list(actionchains, ACTIONCHAINS_NUM);
-					list.generateList(json);
+					list.generateList(F("ACTIONCHAIN"), json);
 					client.print(createPostRequest(json));
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: GET"), F("List View"), "");
 				}
@@ -303,8 +304,7 @@ void WebServer::checkConnection()
 			}
 			else if (uri[0] == "rcsocket") {
 				if (uri[1] == "") {
-					ListGenerator<RCSocketController> list(&rcsocketcontroller, RC_SOCKETS);
-					list.generateList(json);
+					rcsocketcontroller->serializeJSON(json, 2500, LIST);
 					client.print(createPostRequest(json));
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: ### Action: GET"), F("List View"), "");
 				}
@@ -318,19 +318,19 @@ void WebServer::checkConnection()
 						rcsocketcontroller->learningmode_on(uri[1].toInt());
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: Learning mode activated"), String(uri[1]), "");
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: GET"), String(uri[1]), "");
-						client.print(createPostRequest(json));
+						client.print(createHtmlResponse("200 OK", "Learning mode on"));
 					}
 					else if (uri[2] != "" && uri[2] == "learn_off") {
 						rcsocketcontroller->learningmode_off();
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: Learning mode deactivated"), String(uri[1]), "");
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: GET"), String(uri[1]), "");
-						client.print(createPostRequest(json));
+						client.print(createHtmlResponse("200 OK", "Learning mode off"));
 					}
 					else if (uri[2] != "" && uri[2] == "reset") {
 						rcsocketcontroller->resetSettings(uri[1].toInt());
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: RESET"), String(uri[1]), "");
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: GET"), String(uri[1]), "");
-						client.print(createPostRequest(json));
+						client.print(createHtmlResponse("200 OK", "Reset signals"));
 					}
 					else {
 						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: URI: UNKOWN"), "", "");
@@ -341,7 +341,7 @@ void WebServer::checkConnection()
 			else if (uri[0] == "ruleset") {
 				if (uri[1] == "") {
 					ListGenerator<RuleSet> list(rulesets, RULESETS_NUM);
-					list.generateList(json);
+					list.generateList(F("RULE"), json);
 					client.print(createPostRequest(json));
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: GET"), F("List View"), "");
 				}
@@ -358,7 +358,7 @@ void WebServer::checkConnection()
 			else if (uri[0] == "sensor") {
 				if (uri[1] == "") {
 					ListGenerator<Sensor> list(sensors, SENS_NUM);
-					list.generateList(json);
+					list.generateList(F("SENSOR"), json);
 					client.print(createPostRequest(json));
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), F("List View"), "");
 				}
@@ -378,8 +378,13 @@ void WebServer::checkConnection()
 					}
 					//Decide what kind of sensor data to send
 					if (uri[2] == "") {
-						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DETAILS);
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, HEADER);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: DETAILS"));
+						client.print(createPostRequest(json));
+					}
+					else if (uri[2] == "details") {
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DETAILS);
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: AVG"));
 						client.print(createPostRequest(json));
 					}
 					else if (uri[2] == "avg") {
@@ -441,7 +446,7 @@ void WebServer::checkConnection()
 				else if (uri[1] != "" && uri[1].toInt() < TRIGGER_TYPES) {
 					if (uri[2] == "") {
 						ListGenerator<Trigger> list(trigger[uri[1].toInt()], TRIGGER_SETS);
-						list.generateList(uri[1].toInt(), json);
+						list.generateList(F("TRIGGER"), uri[1].toInt(), json);
 						client.print(createPostRequest(json));
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET"), F("List View for category"), String(uri[1]));
 					}
@@ -514,7 +519,7 @@ void WebServer::checkConnection()
 							client.print(createHtmlResponse("400 BAD REQUEST", "Unknown URI"));
 						}
 					}
-					else if (uri[0] == "rcscoket") {
+					else if (uri[0] == "rcsocket") {
 						if (uri[1] != "" && uri[1].toInt() < RC_SOCKETS) {
 							success = rcsocketcontroller->deserializeJSON(uri[1].toInt(), node);
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: SET"), String(uri[1]), "");
@@ -564,6 +569,10 @@ void WebServer::checkConnection()
 							client.print(createHtmlResponse("400 BAD REQUEST", "Unknown URI"));
 						}
 					}
+					else {
+						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: URI: UNKOWN"), "", "");
+						client.print(createHtmlResponse("400 BAD REQUEST", "Unknown URI"));
+					}
 				}
 				else {
 					LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Invalid Payload"), "", "");
@@ -599,9 +608,10 @@ ListGenerator<ObjectType>::ListGenerator(ObjectType **objects, int8_t num)
 
 
 template<class ObjectType>
-inline void ListGenerator<ObjectType>::generateList(char * json)
+inline void ListGenerator<ObjectType>::generateList(String object_type, char * json)
 {
-	String jsonarray = "{\"list\":[";
+	String jsonarray = "{\"obj\": \"" + object_type;
+	jsonarray += "\",\"list\":[";
 
 	for (uint8_t i = 0; i < object_count; i++) {
 		objectarray[i]->serializeJSON(i, json, 2500, LIST);
@@ -617,9 +627,10 @@ inline void ListGenerator<ObjectType>::generateList(char * json)
 }
 
 template<class ObjectType>
-void ListGenerator<ObjectType>::generateList(uint8_t cat, char * json)
+void ListGenerator<ObjectType>::generateList(String object_type, uint8_t cat, char * json)
 {
-	String jsonarray = "{\"list\":[";
+	String jsonarray = "{\"obj\": \"" + object_type;
+	jsonarray += "\",\"list\":[";
 
 	for (uint8_t i = 0; i < object_count; i++) {
 		objectarray[i]->serializeJSON(cat, i, json, 2500, LIST);

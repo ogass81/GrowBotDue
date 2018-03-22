@@ -55,7 +55,7 @@ public:
 	bool isNewSignal(long dec_val);
 	uint8_t numberSignals();
 
-	void serializeJSON(JsonObject & codeset, Scope scope);
+	void serializeJSON(uint8_t id, JsonObject & codeset, Scope scope);
 	bool deserializeJSON(JsonObject & data);
 };
 
@@ -114,6 +114,7 @@ public:
 
 	//Serialize
 	void serializeJSON(uint8_t set, char* json, size_t maxSize, Scope scope);
+	void serializeJSON(char * json, size_t maxSize, Scope scope);
 	bool deserializeJSON(uint8_t set, JsonObject& data);
 };
 

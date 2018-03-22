@@ -723,70 +723,120 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 	StaticJsonBuffer<8000> jsonBuffer;
 
 	JsonObject& sensor = jsonBuffer.createObject();
-	
-	if (scope == LIST || scope == DETAILS || scope == AVG || scope == DATE_MINUTE || scope == DATE_HOUR || scope == DATE_DAY || scope == DATE_MONTH || scope == DATE_YEAR || scope == DATE_ALL) {
-		sensor["obj"] = "SENSOR";
-		sensor["id"] = id;
-		sensor["title"] = title;
+
+
+	//List View
+	if (scope == LIST) {
+
+		sensor["tit"] = title;
 		sensor["unit"] = unit;
-		sensor["nan_val"] = nan_val;
-		sensor["min_val"] = min_val;
-		sensor["max_val"] = max_val;
-		sensor["low_thresh"] = lower_threshold;
-		sensor["up_thresh"] = upper_threshold;
-	}
-	
-	if (scope == DETAILS || scope == AVG || scope == DATE_MINUTE || scope == DATE_HOUR || scope == DATE_DAY || scope == DATE_MONTH || scope == DATE_YEAR || scope == DATE_ALL) {
-		sensor["min_ptr"] = minute_ptr;
-		sensor["h_ptr"] = hour_ptr;
-		sensor["d_ptr"] = day_ptr;
-		sensor["m_ptr"] = month_ptr;
-		sensor["y_ptr"] = year_ptr;
 	}
 
-	if (scope == DETAILS || scope == AVG) {
-		JsonObject& avg = sensor.createNestedObject("avg");
-		avg["last"] = getLastValue();
-		avg["tenSec"] = getTenSecAvg();
-		avg["twentySec"] = getTwentySecAvg();
-		avg["thirtySec"] = getThirtySecAvg();
-		avg["oneMin"] = getOneMinAvg();
-		avg["twoMin"] = getTwoMinAvg();
-		avg["fiveMin"] = getFiveMinAvg();
-		avg["quarterHour"] = getQuarterHourAvg();
-		avg["halfHour"] = getHalfHourAvg();
-		avg["lastHour"] = getHourAvg();
-		avg["twoHours"] = getTwoHourAvg();
-		avg["threeHours"] = getThreeHourAvg();
-		avg["fourHours"] = getFourHourAvg();
-		avg["sixHours"] = getSixHourAvg();
-		avg["twelveHours"] = getTwelveHourAvg();
-		avg["lastDay"] = getDayAvg();
-		avg["twoDays"] = getTwoDayAvg();
-		avg["lastWeek"] = getWeekAvg();
-		avg["twoWeeks"] = getTwoWeekAvg();
+	//Sensor View
+	//Header
+	if (scope == HEADER || scope == DETAILS || scope == AVG || scope == DATE_MINUTE || scope == DATE_HOUR || scope == DATE_DAY || scope == DATE_MONTH || scope == DATE_YEAR || scope == DATE_ALL) {
+		sensor["obj"] = "SENSOR";
+		
+		//Too much data for AT Interface => different scopes
+		switch (scope) {
+		case Scope::HEADER:
+			sensor["scp"] = "HEADER";
+			break;
+		case Scope::DETAILS:
+			sensor["scp"] = "DETAILS";
+			break;
+		case Scope::AVG:
+			sensor["scp"] = "AVG";
+			break;
+		case Scope::DATE_MINUTE:
+			sensor["scp"] = "MIN";
+			break;
+		case Scope::DATE_HOUR:
+			sensor["scp"] = "HOUR";
+			break;
+		case Scope::DATE_DAY:
+			sensor["scp"] = "DAY";
+			break;
+		case Scope::DATE_MONTH:
+			sensor["scp"] = "MON";
+			break;
+		case Scope::DATE_YEAR:
+			sensor["scp"] = "YEAR";
+			break;
+		case Scope::DATE_ALL:
+			sensor["scp"] = "ALL";
+			break;
+		}
+
+		sensor["id"] = id;
+		sensor["tit"] = title;
+		sensor["unit"] = unit;
+		sensor["nan"] = nan_val;
+		sensor["min"] = min_val;
+		sensor["max"] = max_val;
+		sensor["low"] = lower_threshold;
+		sensor["high"] = upper_threshold;	
 	}
+
+	//AVG Values
+	if (scope == DETAILS || scope == AVG) {
+		JsonObject& avg = sensor.createNestedObject("avg_vals");
+		avg["last"] = getLastValue();
+		avg["10s"] = getTenSecAvg();
+		avg["20s"] = getTwentySecAvg();
+		avg["30s"] = getThirtySecAvg();
+		avg["1min"] = getOneMinAvg();
+		avg["2min"] = getTwoMinAvg();
+		avg["5min"] = getFiveMinAvg();
+		avg["15min"] = getQuarterHourAvg();
+		avg["30min"] = getHalfHourAvg();
+		avg["1h"] = getHourAvg();
+		avg["2h"] = getTwoHourAvg();
+		avg["3h"] = getThreeHourAvg();
+		avg["4h"] = getFourHourAvg();
+		avg["6h"] = getSixHourAvg();
+		avg["12h"] = getTwelveHourAvg();
+		avg["1d"] = getDayAvg();
+		avg["2d"] = getTwoDayAvg();
+		avg["1w"] = getWeekAvg();
+		avg["2w"] = getTwoWeekAvg();
+	}
+
+	//Min Values
 	if (scope == DETAILS || scope == DATE_MINUTE || scope == DATE_ALL) {
+		sensor["min_ptr"] = minute_ptr;
 		JsonArray& minutes = sensor.createNestedArray("min_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_MIN; j++) minutes.add(toNAN(minute_values[j]));
 	}
 
+	//Hour Values
 	if (scope == DETAILS || scope == DATE_HOUR || scope == DATE_ALL) {
+		sensor["h_ptr"] = hour_ptr;
 		JsonArray& hours = sensor.createNestedArray("h_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_HOUR; j++) hours.add(toNAN(hour_values[j]));
 	}
+
+	//Day Values
 	if (scope == DETAILS || scope == DATE_DAY || scope == DATE_ALL) {
+		sensor["d_ptr"] = day_ptr;
 		JsonArray& days = sensor.createNestedArray("d_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_DAY; j++) days.add(toNAN(day_values[j]));
 	}
+
+	//Month Values
 	if (scope == DETAILS || scope == DATE_MONTH || scope == DATE_ALL) {
+		sensor["m_ptr"] = month_ptr;
 		JsonArray& month = sensor.createNestedArray("m_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_MONTH; j++) month.add(toNAN(month_values[j]));
 	}
+
+	//Year Values
 	if (scope == DETAILS || scope == DATE_YEAR || scope == DATE_ALL) {
+		sensor["y_ptr"] = year_ptr;
 		JsonArray& year = sensor.createNestedArray("y_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_YEAR; j++) year.add(toNAN(year_values[j]));
 	}
+
 	sensor.printTo(json, maxSize);
 	LOGDEBUG2(F("[Sensor]"), F("serializeJSON()"), F("OK: Serialized members for Sensor"), String(id), String(sensor.measureLength()), String(maxSize));
 }

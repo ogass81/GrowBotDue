@@ -40,8 +40,8 @@ public:
 	int8_t category_count;
 
 	ListGenerator(ObjectType **objects, int8_t num);
-	void generateList(char *json);
-	void generateList(uint8_t id, char *json);
+	void generateList(String object_type, char *json);
+	void generateList(String object_type, uint8_t id, char *json);
 };
 
 class WebServer : public WiFiEspServer {

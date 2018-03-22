@@ -41,11 +41,14 @@ void SimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t max
 	JsonObject& actions = jsonBuffer.createObject();
 
 	if (scope == LIST || scope == DETAILS) {
-		actions["obj"] = "ACTION";
+		actions["tit"] = title;
+		actions["opp"] = antaObject->title;
+		actions["vis"] = visible;
+	}
+	
+	if (scope == DETAILS) {
 		actions["id"] = id;
-		actions["title"] = title;
-		actions["antagonist"] = antaObject->title;
-		actions["visible"] = visible;
+		actions["obj"] = "ACTION";
 	}
 
 	actions.printTo(json, maxSize);
@@ -79,12 +82,16 @@ void ParameterizedSimpleAction<ActionType>::serializeJSON(uint8_t id, char * jso
 	JsonObject& actions = jsonBuffer.createObject();
 
 	if (scope == LIST || scope == DETAILS) {
+		actions["tit"] = title;
+		actions["vis"] = visible;
+		actions["par"] = parameter;
+	}
+
+
+	if (scope == DETAILS) {
 		actions["obj"] = "ACTION";
 		actions["id"] = id;
-		actions["title"] = title;
-		actions["antagonist"] = antaObject->title;
-		actions["visible"] = visible;
-		actions["parameter"] = parameter;
+		actions["opp"] = antaObject->title;
 	}
 
 	actions.printTo(json, maxSize);

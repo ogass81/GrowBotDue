@@ -133,21 +133,26 @@ uint8_t RCSocketCodeSet::numberSignals()
 	return RC_SIGNALS;
 }
 
-void RCSocketCodeSet::serializeJSON(JsonObject &codeset, Scope scope)
+void RCSocketCodeSet::serializeJSON(uint8_t id, JsonObject &codeset, Scope scope)
 {
-	if(scope == LIST || scope == DETAILS) codeset["active"] = active;
-	if (scope == LIST || scope == DETAILS) codeset["title"] = title;
-	if (scope == DETAILS) codeset["tol"] = nReceiveTolerance;
-	if (scope == DETAILS) codeset["rep"] = repeat;
+	if(scope == LIST || scope == DETAILS) codeset["act"] = active;
+	if (scope == LIST || scope == DETAILS) codeset["tit"] = title;
+	if (scope == DETAILS) {
+		codeset["id"] = id;
+		codeset["obj"] = "RCSOCKET";
+		codeset["tol"] = nReceiveTolerance;
+		codeset["tol"] = nReceiveTolerance;
+		codeset["rep"] = repeat;
+	}
 	
 	if (scope == DETAILS) {
-	JsonArray& values = codeset.createNestedArray("value");
+	JsonArray& values = codeset.createNestedArray("val");
 	for (uint8_t j = 0; j < RC_SIGNALS; j++) values.add(nReceivedValue[j]);
-	JsonArray& delays = codeset.createNestedArray("delay");
+	JsonArray& delays = codeset.createNestedArray("del");
 	for (uint8_t j = 0; j < RC_SIGNALS; j++) delays.add(nReceivedDelay[j]);
-	JsonArray& lengths = codeset.createNestedArray("length");
+	JsonArray& lengths = codeset.createNestedArray("len");
 	for (uint8_t j = 0; j < RC_SIGNALS; j++) lengths.add(nReceivedBitlength[j]);
-	JsonArray& protocols = codeset.createNestedArray("proto");
+	JsonArray& protocols = codeset.createNestedArray("pro");
 	for (uint8_t j = 0; j < RC_SIGNALS; j++) protocols.add(nReceivedProtocol[j]);
 	}
 
@@ -157,8 +162,8 @@ void RCSocketCodeSet::serializeJSON(JsonObject &codeset, Scope scope)
 bool RCSocketCodeSet::deserializeJSON(JsonObject &data)
 {
 	if (data.success() == true) {
-		if (data["title"] != "") title = data["title"].asString();
-		if (data["active"] != "") active = data["active"];
+		if (data["tit"] != "") title = data["tit"].asString();
+		if (data["act"] != "") active = data["act"];
 		if (data["tol"] != "") nReceiveTolerance = data["tol"];
 		if (data["rep"] != "") repeat = data["rep"];
 
@@ -181,7 +186,7 @@ RCSocketController::RCSocketController(uint8_t transmitter, uint8_t receiver)
 	transmitter_pin = transmitter;
 
 	for (uint8_t i = 0; i < RC_SOCKETS; i++) {
-		socketcode[i] = new RCSocketCodeSet(String(i), RC_REPEAT);
+		socketcode[i] = new RCSocketCodeSet("Signal " + String(i), RC_REPEAT);
 	}
 	LOGMSG(F("[RCSocketController]"), F("OK: Started 433Mhz Controller."), F("Supported Sockets"), String(RC_SOCKETS), "");
 }
@@ -496,20 +501,37 @@ String RCSocketController::dec2binWzerofill(unsigned long Dec, unsigned int bitL
 
 void RCSocketController::serializeJSON(uint8_t set, char * json, size_t maxSize, Scope scope)
 {
-	StaticJsonBuffer<5000> jsonBuffer;
+	StaticJsonBuffer<7000> jsonBuffer;
 
 	JsonObject& socket = jsonBuffer.createObject();
 	
-	if (scope == LIST || scope == DETAILS) {
-		socket["obj"] = "RCSOCKET";
-		socket["id"] = set;
-		//Add data from each codeset, pass overall JSON by reference
-		socketcode[set]->serializeJSON(socket, scope);
-	}
-
+	socketcode[set]->serializeJSON(set, socket, scope);
+	
 	socket.printTo(json, maxSize);
 	LOGDEBUG2(F("[RCSocketController]"), F("serializeJSON()"), F("OK: Serialized remote sockets"), String(socket.measureLength()), String(maxSize), "");
 }
+
+void RCSocketController::serializeJSON(char * json, size_t maxSize, Scope scope)
+{
+	StaticJsonBuffer<5000> jsonBuffer;
+
+	JsonObject& controller = jsonBuffer.createObject();
+	
+	controller["obj"] = "RCSOCKET";
+	JsonArray& list = controller.createNestedArray("list");
+
+	for (uint8_t i = 0; i < RC_SOCKETS; i++) {
+		JsonObject& socket = jsonBuffer.createObject();
+		socketcode[i]->serializeJSON(i, socket, scope);
+		list.add(socket);
+	}
+
+	controller.printTo(json, maxSize);
+	LOGDEBUG2(F("[RCSocketController]"), F("serializeJSON()"), F("OK: Serialized remote sockets"), String(controller.measureLength()), String(maxSize), "");
+}
+
+
+
 
 bool RCSocketController::deserializeJSON(uint8_t set, JsonObject & data)
 {

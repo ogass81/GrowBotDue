@@ -552,29 +552,29 @@ void TimeTrigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t max
 	JsonObject& trigger = jsonBuffer.createObject();
 	
 	if (scope == LIST || scope == DETAILS) {
-		trigger["obj"] = "TRIGGER";
-		trigger["cat"] = cat;
-		trigger["id"] = id;
-		trigger["title"] = title;
-		trigger["active"] = active;
-		trigger["source"] = source;
-		trigger["type"] = static_cast<int>(type);
+		trigger["tit"] = title;
+		trigger["act"] = active;
+		trigger["src"] = source;
+		trigger["typ"] = static_cast<int>(type);
 	}
 
 	if (scope == DETAILS) {
-		trigger["sday"] = start_day;
-		trigger["smonth"] = start_month;
-		trigger["syear"] = start_year;
-		trigger["sminute"] = start_minute;
-		trigger["shour"] = start_hour;
-		trigger["eminute"] = end_minute;
-		trigger["ehour"] = end_hour;
-		trigger["eday"] = end_day;
-		trigger["emonth"] = end_month;
-		trigger["eyear"] = end_year;
+		trigger["obj"] = "TRIGGER";
+		trigger["cat"] = cat;
+		trigger["id"] = id;
+		trigger["s_d"] = start_day;
+		trigger["s_mon"] = start_month;
+		trigger["s_y"] = start_year;
+		trigger["s_min"] = start_minute;
+		trigger["s_h"] = start_hour;
+		trigger["e_min"] = end_minute;
+		trigger["e_h"] = end_hour;
+		trigger["e_d"] = end_day;
+		trigger["e_mon"] = end_month;
+		trigger["e_y"] = end_year;
 		trigger["relop"] = static_cast<int>(relop);
-		trigger["threshold"] = threshold;
-		trigger["interval"] = static_cast<int>(interval);
+		trigger["val"] = threshold;
+		trigger["intv"] = static_cast<int>(interval);
 	}
 
 	trigger.printTo(json, maxSize);
@@ -584,23 +584,23 @@ void TimeTrigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t max
 bool TimeTrigger::deserializeJSON(JsonObject& data)
 {
 	if (data.success() == true) {
-		if (data["title"] != "") title = data["title"].asString();
-		if (data["active"] != "") active = data["active"];
-		if (data["sminute"] != "") start_minute = data["sminute"];
-		if (data["shour"] != "") start_hour = data["shour"];
-		if (data["sday"] != "") start_day = data["sday"];
-		if (data["smonth"] != "") start_month = data["smonth"];
-		if (data["syear"] != "") start_year = data["syear"];
-		if (data["eminute"] != "") end_minute = data["eminute"];
-		if (data["ehour"] != "") end_hour = data["ehour"];
-		if (data["eday"] != "") end_day = data["eday"];
-		if (data["emonth"] != "") end_month = data["emonth"];
-		if (data["eyear"] != "") end_year = data["eyear"];
-		if (data["threshold"] != "") threshold = data["threshold"];
+		if (data["tit"] != "") title = data["tit"].asString();
+		if (data["act"] != "") active = data["act"];
+		if (data["s_min"] != "") start_minute = data["s_min"];
+		if (data["s_h"] != "") start_hour = data["s_h"];
+		if (data["s_d"] != "") start_day = data["s_d"];
+		if (data["s_mon"] != "") start_month = data["s_mon"];
+		if (data["s_y"] != "") start_year = data["s_y"];
+		if (data["e_min"] != "") end_minute = data["e_min"];
+		if (data["e_h"] != "") end_hour = data["e_h"];
+		if (data["e_d"] != "") end_day = data["e_d"];
+		if (data["e_mon"] != "") end_month = data["e_mon"];
+		if (data["e_y"] != "") end_year = data["e_y"];
+		if (data["val"] != "") threshold = data["val"];
 
-		if (data["type"] != "") {
-			if (data["type"] == 0) type = TIME;
-			else if (data["type"] == 1) type = SENSOR;
+		if (data["typ"] != "") {
+			if (data["typ"] == 0) type = TIME;
+			else if (data["typ"] == 1) type = SENSOR;
 			else {
 				relop = EQUAL;
 				active = false;
@@ -617,26 +617,26 @@ bool TimeTrigger::deserializeJSON(JsonObject& data)
 			}
 		}
 
-		if (data["interval"] != "") {
-			if (data["interval"] == 0) interval = REALTIME;
-			else if (data["interval"] == 1) interval = TENSEC;
-			else if (data["interval"] == 2) interval = TWENTYSEC;
-			else if (data["interval"] == 3) interval = THIRTYSEC;
-			else if (data["interval"] == 4) interval = ONEMIN;
-			else if (data["interval"] == 5) interval = TWOMIN;
-			else if (data["interval"] == 6) interval = FIVEMIN;
-			else if (data["interval"] == 7) interval = QUARTER;
-			else if (data["interval"] == 8) interval = HALF;
-			else if (data["interval"] == 9) interval = ONE;
-			else if (data["interval"] == 10) interval = TWO;
-			else if (data["interval"] == 11) interval = THREE;
-			else if (data["interval"] == 12) interval = FOUR;
-			else if (data["interval"] == 13) interval = SIX;
-			else if (data["interval"] == 14) interval = TWELVE;
-			else if (data["interval"] == 15) interval = DAILY;
-			else if (data["interval"] == 16) interval = BIDAILY;
-			else if (data["interval"] == 17) interval = WEEKLY;
-			else if (data["interval"] == 18) interval = BIWEEKLY;
+		if (data["intv"] != "") {
+			if (data["intv"] == 0) interval = REALTIME;
+			else if (data["intv"] == 1) interval = TENSEC;
+			else if (data["intv"] == 2) interval = TWENTYSEC;
+			else if (data["intv"] == 3) interval = THIRTYSEC;
+			else if (data["intv"] == 4) interval = ONEMIN;
+			else if (data["intv"] == 5) interval = TWOMIN;
+			else if (data["intv"] == 6) interval = FIVEMIN;
+			else if (data["intv"] == 7) interval = QUARTER;
+			else if (data["intv"] == 8) interval = HALF;
+			else if (data["intv"] == 9) interval = ONE;
+			else if (data["intv"] == 10) interval = TWO;
+			else if (data["intv"] == 11) interval = THREE;
+			else if (data["intv"] == 12) interval = FOUR;
+			else if (data["intv"] == 13) interval = SIX;
+			else if (data["intv"] == 14) interval = TWELVE;
+			else if (data["intv"] == 15) interval = DAILY;
+			else if (data["intv"] == 16) interval = BIDAILY;
+			else if (data["intv"] == 17) interval = WEEKLY;
+			else if (data["intv"] == 18) interval = BIWEEKLY;
 			else {
 				interval = ONEMIN;
 				active = false;
@@ -755,29 +755,29 @@ void SensorTrigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t m
 	JsonObject& trigger = jsonBuffer.createObject();
 
 if (scope == LIST || scope == DETAILS) {
-	trigger["obj"] = "TRIGGER";
-	trigger["cat"] = cat;
-	trigger["id"] = id;
-	trigger["title"] = title;
-	trigger["active"] = active;
-	trigger["source"] = source;
-	trigger["type"] = static_cast<int>(type);
+	trigger["tit"] = title;
+	trigger["act"] = active;
+	trigger["src"] = source;
+	trigger["typ"] = static_cast<int>(type);
 }
 
 if (scope == DETAILS) {
-	trigger["sminute"] = start_minute;
-	trigger["shour"] = start_hour;
-	trigger["eminute"] = end_minute;
-	trigger["ehour"] = end_hour;
-	trigger["eday"] = end_day;
-	trigger["emonth"] = end_month;
-	trigger["eyear"] = end_year;
-	trigger["sday"] = start_day;
-	trigger["smonth"] = start_month;
-	trigger["syear"] = start_year;
-	trigger["interval"] = static_cast<int>(interval);
+	trigger["obj"] = "TRIGGER";
+	trigger["cat"] = cat;
+	trigger["id"] = id;
+	trigger["s_min"] = start_minute;
+	trigger["s_h"] = start_hour;
+	trigger["e_min"] = end_minute;
+	trigger["e_h"] = end_hour;
+	trigger["e_d"] = end_day;
+	trigger["e_mon"] = end_month;
+	trigger["e_y"] = end_year;
+	trigger["s_d"] = start_day;
+	trigger["s_mon"] = start_month;
+	trigger["s_y"] = start_year;
+	trigger["intv"] = static_cast<int>(interval);
 	trigger["relop"] = static_cast<int>(relop);
-	trigger["threshold"] = threshold;
+	trigger["val"] = threshold;
 }
 
 trigger.printTo(json, maxSize);
@@ -787,19 +787,19 @@ LOGDEBUG2(F("[Trigger]"), F("serializeJSON()"), F("OK: Serialized Members for Tr
 bool SensorTrigger::deserializeJSON(JsonObject& data)
 {
 	if (data.success() == true) {
-		if (data["title"] != "") title = data["title"].asString();
-		if (data["active"] != "") active = data["active"];
-		if (data["sminute"] != "") start_minute = data["sminute"];
-		if (data["shour"] != "") start_hour = data["shour"];
-		if (data["sday"] != "") start_day = data["sday"];
-		if (data["smonth"] != "") start_month = data["smonth"];
-		if (data["syear"] != "") start_year = data["syear"];
-		if (data["eminute"] != "") end_minute = data["eminute"];
-		if (data["ehour"] != "") end_hour = data["ehour"];
-		if (data["eday"] != "") end_day = data["eday"];
-		if (data["emonth"] != "") end_month = data["emonth"];
-		if (data["eyear"] != "") end_year = data["eyear"];
-		if (data["threshold"] != "") threshold = data["threshold"];
+		if (data["tit"] != "") title = data["tit"].asString();
+		if (data["act"] != "") active = data["act"];
+		if (data["s_min"] != "") start_minute = data["s_min"];
+		if (data["s_h"] != "") start_hour = data["s_h"];
+		if (data["s_d"] != "") start_day = data["s_d"];
+		if (data["s_mon"] != "") start_month = data["s_mon"];
+		if (data["s_y"] != "") start_year = data["s_y"];
+		if (data["e_min"] != "") end_minute = data["e_min"];
+		if (data["e_h"] != "") end_hour = data["e_h"];
+		if (data["e_d"] != "") end_day = data["e_d"];
+		if (data["e_mon"] != "") end_month = data["e_mon"];
+		if (data["e_y"] != "") end_year = data["e_y"];
+		if (data["val"] != "") threshold = data["val"];
 
 		if (data["relop"] != "") {
 			if (data["relop"] == 0) relop = SMALLER;
@@ -811,26 +811,26 @@ bool SensorTrigger::deserializeJSON(JsonObject& data)
 			}
 		}
 
-		if (data["interval"] != "") {
-			if (data["interval"] == 0) interval = REALTIME;
-			else if (data["interval"] == 1) interval = TENSEC;
-			else if (data["interval"] == 2) interval = TWENTYSEC;
-			else if (data["interval"] == 3) interval = THIRTYSEC;
-			else if (data["interval"] == 4) interval = ONEMIN;
-			else if (data["interval"] == 5) interval = TWOMIN;
-			else if (data["interval"] == 6) interval = FIVEMIN;
-			else if (data["interval"] == 7) interval = QUARTER;
-			else if (data["interval"] == 8) interval = HALF;
-			else if (data["interval"] == 9) interval = ONE;
-			else if (data["interval"] == 10) interval = TWO;
-			else if (data["interval"] == 11) interval = THREE;
-			else if (data["interval"] == 12) interval = FOUR;
-			else if (data["interval"] == 13) interval = SIX;
-			else if (data["interval"] == 14) interval = TWELVE;
-			else if (data["interval"] == 15) interval = DAILY;
-			else if (data["interval"] == 16) interval = BIDAILY;
-			else if (data["interval"] == 17) interval = WEEKLY;
-			else if (data["interval"] == 18) interval = BIWEEKLY;
+		if (data["intv"] != "") {
+			if (data["intv"] == 0) interval = REALTIME;
+			else if (data["intv"] == 1) interval = TENSEC;
+			else if (data["intv"] == 2) interval = TWENTYSEC;
+			else if (data["intv"] == 3) interval = THIRTYSEC;
+			else if (data["intv"] == 4) interval = ONEMIN;
+			else if (data["intv"] == 5) interval = TWOMIN;
+			else if (data["intv"] == 6) interval = FIVEMIN;
+			else if (data["intv"] == 7) interval = QUARTER;
+			else if (data["intv"] == 8) interval = HALF;
+			else if (data["intv"] == 9) interval = ONE;
+			else if (data["intv"] == 10) interval = TWO;
+			else if (data["intv"] == 11) interval = THREE;
+			else if (data["intv"] == 12) interval = FOUR;
+			else if (data["intv"] == 13) interval = SIX;
+			else if (data["intv"] == 14) interval = TWELVE;
+			else if (data["intv"] == 15) interval = DAILY;
+			else if (data["intv"] == 16) interval = BIDAILY;
+			else if (data["intv"] == 17) interval = WEEKLY;
+			else if (data["intv"] == 18) interval = BIWEEKLY;
 			else {
 				interval = ONEMIN;
 				active = false;
@@ -873,36 +873,44 @@ void TriggerCategory::serializeJSON(Trigger * trigger[TRIGGER_TYPES][TRIGGER_SET
 	StaticJsonBuffer<5000> jsonBuffer;
 
 	JsonObject& container = jsonBuffer.createObject();
+	container["obj"] = "TCAT";
 	JsonArray& categories = container.createNestedArray("list");
 
-	for (uint8_t i = 0; i < TRIGGER_TYPES; i++) {
+
 
 		if (scope == LIST) {
-			if (trigger[i][0] != NULL) {
-				JsonObject& item = jsonBuffer.createObject();
-				item["id"] = i;
-				item["obj"] = "TCAT";
-				item["type"] = static_cast<int>(trigger[i][0]->type);
+			for (uint8_t i = 0; i < TRIGGER_TYPES; i++) {
+				if (trigger[i][0] != NULL) {
+					JsonObject& item = jsonBuffer.createObject();
+					item["typ"] = static_cast<int>(trigger[i][0]->type);
 
-				if (trigger[i][0]->type == 0) {
-					item["title"] = "Timer";
+					if (trigger[i][0]->type == 0) {
+						item["tit"] = "Timer";
+					}
+					else {
+						item["tit"] = "Comparator";
+					}
+					item["src"] = trigger[i][0]->getSource();
+					categories.add(item);
 				}
-				else {
-					item["title"] = "Comparator";
-				}
-				item["sensor"] = trigger[i][0]->getSource();
-				categories.add(item);
 			}
 		}
 		else {
-			for (uint8_t j = 0; j < TRIGGER_SETS; j++) {
-				JsonObject& item = jsonBuffer.createObject();
-				item["obj"] = "TRIGGER";
-				item["title"] = trigger[i][j]->getTitle();
-				categories.add(item);
+			for (uint8_t i = 0; i < TRIGGER_TYPES; i++) {
+				JsonObject& cat = jsonBuffer.createObject();
+				cat["src"] = trigger[i][0]->getSource();
+				cat["typ"] = static_cast<int>(trigger[i][0]->type);
+				JsonArray& trig = cat.createNestedArray("trig");
+				for (uint8_t j = 0; j < TRIGGER_SETS; j++) {
+					JsonObject& item = jsonBuffer.createObject();
+					item["tit"] = trigger[i][j]->getTitle();
+					item["act"] = trigger[i][j]->active;
+					trig.add(item);
+				}
+				categories.add(cat);
 			}
 		}
-	}
+	
 	container.printTo(json, maxSize);
 	LOGDEBUG2(F("[Trigger]"), F("serializeJSON()"), F("OK: Serialized Trigger Categories"), "", "", "");
 }
