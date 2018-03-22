@@ -67,32 +67,32 @@ bool FileSystem::saveSettings(const char* filename)
 				trigger[i][j]->serializeJSON(i, j, json, 2500, DETAILS);
 				led[2]->switchState();
 				file.println(json);
-				LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Trigger"), F("Cat | Id"), String(i), String(j));
+				//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Trigger"), F("Cat | Id"), String(i), String(j));
 			}
 		}
 		for (uint8_t i = 0; i < RULESETS_NUM; i++) {
 			rulesets[i]->serializeJSON(i, json, 2500, DETAILS);
 			led[2]->switchState();
 			file.println(json);
-			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Rule"), F("Id"), String(i), "");
+			//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Rule"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < ACTIONCHAINS_NUM; i++) {
 			actionchains[i]->serializeJSON(i, json, 2500, DETAILS);
 			led[2]->switchState();
 			file.println(json);
-			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Actionschain"), F("Id"), String(i), "");
+			//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Actionschain"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < SENS_NUM; i++) {
-			sensors[i]->serializeJSON(i, json, 2500, DETAILS);
+			sensors[i]->serializeJSON(i, json, 5000, DETAILS);
 			led[2]->switchState();
 			file.println(json);
-			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Sensor"), F("Id"), String(i), "");
+			//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Sensor"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < RC_SOCKETS; i++) {
 			rcsocketcontroller->serializeJSON(i, json, 2500, DETAILS);
 			led[2]->switchState();
 			file.println(json);
-			LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Remote Socket"), F("Id"), String(i), "");
+			//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Remote Socket"), F("Id"), String(i), "");
 		}
 		LOGMSG(F("[FileSystem]"), F("OK: Saved Settings to file:"), String(filename), "", "");
 		led[2]->turnOff();

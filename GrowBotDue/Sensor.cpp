@@ -553,18 +553,21 @@ ReturnType BaseSensor<ReturnType>::readValue()
 template<class ReturnType>
 ReturnType BaseSensor<ReturnType>::average(uint8_t start, uint8_t num_elements, ReturnType * values, uint8_t max)
 {
+	//LOGDEBUG2(F("[Sensor]"), F("average()"), String(title), String(start), String(num_elements), String(max));
+	
 	int dividend = 0;
 	int divisor = 0;
 	ReturnType avg = nan_val;
 
 	uint8_t counter = 0;
-	uint8_t element_ptr = start;
+	short element_ptr = start;
 
 	while (counter <= num_elements)
 	{
 		if (values[element_ptr] != nan_val) {
 			dividend += values[element_ptr];
 			divisor++;
+			//LOGDEBUG2(F("[Sensor]"), F("average()"), String(title), String(element_ptr), String(dividend), String(divisor));
 		}
 		else break;
 
@@ -619,7 +622,7 @@ float BaseSensor<float>::average(uint8_t start, uint8_t num_elements, float * va
 	float avg = nan_val;
 
 	uint8_t counter = 0;
-	uint8_t element_ptr = start;
+	short element_ptr = start;
 
 	while (counter <= num_elements)
 	{
@@ -704,6 +707,9 @@ void BaseSensor<ReturnType>::update()
 template<class ReturnType>
 void BaseSensor<ReturnType>::reset()
 {
+	lower_threshold = 0;
+	upper_threshold = 0;
+	
 	minute_ptr = SENS_VALUES_MIN;
 	hour_ptr = SENS_VALUES_HOUR;
 	day_ptr = SENS_VALUES_DAY;
@@ -712,9 +718,9 @@ void BaseSensor<ReturnType>::reset()
 
 	for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) minute_values[i] = nan_val;
 	for (uint8_t i = 0; i < SENS_VALUES_HOUR; i++) hour_values[i] = nan_val;
-	for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) day_values[i] = nan_val;
-	for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) month_values[i] = nan_val;
-	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) year_values[i] = nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) day_values[i] = -5 + (rand() % static_cast<int>(35 - (-5) + 1));
+	for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) month_values[i] = -5 + (rand() % static_cast<int>(35 - (-5) + 1));
+	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) year_values[i] = -5 + (rand() % static_cast<int>(35 - (-5) + 1));
 }
 
 template<class ReturnType>
@@ -805,6 +811,7 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 	//Min Values
 	if (scope == DETAILS || scope == DATE_MINUTE || scope == DATE_ALL) {
 		sensor["min_ptr"] = minute_ptr;
+		sensor["frq"] = SENS_VALUES_MIN;
 		JsonArray& minutes = sensor.createNestedArray("min_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_MIN; j++) minutes.add(toNAN(minute_values[j]));
 	}
@@ -812,6 +819,7 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 	//Hour Values
 	if (scope == DETAILS || scope == DATE_HOUR || scope == DATE_ALL) {
 		sensor["h_ptr"] = hour_ptr;
+		sensor["frq"] = SENS_VALUES_HOUR;
 		JsonArray& hours = sensor.createNestedArray("h_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_HOUR; j++) hours.add(toNAN(hour_values[j]));
 	}
@@ -819,6 +827,7 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 	//Day Values
 	if (scope == DETAILS || scope == DATE_DAY || scope == DATE_ALL) {
 		sensor["d_ptr"] = day_ptr;
+		sensor["frq"] = SENS_VALUES_DAY;
 		JsonArray& days = sensor.createNestedArray("d_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_DAY; j++) days.add(toNAN(day_values[j]));
 	}
@@ -826,6 +835,7 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 	//Month Values
 	if (scope == DETAILS || scope == DATE_MONTH || scope == DATE_ALL) {
 		sensor["m_ptr"] = month_ptr;
+		sensor["frq"] = SENS_VALUES_MONTH;
 		JsonArray& month = sensor.createNestedArray("m_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_MONTH; j++) month.add(toNAN(month_values[j]));
 	}
@@ -833,6 +843,7 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 	//Year Values
 	if (scope == DETAILS || scope == DATE_YEAR || scope == DATE_ALL) {
 		sensor["y_ptr"] = year_ptr;
+		sensor["frq"] = SENS_VALUES_YEAR;
 		JsonArray& year = sensor.createNestedArray("y_vals");
 		for (uint8_t j = 0; j < SENS_VALUES_YEAR; j++) year.add(toNAN(year_values[j]));
 	}
@@ -845,8 +856,8 @@ template<class ReturnType>
 bool BaseSensor<ReturnType>::deserializeJSON(JsonObject & data)
 {
 	if (data.success() == true) {
-		if (data["low_thresh"] != "") lower_threshold = data["low_thresh"];
-		if (data["up_thresh"] != "") upper_threshold = data["up_thresh"];
+		if (data["low"] != "") lower_threshold = data["low"];
+		if (data["high"] != "") upper_threshold = data["high"];
 
 		if (data["min_ptr"] != "") minute_ptr = data["min_ptr"];
 		if (data["h_ptr"] != "") hour_ptr = data["h_ptr"];

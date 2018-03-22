@@ -31,7 +31,7 @@ String WebServer::createHtmlResponse(String code, String text)
 
 	request = "HTTP/1.1 " + (String)code;
 	request += "\r\n";
-	request += "Content-type:text/html\r\n";
+	request += "Content-Type: text/html\r\n";
 	request += "\r\n";
 	request += "<html><title>GrowBot V1.0<\\title><body>";
 	request += (String)text;
@@ -363,19 +363,6 @@ void WebServer::checkConnection()
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), F("List View"), "");
 				}
 				else if (uri[1] != "" && uri[1].toInt() < SENS_NUM) {
-					//Special Case - run function before Value Return
-					if (uri[3] == "lower") {
-						sensors[uri[1].toInt()]->setLowerThreshold();
-						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: Set Lower Threshold"));
-					}
-					else if (uri[3] == "upper") {
-						sensors[uri[1].toInt()]->setUpperThreshold();
-						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: Set Upper Threshold"));
-					}
-					else if (uri[3] == "reset") {
-						sensors[uri[1].toInt()]->reset();
-						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: Reset"));
-					}
 					//Decide what kind of sensor data to send
 					if (uri[2] == "") {
 						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, HEADER);
@@ -421,7 +408,23 @@ void WebServer::checkConnection()
 						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DATE_ALL);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: ALL"));
 						client.print(createPostRequest(json));
-					}		
+					}
+					//Commands
+					else if (uri[2] == "lower") {
+						sensors[uri[1].toInt()]->setLowerThreshold();
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: Set Lower Threshold"));
+						client.print(createHtmlResponse("200 OK", "Set Lower Threshold"));
+					}
+					else if (uri[2] == "upper") {
+						sensors[uri[1].toInt()]->setUpperThreshold();
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: Set Upper Threshold"));
+						client.print(createHtmlResponse("200 OK", "Set Upper Threshold"));
+					}
+					else if (uri[2] == "reset") {
+						sensors[uri[1].toInt()]->reset();
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: Reset"));
+						client.print(createHtmlResponse("200 OK", "Reset"));
+					}
 					else {
 						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: URI: UNKOWN"), "", "");
 						client.print(createHtmlResponse("400 BAD REQUEST", "Unknown URI"));
