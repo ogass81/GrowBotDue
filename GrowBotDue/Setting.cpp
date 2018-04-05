@@ -45,8 +45,27 @@ void Setting::serializeJSON(char * json, size_t maxSize)
 
 	JsonObject& settings = jsonBuffer.createObject();
 	settings["obj"] = "SETTING";
+	//Constants
+	settings["firm_version"] = GROWBOT_FIRMWARE;
+	settings["firm_date"] = __DATE__;
+	settings["firm_time"] = __TIME__;
+	settings["actions_num"] = ACTIONS_NUM;
+	settings["actionschains_num"] = ACTIONCHAINS_NUM;
+	settings["actionschains_length"] = ACTIONCHAIN_LENGTH;
+	settings["rulesets_num"] = RULESETS_NUM;
+	settings["trigger_sets"] = TRIGGER_SETS;
+	settings["trigger_types"] = TRIGGER_TYPES;
+	settings["sensor_num"] = SENS_NUM;
+	settings["task_queue_length"] = TASK_QUEUE_LENGTH;
+	settings["actionchain_task_maxduration"] = ACTIONCHAIN_TASK_MAXDURATION;
+	settings["task_parallel_sec"] = TASK_PARALLEL_SEC;
+	settings["rc_sockets_num"] = RC_SOCKETS;
+	settings["rc_signals_num"] = RC_SIGNALS;
+	
+	//Variable Settings	
 	settings["wifi_SSID"] = wifi_ssid;
 	settings["wifi_pw"] = wifi_pw;
+	LOGDEBUG(F("[Setting]"), F("serializeJSON()"), F("OK: Serialized Overall Settings"), String(api_secret), "", "");
 	settings["api_secret"] = api_secret;
 	settings["second"] = currenttime.current_second;
 	settings["minute"] = currenttime.current_minute;

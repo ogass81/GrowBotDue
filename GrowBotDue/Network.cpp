@@ -84,8 +84,6 @@ void WebServer::checkConnection()
 						int8_t i = 0;
 
 						//Break up line in Command and Resource
-
-
 						char temp[line.length() + 1];
 						line.toCharArray(temp, line.length() + 1);
 						char *token = strtok(temp, " ");
@@ -219,7 +217,7 @@ void WebServer::checkConnection()
 
 			//Send information about Growbot and statics
 			if (uri[0] == "") {
-				Setting::serializeConstantsJSON(json, 2500);
+				Setting::serializeJSON(json, 2500);
 				LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Constants Action: GET"), "", "");
 				client.print(createPostRequest(json));
 			}
@@ -488,14 +486,14 @@ void WebServer::checkConnection()
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SET"), "", "");
 							client.print(createHtmlResponse("200 OK", "JSON received"));
 						}
-						else if (uri[1] != "default") {
+						else if (uri[1] == "default") {
 							success = Setting::deserializeJSON(node);
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SET"), "", "");
 							client.print(createHtmlResponse("200 OK", "JSON received"));
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SAVE to Default"), "", "");
 							filesystem.saveDefaultConfig();
 						}
-						else if (uri[1] != "active") {
+						else if (uri[1] == "active") {
 							success = Setting::deserializeJSON(node);
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SET"), "", "");
 							client.print(createHtmlResponse("200 OK", "JSON received"));

@@ -118,7 +118,7 @@ bool FileSystem::loadSettings(const char* filename)
 		
 		while (file.available()) {
 			//Buffer Needs to be here ...
-			StaticJsonBuffer<5000> jsonBuffer;
+			StaticJsonBuffer<6000> jsonBuffer;
 		
 			json = file.readStringUntil('\n');
 
