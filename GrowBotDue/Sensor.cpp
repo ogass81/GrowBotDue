@@ -59,6 +59,15 @@ void Sensor::reset()
 {
 }
 
+void Sensor::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
+{
+}
+
+bool Sensor::deserializeJSON(JsonObject & data)
+{
+	return false;
+}
+
 template<class ReturnType>
 String BaseSensor<ReturnType>::toNAN(ReturnType i)
 {

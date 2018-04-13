@@ -19,7 +19,7 @@ extern DHT dht;
 extern long sensor_cycles;
 
 //Sensor Interface
-class Sensor : public SerializationInterface {
+class Sensor {
 public:
 	//UI Controls
 	virtual int getAvgInt(Interval interval);
@@ -41,6 +41,9 @@ public:
 
 	//Settings
 	virtual void reset();
+
+	virtual void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
+	virtual bool deserializeJSON(JsonObject& data);
 };
 
 

@@ -226,7 +226,7 @@ bool FileSystem::copyFile(const char* source, const char* destination)
 			led[2]->turnOn();
 			while ((current_file.read(buf, sizeof(buf))) > 0) {
 				led[2]->switchState();
-				backup_file.write(buf, n);
+				backup_file.write(buf, sizeof(buf));
 				i++;
 			}
 			led[2]->turnOff();

@@ -10,12 +10,12 @@
 #endif
 #include "Definitions.h"
 #include <ArduinoJson.h>
-#include "CurrentTime.h"
+#include "RealTimeClock.h"
 #include "Sensor.h"
 
 //Globals
 extern String debug;
-extern CurrentTime currenttime;
+extern RealTimeClock internalRTC;
 extern Sensor *sensors[SENS_NUM];
 extern long sensor_cycles;
 
@@ -55,51 +55,9 @@ public:
 	//Check State
 	virtual bool checkState();
 
-	//UI Controls
-	void incStartDay();
-	void decStartDay();
-	void incStartMonth();
-	void decStartMonth();
-	void incStartYear();
-	void decStartYear();
-	void incStartHour();
-	void decStartHour();
-	void incStartMinute();
-	void decStartMinute();
-	void incEndDay();
-	void decEndDay();
-	void incEndMonth();
-	void decEndMonth();
-	void incEndYear();
-	void decEndYear();
-	void incInterval();
-	void decInterval();
-	void incRelOp();
-	void decRelOp();
-	void incThresh();
-	void decThresh();
-	void changeActive();
-
 	//UI Output
 	String getTitle();
 	String getSource();
-
-	String getActive();
-
-	String getStartDay();
-	String getStartMonth();
-	String getStartYear();
-	String getStartHour();
-	String getStartMinute();
-
-	String getEndDay();
-	String getEndMonth();
-	String getEndYear();
-
-	String getInterval();
-
-	String getRelOp();
-	String getThresh();
 
 	//Settings
 	virtual void reset();

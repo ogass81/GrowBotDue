@@ -15,8 +15,8 @@
 #include <DHT.h>
 
 //Modules
+#include "RealTimeClock.h"
 #include "Led.h"
-#include "CurrentTime.h"
 #include "FileSystem.h"
 #include "Network.h"
 #include "Sensor.h"
@@ -48,12 +48,13 @@ Led *led[3];
 //DHT Hardware
 DHT dht(DHT_DATA_PIN, DHT_TYPE);
 //RealTimeClock
-CurrentTime currenttime(RC);
+RealTimeClock internalRTC(RC);
 
 //433Mhz
 RCSocketController *rcsocketcontroller;
 
 //Wifi
+static WiFiEspUDP udp;
 WebServer *webserver;
 
 //Modules
@@ -81,6 +82,10 @@ void setup() {
 	// initialize serial for debugging
 	Serial.begin(115200);
 
+	// initialize RTC
+	internalRTC.begin();
+	internalRTC.setDefaultTime();
+
 	//Status Led
 	led[0] = new Led(LED1, false);
 	led[1] = new Led(LED2, false);
@@ -88,12 +93,6 @@ void setup() {
 	
 	//Start Temp/Humidity Sensor
 	dht.begin();
-
-	// initialize RTC
-	currenttime.begin(); 
-	currenttime.syncTimeObject();
-	//Initialize Tact Generator
-	sensor_cycles = (CurrentTime::epochTime(currenttime.current_year, currenttime.current_month, currenttime.current_day, currenttime.current_hour, currenttime.current_minute, 0)) / SENS_FRQ_SEC;
 
 	//433Mhz
 	rcsocketcontroller = new RCSocketController(TX_DATA_PIN, RX_DATA_PIN);
@@ -206,6 +205,20 @@ void setup() {
 		failed++;
 	}
 
+
+	//Sync with Internet
+	udp.begin(123);
+	NTPClient *ntp = new NTPClient(udp);
+	long ntptime = ntp->getNetworkTime();
+
+	if (ntptime > 0) {
+		internalRTC.updateTime(ntptime);
+	}
+
+
+	//Initialize Tact Generator
+	//internalRTC.syncSensorCycles();
+
 	//Start Webserver
 	webserver = new WebServer();
 	webserver->begin();
@@ -245,7 +258,7 @@ void loop() {
 
 			//Cycles
 			sensor_cycles++;
-			LOGMSG(F("[Loop]"), F("INFO: Sensor Cycle"), String(sensor_cycles), "@", String(currenttime.createTime()));
+			LOGMSG(F("[Loop]"), F("INFO: Sensor Cycle"), String(sensor_cycles), "@", String(RealTimeClock::printTime(SENS_FRQ_SEC*sensor_cycles)));
 
 			//Update Sensors
 			for (uint8_t i = 0; i < SENS_NUM; i++) {

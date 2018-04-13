@@ -33,27 +33,9 @@ public:
 
 	RuleSet(int count);
 
-	//UI Controls
-	void changeRuleSetTrigger1();
-	void changeRuleSetTrigger2();
-	void changeRuleSetTrigger3();
-	void changeRuleSetBoolOp1();
-	void changeRuleSetBoolOp2();
-	void changeRuleChain();
-	void changeRuleSetActive();
-	
 	//UI Output
 	String getTitle();
-	String getRuleSetCat1();
-	String getRuleSetCat2();
-	String getRuleSetCat3();
-	String getRuleSetTrigger1();
-	String getRuleSetTrigger2();
-	String getRuleSetTrigger3();
-	String getRuleSetBoolOp1();
-	String getRuleSetBoolOp2();
-	String getRuleSetChain();
-	String getRuleSetActive();
+
 
 	//Check State
 	bool checkState();

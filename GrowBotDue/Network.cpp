@@ -69,7 +69,7 @@ void WebServer::checkConnection()
 
 
 	if (client == true) {
-		LOGMSG(F("[WebServer]"), F("OK: New Client connected"), "@" + currenttime.createTime(), F("IPV4"), client.remoteIP());
+		LOGMSG(F("[WebServer]"), F("OK: New Client connected"), "@" + RealTimeClock::printTime(SENS_FRQ_SEC*sensor_cycles), F("IPV4"), client.remoteIP());
 
 		while (client.connected()) {
 			if (client.available() > 0) {
@@ -132,7 +132,7 @@ void WebServer::checkConnection()
 						//Check for Authorization Token		
 						String searchbase = line;
 						searchbase.toLowerCase();
-						
+
 						if (searchbase.startsWith("authorization:")) {
 
 							String parts[3];
@@ -157,7 +157,7 @@ void WebServer::checkConnection()
 
 						//Check for Content Type
 						if (searchbase.startsWith("content-type:") == true && searchbase.indexOf("json") > -1) {
-							
+
 							content_type = true;
 							LOGDEBUG(F("[WebServer]"), F("checkConnection()"), F("Content Type"), F("JSON"), "", "");
 						}
@@ -210,7 +210,7 @@ void WebServer::checkConnection()
 				}
 			}
 		}
-			
+
 		if (http_method == "GET") {
 			//Variable for Outgoing Data
 			char json[2500];
@@ -377,7 +377,7 @@ void WebServer::checkConnection()
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: AVG"));
 						client.print(createPostRequest(json));
 					}
-					else if (uri[2]  == "date_minute") {
+					else if (uri[2] == "date_minute") {
 						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DATE_MINUTE);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: MINUTE"));
 						client.print(createPostRequest(json));
@@ -585,18 +585,18 @@ void WebServer::checkConnection()
 				client.print(createHtmlResponse("400 BAD REQUEST", "Invalid Payload"));
 			}
 		}
-	
+
 		else {
 			LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: Unsupported Method"), "", "");
 			client.print(createHtmlResponse("400 BAD REQUEST", "Not supported Method"));
 		}
-	
-	
+
+
 		// give the web browser time to receive the data
 		delay(200);
 		// close the connection:
 		client.stop();
-		LOGMSG(F("[WebServer]"), F("OK: Client disconnected"), "@" + currenttime.createTime(), F("IPV4"), client.remoteIP());
+		LOGMSG(F("[WebServer]"), F("OK: Client disconnected"), "@" + RealTimeClock::printTime(SENS_FRQ_SEC*sensor_cycles), F("IPV4"), client.remoteIP());
 	}
 }
 
@@ -644,4 +644,73 @@ void ListGenerator<ObjectType>::generateList(String object_type, uint8_t cat, ch
 	if (jsonarray.length() > 0) {
 		jsonarray.toCharArray(json, jsonarray.length() + 1);
 	}
+}
+
+NTPClient::NTPClient(WiFiEspUDP udp)
+{
+	this->udp = udp;
+}
+
+unsigned long NTPClient::getNetworkTime()
+{
+	// Fail if WiFiUdp.begin() could not init a socket
+	if (!udp.available())
+		LOGDEBUG2(F("[NTPClient]"), F("getNetworkTime()"), F("ERROR: no socket initialized"), "", "", "")
+		return 0;
+	
+	const char timeServer[] = "pool.ntp.org";  // NTP server
+
+											   // Only the first four bytes of an outgoing NTP packet need to be set
+											   // appropriately, the rest can be whatever.
+	const long ntpFirstFourBytes = 0xEC0600E3; // NTP request header
+
+											   // Fail if WiFiUdp.begin() could not init a socket
+	// Clear received data from possible stray received packets
+	udp.flush();
+
+	// Send an NTP request
+	if (!(udp.beginPacket(timeServer, 123) // 123 is the NTP port
+		&& udp.write((byte *)&ntpFirstFourBytes, 48) == 48
+		&& udp.endPacket()))
+		LOGDEBUG2(F("[NTPClient]"), F("getNetworkTime()"), F("ERROR: sending request failed"), "", "", "")
+		return 0;				// sending request failed
+
+								// Wait for response; check every pollIntv ms up to maxPoll times
+	const int pollIntv = 150;		// poll every this many ms
+	const byte maxPoll = 15;		// poll up to this many times
+	int pktLen;				// received packet length
+	for (byte i = 0; i < maxPoll; i++) {
+		if ((pktLen = udp.parsePacket()) == 48)
+			break;
+		delay(pollIntv);
+	}
+	if (pktLen != 48)
+		LOGDEBUG2(F("[NTPClient]"), F("getNetworkTime()"), F("ERROR: no correct NTP package received"), "", "", "")
+		return 0;				// no correct packet received
+
+								// Read and discard the first useless bytes
+								// Set useless to 32 for speed; set to 40 for accuracy.
+	const byte useless = 40;
+	for (byte i = 0; i < useless; ++i)
+		udp.read();
+
+	// Read the integer part of sending time
+	unsigned long time = udp.read();	// NTP time
+	for (byte i = 1; i < 4; i++)
+		time = time << 8 | udp.read();
+
+	// Round to the nearest second if we want accuracy
+	// The fractionary part is the next byte divided by 256: if it is
+	// greater than 500ms we round to the next second; we also account
+	// for an assumed network delay of 50ms, and (0.5-0.05)*256=115;
+	// additionally, we account for how much we delayed reading the packet
+	// since its arrival, which we assume on average to be pollIntv/2.
+	time += (udp.read() > 115 - pollIntv / 8);
+
+	// Discard the rest of the packet
+	udp.flush();
+
+	LOGDEBUG2(F("[NTPClient]"), F("getNetworkTime()"), F("OK: Received new network time (UTC)"), String(time- 2208988800UL), "", "");
+
+	return time - 2208988800UL;		// convert NTP time to Unix time
 }

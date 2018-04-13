@@ -9,9 +9,10 @@
 	#include "WProgram.h"
 #endif
 #include <WiFiEsp.h>
+#include <WiFiEspUdp.h>
 
 #include <ArduinoJson.h>
-#include "CurrentTime.h"
+#include "RealTimeClock.h"
 #include "Sensor.h"
 #include "Trigger.h"
 #include "Ruleset.h"
@@ -22,7 +23,7 @@
 #include "FileSystem.h"
 #include "TaskManager.h"
 
-extern CurrentTime currenttime;
+extern RealTimeClock internalRTC;
 extern Sensor *sensors[SENS_NUM];
 extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 extern RuleSet *rulesets[RULESETS_NUM];
@@ -43,6 +44,19 @@ public:
 	void generateList(String object_type, char *json);
 	void generateList(String object_type, uint8_t id, char *json);
 };
+
+class NTPClient {
+public:
+	WiFiEspUDP udp;
+	
+	NTPClient(WiFiEspUDP udp);
+
+	unsigned long getNetworkTime();
+private:
+
+};
+
+
 
 class WebServer : public WiFiEspServer {
 private: 

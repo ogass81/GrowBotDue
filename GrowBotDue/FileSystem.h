@@ -12,7 +12,7 @@
 #include "SdFat.h"
 #include <SPI.h>
 #include <ArduinoJson.h>
-#include "CurrentTime.h"
+#include "RealTimeClock.h"
 #include "Sensor.h"
 #include "Trigger.h"
 #include "Ruleset.h"
@@ -27,7 +27,7 @@ extern String api_secret;
 
 extern long sensor_cycles;
 extern Led *led[3];
-extern CurrentTime currenttime;
+extern RealTimeClock internalRTC;
 extern Sensor *sensors[SENS_NUM];
 extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 extern RuleSet *rulesets[RULESETS_NUM];

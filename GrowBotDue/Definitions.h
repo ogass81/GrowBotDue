@@ -12,15 +12,6 @@
 #define GROWBOT_FIRMWARE 1
 
 #define SERIAL_BUFFER_SIZE 256
-//User Interface
-#define BACKGROUNDCOLOR VGA_BLACK
-
-#define UI_PADDING 3
-#define UI_COLUMN_WIDTH 22
-#define UI_ROW_HEIGHT 21
-#define UI_MENUE_HEIGHT 42
-#define UI_X_DIVIDER 74
-#define UI_Y_DIVIDER 20
 
 //SD Card Control Pin
 #define SD_CONTROL_PIN  19
@@ -77,12 +68,6 @@
 #define DHT_DATA_PIN 18
 #define DHT_TYPE DHT22
 
-//Relais
-#define OUT_RELAY_1 2 
-#define OUT_RELAY_2 3 
-#define OUT_RELAY_3 4 
-#define OUT_RELAY_4 5 
-
 //Front Panel
 #define IN_MOS_1 A0
 #define IN_MOS_2 A1
@@ -99,6 +84,9 @@
 #define LED1 11
 #define LED2 12
 #define LED3 13
+
+//NTP
+#define NTPPORT 10000
 
 //REST API 
 #define REST_URI_DEPTH 4

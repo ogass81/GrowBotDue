@@ -220,7 +220,7 @@ void RCSocketController::learningmode_on()
 	receiver_on();
 	learning = true;
 	haltstate = true;
-	LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set ON"), String(sensor_cycles), "@", String(currenttime.createTime()));
+	LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set ON"), String(sensor_cycles), "@", String(RealTimeClock::printTime(sensor_cycles)));
 }
 
 void RCSocketController::learningmode_on(int set)
@@ -236,8 +236,8 @@ void RCSocketController::learningmode_off()
 	receiver_off();
 	learning = false;
 	haltstate = false;
-	currenttime.syncCycles();
-	LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set OFF"), String(sensor_cycles), "@", String(currenttime.createTime()));
+	internalRTC.syncSensorCycles();
+	LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set OFF"), String(sensor_cycles), "@", String(RealTimeClock::printTime(sensor_cycles)));
 }
 
 void RCSocketController::learnPattern()
@@ -274,38 +274,6 @@ void RCSocketController::testSettings()
 	socketcode[code_set_ptr]->active = false;
 }
 
-void RCSocketController::switchLearningMode()
-{
-	if (learning == true) {
-		learningmode_off();
-	}
-	else {
-		learningmode_on();
-	}
-}
-
-void RCSocketController::switchSignal()
-{
-	learningmode_off();
-
-	socketcode[code_set_ptr]->switchSignalPtr();
-}
-
-void RCSocketController::switchProtocol()
-{
-	learningmode_off();
-
-	socketcode[code_set_ptr]->switchCurrentProtocol();
-}
-
-void RCSocketController::switchActive()
-{
-	learningmode_off();
-
-	if (socketcode[code_set_ptr]->active == true) socketcode[code_set_ptr]->active = false;
-	else socketcode[code_set_ptr]->active = true;
-}
-
 void RCSocketController::resetSettings()
 {
 	learningmode_off();
@@ -330,98 +298,6 @@ void RCSocketController::resetSettings(uint8_t set)
 		socketcode[set]->nReceivedBitlength[i] = 0;
 	}
 	socketcode[set]->active = false;
-}
-
-String RCSocketController::getDecimalKey()
-{
-	if (socketcode[code_set_ptr]->getCurrentValue() == 0) {
-		return String(F("<undefined>"));
-	}
-	else {
-		return String(socketcode[code_set_ptr]->getCurrentValue());
-	}
-}
-
-String RCSocketController::getBinaryKey()
-{
-	if (socketcode[code_set_ptr]->getCurrentValue() == 0) {
-		return String(F("<undefined>"));
-	}
-	else {
-		return String(dec2binWzerofill(socketcode[code_set_ptr]->getCurrentValue(), socketcode[code_set_ptr]->getCurrentBitlength()));
-	}
-}
-
-String RCSocketController::getBitLength()
-{
-	if (socketcode[code_set_ptr]->getCurrentBitlength() == 0) {
-		return String(F("<undefined>"));
-	}
-	else {
-		return String(socketcode[code_set_ptr]->getCurrentBitlength());
-	}
-}
-
-String RCSocketController::getProtocol()
-{
-	if (socketcode[code_set_ptr]->getCurrentProtocol() == 0) {
-		return String(F("<undefined>"));
-	}
-	else {
-		return String(socketcode[code_set_ptr]->getCurrentProtocol());
-	}
-}
-
-String RCSocketController::getActive()
-{
-	if (socketcode[code_set_ptr]->active == true) return String("ON");
-	else return String("OFF");
-}
-
-String RCSocketController::getName()
-{
-	return String(socketcode[code_set_ptr]->title);
-}
-
-String RCSocketController::getSignalPointer()
-{
-	return String(socketcode[code_set_ptr]->signal_ptr);
-}
-
-String RCSocketController::getSwitchSignalText()
-{
-	return String(F("Next>>"));
-}
-
-String RCSocketController::getSwitchProtocolText()
-{
-	return String(F("Switch"));
-}
-
-String RCSocketController::getLearningMode()
-{
-	if (learning == true) return String(" Stop Learning");
-	else return String(" Start Learning");
-}
-
-void RCSocketController::incCodeSet_Ptr()
-{
-	learningmode_off();
-
-	if (code_set_ptr < RC_SOCKETS - 1) code_set_ptr++;
-	else code_set_ptr = 0;
-
-	socketcode[code_set_ptr]->signal_ptr = 0;
-}
-
-void RCSocketController::decCodeSet_Ptr()
-{
-	learningmode_off();
-
-	if (code_set_ptr > 0) code_set_ptr--;
-	else code_set_ptr = RC_SOCKETS - 1;
-
-	socketcode[code_set_ptr]->signal_ptr = 0;
 }
 
 void RCSocketController::sendCode(int set)

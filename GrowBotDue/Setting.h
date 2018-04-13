@@ -10,7 +10,7 @@
 #endif
 #include "Definitions.h"
 #include <ArduinoJson.h>
-#include "CurrentTime.h"
+#include "RealTimeClock.h"
 #include "Sensor.h"
 #include "Trigger.h"
 #include "Ruleset.h"
@@ -21,7 +21,7 @@ extern String wifi_pw;
 extern String api_secret;
 
 extern long sensor_cycles;
-extern CurrentTime currenttime;
+extern RealTimeClock internalRTC;
 extern Sensor *sensors[SENS_NUM];
 extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 extern RuleSet *rulesets[RULESETS_NUM];
@@ -34,8 +34,6 @@ public:
 
 	static void serializeJSON(char* json, size_t maxSize);
 	static bool deserializeJSON(JsonObject& data);
-
-	static void serializeConstantsJSON(char* json, size_t maxSize);
 };
 
 

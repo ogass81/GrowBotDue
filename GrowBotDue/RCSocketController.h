@@ -12,9 +12,9 @@
 #include <RCSwitch.h>
 #include <ArduinoJson.h>
 #include <RCSwitch.h>
-#include "CurrentTime.h"
+#include "RealTimeClock.h"
 
-extern CurrentTime currenttime;
+extern RealTimeClock internalRTC;
 extern bool haltstate;
 
 class RCSocketCodeSet {
@@ -87,26 +87,6 @@ public:
 	void resetSettings(uint8_t set);
 
 	void sendCode(int id);
-
-	//UI Output
-	String getDecimalKey();
-	String getBinaryKey();
-	String getBitLength();
-	String getProtocol();
-	String getActive();
-	String getName();
-	String getSignalPointer();
-	String getSwitchSignalText();
-	String getSwitchProtocolText();
-	String getLearningMode();
-
-	//UI Control
-	void incCodeSet_Ptr();
-	void decCodeSet_Ptr();
-	void switchLearningMode();
-	void switchSignal();
-	void switchProtocol();
-	void switchActive();
 
 	//Helper
 	static const char * bin2tristate(const char * bin);
