@@ -56,16 +56,8 @@ void TimeTrigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t max
 		trigger["obj"] = "TRIGGER";
 		trigger["cat"] = cat;
 		trigger["id"] = id;
-		trigger["s_d"] = start_day;
-		trigger["s_mon"] = start_month;
-		trigger["s_y"] = start_year;
-		trigger["s_min"] = start_minute;
-		trigger["s_h"] = start_hour;
-		trigger["e_min"] = end_minute;
-		trigger["e_h"] = end_hour;
-		trigger["e_d"] = end_day;
-		trigger["e_mon"] = end_month;
-		trigger["e_y"] = end_year;
+		trigger["start_time"] = start_time;
+		trigger["end_time"] = end_time;
 		trigger["relop"] = static_cast<int>(relop);
 		trigger["val"] = threshold;
 		trigger["intv"] = static_cast<int>(interval);
@@ -80,16 +72,8 @@ bool TimeTrigger::deserializeJSON(JsonObject& data)
 	if (data.success() == true) {
 		if (data["tit"] != "") title = data["tit"].asString();
 		if (data["act"] != "") active = data["act"];
-		if (data["s_min"] != "") start_minute = data["s_min"];
-		if (data["s_h"] != "") start_hour = data["s_h"];
-		if (data["s_d"] != "") start_day = data["s_d"];
-		if (data["s_mon"] != "") start_month = data["s_mon"];
-		if (data["s_y"] != "") start_year = data["s_y"];
-		if (data["e_min"] != "") end_minute = data["e_min"];
-		if (data["e_h"] != "") end_hour = data["e_h"];
-		if (data["e_d"] != "") end_day = data["e_d"];
-		if (data["e_mon"] != "") end_month = data["e_mon"];
-		if (data["e_y"] != "") end_year = data["e_y"];
+		if (data["start_time"] != "") start_time = data["start_time"];
+		if (data["end_time"] != "") end_time = data["end_time"];	
 		if (data["val"] != "") threshold = data["val"];
 
 		if (data["typ"] != "") {
@@ -151,20 +135,8 @@ void TimeTrigger::reset()
 
 	active = false;
 
-	start_year = internalRTC.defaulttime.Year;
-	start_month = 1;
-	start_day = 1;
-
-	start_hour = 0;
-	start_minute = 0;
-
-	end_year = start_year + 1;
-	end_month = start_month;
-	end_day = start_day;
-
-	end_hour = start_hour;
-	end_minute = start_minute;
-
+	start_time = RealTimeClock::toEpochTime(internalRTC.defaulttime.Year, internalRTC.defaulttime.Month, internalRTC.defaulttime.Day, 0, 0, 0);
+	end_time = RealTimeClock::toEpochTime(internalRTC.defaulttime.Year, internalRTC.defaulttime.Month + 1, internalRTC.defaulttime.Day, 0, 0, 0);
 
 	interval = ONEMIN;
 	relop = EQUAL;
@@ -187,9 +159,9 @@ bool TimeTrigger::checkState()
 	
 	bool state = false;
 	
-	//Transform DateTime in Sensor Cycles as common base
-	sensor_start = (RealTimeClock::toEpochTime(start_year, start_month, start_day, start_hour, start_minute, 0)) / SENS_FRQ_SEC;
-	sensor_end = (RealTimeClock::toEpochTime(end_year, end_month, end_day, end_hour, end_minute, 0)) / SENS_FRQ_SEC;
+	//Transform Timestamp in Sensor Cycles as common base
+	sensor_start = start_time / SENS_FRQ_SEC;
+	sensor_end = end_time / SENS_FRQ_SEC;
 
 	if (active == true) {
 		if (sensor_cycles > sensor_start && sensor_cycles < sensor_end) {
@@ -231,16 +203,12 @@ SensorTrigger::SensorTrigger(int id, Sensor *ptr)
 
 bool SensorTrigger::checkState()
 {
-	long sensor_start;
-	short current_value;
 	bool state = false;
 
-	sensor_start = (RealTimeClock::toEpochTime(start_year, start_month, start_day, start_hour, start_minute, 0)) / SENS_FRQ_SEC;
-	
 	if (active == true && interval != NULL) state = sens_ptr->compareWithValue(relop, interval, threshold);
 	else state = false;
 
-	LOGMSG(F("[Trigger]"), String("OK: Sensor Trigger Checked " + getTitle()), threshold, current_value, state);
+	LOGMSG(F("[Trigger]"), String("OK: Sensor Trigger Checked " + getTitle()), threshold, interval, state);
 	return state;
 }
 
@@ -261,16 +229,8 @@ if (scope == DETAILS) {
 	trigger["obj"] = "TRIGGER";
 	trigger["cat"] = cat;
 	trigger["id"] = id;
-	trigger["s_min"] = start_minute;
-	trigger["s_h"] = start_hour;
-	trigger["e_min"] = end_minute;
-	trigger["e_h"] = end_hour;
-	trigger["e_d"] = end_day;
-	trigger["e_mon"] = end_month;
-	trigger["e_y"] = end_year;
-	trigger["s_d"] = start_day;
-	trigger["s_mon"] = start_month;
-	trigger["s_y"] = start_year;
+	trigger["start_time"] = start_time;
+	trigger["end_time"] = end_time;
 	trigger["intv"] = static_cast<int>(interval);
 	trigger["relop"] = static_cast<int>(relop);
 	trigger["val"] = threshold;
@@ -285,16 +245,8 @@ bool SensorTrigger::deserializeJSON(JsonObject& data)
 	if (data.success() == true) {
 		if (data["tit"] != "") title = data["tit"].asString();
 		if (data["act"] != "") active = data["act"];
-		if (data["s_min"] != "") start_minute = data["s_min"];
-		if (data["s_h"] != "") start_hour = data["s_h"];
-		if (data["s_d"] != "") start_day = data["s_d"];
-		if (data["s_mon"] != "") start_month = data["s_mon"];
-		if (data["s_y"] != "") start_year = data["s_y"];
-		if (data["e_min"] != "") end_minute = data["e_min"];
-		if (data["e_h"] != "") end_hour = data["e_h"];
-		if (data["e_d"] != "") end_day = data["e_d"];
-		if (data["e_mon"] != "") end_month = data["e_mon"];
-		if (data["e_y"] != "") end_year = data["e_y"];
+		if (data["start_time"] != "") start_time = data["start_time"];
+		if (data["end_time"] != "") end_time = data["end_time"];
 		if (data["val"] != "") threshold = data["val"];
 
 		if (data["relop"] != "") {
@@ -347,19 +299,8 @@ void SensorTrigger::reset()
 
 	active = false;
 	
-	start_year = internalRTC.defaulttime.Year;
-	start_month = 1;
-	start_day = 1;
-
-	start_hour = 0;
-	start_minute = 0;
-
-	end_year = start_year + 1;
-	end_month = start_month;
-	end_day = start_day;
-
-	end_hour = start_hour;
-	end_minute = start_minute;
+	start_time = RealTimeClock::toEpochTime(internalRTC.defaulttime.Year, internalRTC.defaulttime.Month, internalRTC.defaulttime.Day, 0, 0, 0);
+	end_time = RealTimeClock::toEpochTime(internalRTC.defaulttime.Year, internalRTC.defaulttime.Month + 1, internalRTC.defaulttime.Day, 0, 0, 0);
 
 	interval = ONEMIN;
 	relop = EQUAL;

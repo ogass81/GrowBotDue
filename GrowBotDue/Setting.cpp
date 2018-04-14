@@ -62,7 +62,7 @@ void Setting::serializeJSON(char * json, size_t maxSize)
 	settings["wifi_SSID"] = wifi_ssid;
 	settings["wifi_pw"] = wifi_pw;
 	settings["api_secret"] = api_secret;
-	settings["cycles"] = sensor_cycles;
+	settings["time"] = internalRTC.getEpochTime();
 	settings.printTo(json, maxSize);
 	LOGDEBUG(F("[Setting]"), F("serializeJSON()"), F("OK: Serialized Overall Settings"), String(settings.measureLength()), String(maxSize), "");
 }
@@ -97,15 +97,15 @@ bool Setting::deserializeJSON(JsonObject & data)
 			LOGMSG(F("[Setting]"), F("WARNING: No API secret loaded"), "", "", "");
 		}
 
-		if (data["cycles"] != "") {
+		if (data["time"] != "") {
 			//Set RTC
-			unsigned long cycles = data["cycles"];
-			internalRTC.updateTime(SENS_FRQ_SEC*cycles);
+			time_t timestamp = data["time"];
+			internalRTC.updateTime(timestamp);
 
-			LOGMSG(F("[Setting]"), F("OK: Updated Time from Settings"), sensor_cycles, String(RealTimeClock::printDate(SENS_FRQ_SEC*sensor_cycles)), String(RealTimeClock::printTime(SENS_FRQ_SEC*sensor_cycles)));
+			LOGMSG(F("[Setting]"), F("OK: Updated Time from Settings"), String(timestamp), String(sensor_cycles), "");
 		}
 		else {
-			LOGMSG(F("[Setting]"), F("WARNING: No Sensor Cycle loaded"), "", "", "");
+			LOGMSG(F("[Setting]"), F("WARNING: No Timestamp loaded"), "", "", "");
 		}
 	}
 	else {

@@ -10,7 +10,6 @@
 #endif
 #include <WiFiEsp.h>
 #include <WiFiEspUdp.h>
-
 #include <ArduinoJson.h>
 #include "RealTimeClock.h"
 #include "Sensor.h"
@@ -33,6 +32,7 @@ extern RCSocketController *rcsocketcontroller;
 extern TaskManager *taskmanager;
 extern FileSystem filesystem;
 
+
 template <class ObjectType>
 class ListGenerator {
 public:
@@ -45,18 +45,11 @@ public:
 	void generateList(String object_type, uint8_t id, char *json);
 };
 
-class NTPClient {
+class WebTimeClient : public WiFiEspClient {
 public:
-	WiFiEspUDP udp;
-	
-	NTPClient(WiFiEspUDP udp);
-
-	unsigned long getNetworkTime();
-private:
+	unsigned long getWebTime();
 
 };
-
-
 
 class WebServer : public WiFiEspServer {
 private: 

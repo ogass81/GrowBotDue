@@ -86,7 +86,9 @@
 #define LED3 13
 
 //NTP
-#define NTPPORT 10000
+#define NTP_PORT 4241
+#define NTP_PACKET_SIZE 48
+#define UDP_TIMEOUT 3000
 
 //REST API 
 #define REST_URI_DEPTH 4

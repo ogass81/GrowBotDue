@@ -6,6 +6,8 @@
 
 //Contants
 
+
+
 #include "Definitions.h"
 
 //Hardware Libaries
@@ -27,6 +29,8 @@
 #include "TaskManager.h"
 #include "RCSocketController.h"
 #include "Setting.h"
+#include <EasyNTPClient.h>
+
 
 //Tact Generator
 long sensor_cycles = 0;
@@ -54,8 +58,8 @@ RealTimeClock internalRTC(RC);
 RCSocketController *rcsocketcontroller;
 
 //Wifi
-static WiFiEspUDP udp;
 WebServer *webserver;
+WebTimeClient *ntpclient;
 
 //Modules
 //Sensors: Abstraction of all Sensors
@@ -207,17 +211,13 @@ void setup() {
 
 
 	//Sync with Internet
-	udp.begin(123);
-	NTPClient *ntp = new NTPClient(udp);
-	long ntptime = ntp->getNetworkTime();
+	ntpclient = new WebTimeClient();
+	long timestamp = ntpclient->getWebTime();
 
-	if (ntptime > 0) {
-		internalRTC.updateTime(ntptime);
+	if (timestamp > 0) {
+		internalRTC.updateTime(timestamp);
 	}
 
-
-	//Initialize Tact Generator
-	//internalRTC.syncSensorCycles();
 
 	//Start Webserver
 	webserver = new WebServer();
@@ -269,14 +269,15 @@ void loop() {
 			for (uint8_t i = 0; i < RULESETS_NUM; i++) {
 				rulesets[i]->execute();
 			}
-
 			//Save Settings to SD Card
 			if ((sensor_cycles % (5 * SENS_VALUES_MIN)) == 0) {
+				LOGMSG(F("[Loop]"), F("SaveActive"), "", "", "");
 				filesystem.saveActiveConfig();
 			}
 
 			//Backup
 			if ((sensor_cycles % (15 * SENS_VALUES_MIN)) == 0) {
+				LOGMSG(F("[Loop]"), F("SaveActive"), "", "", "");
 				filesystem.copyFile("_CURRENTCONFIG.JSON", "BACKUPCONFIG.JSON");
 			}		
 		}

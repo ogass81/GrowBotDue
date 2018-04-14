@@ -27,17 +27,22 @@ public:
 
 	void updateTime(tmElements_t timeset);
 	void updateTime(time_t timestamp);
+	void updateTime(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
 	void updateTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
 
 	void setDefaultTime();
 
+	time_t static toEpochTime(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
 	time_t static toEpochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
+
+	long getEpochTime();
 
 	//UI Output
 	String static printDate(time_t timestamp);
 	String static printTime(time_t timestamp);
 
 	void syncSensorCycles();
+	void syncSensorCycles(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute);
 	void syncSensorCycles(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute);
 	void syncSensorCycles(time_t timestamp);
 };

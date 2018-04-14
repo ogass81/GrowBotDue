@@ -626,6 +626,8 @@ ReturnType BaseSensor<ReturnType>::maxValue(ReturnType * values, uint8_t max)
 template<>
 float BaseSensor<float>::average(uint8_t start, uint8_t num_elements, float * values, uint8_t max)
 {
+	//LOGDEBUG2(F("[Sensor]"), F("average()"), String(title), String(start), String(num_elements), String(max));
+	
 	float dividend = 0;
 	int divisor = 0;
 	float avg = nan_val;

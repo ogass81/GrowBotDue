@@ -9,6 +9,13 @@ RealTimeClock::RealTimeClock(int src)
 {
 	source = "RTC";
 	timezone_offset = 0;
+
+	defaulttime.Year = 2018 - 1970;
+	defaulttime.Month = 1;
+	defaulttime.Day = 1;
+	defaulttime.Hour = 0;
+	defaulttime.Minute = 0;
+
 }
 
 void RealTimeClock::updateTime(tmElements_t timeset)
@@ -19,10 +26,10 @@ void RealTimeClock::updateTime(tmElements_t timeset)
 	breakTime(timestamp, timeset);
 		
 	//Update RTC with Values from Data Model
-	setDate(timeset.Day, timeset.Month, timeset.Year);
+	setDate(timeset.Day, timeset.Month, (uint16_t)(timeset.Year + 1970));
 	setTime(timeset.Hour, timeset.Minute, timeset.Second);
 
-	LOGDEBUG2(F("[RealTimeClock]"), F("setTime(timeset)"), F("OK: Updated RTC"), "", "", "");
+	LOGDEBUG2(F("[RealTimeClock]"), F("setTime(timeset)"), F("OK: Updated RTC"), String((uint16_t)(timeset.Year + 1970)), String(timeset.Month), String(timeset.Day));
 
 	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
 }
@@ -36,27 +43,44 @@ void RealTimeClock::updateTime(time_t timestamp)
 	breakTime(timestamp, timeset);
 
 	//Update RTC with Values from Data Model
-	setDate(timeset.Day, timeset.Month, timeset.Year);
+	setDate(timeset.Day, timeset.Month, (uint16_t)(timeset.Year + 1970));
 	setTime(timeset.Hour, timeset.Minute, timeset.Second);
 
-	LOGDEBUG2(F("[RealTimeClock]"), F("setTime(timestamp)"), F("OK: Updated RTC"), "", "", "");
+	LOGDEBUG2(F("[RealTimeClock]"), F("setTime(timestamp)"), F("OK: Updated RTC"), String((uint16_t)(timeset.Year + 1970)), String(timeset.Month), String(timeset.Day));
+
+	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
+}
+
+void RealTimeClock::updateTime(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
+{
+	time_t timestamp = toEpochTime(year, month, day, hour, minute, second) + timezone_offset;
+
+	tmElements_t timeset;
+
+	breakTime(timestamp, timeset);
+
+	//Update RTC with Values from Data Model
+	setDate(timeset.Day, timeset.Month, (uint16_t)(timeset.Year + 1970));
+	setTime(timeset.Hour, timeset.Minute, timeset.Second);
+
+	LOGDEBUG2(F("[RealTimeClock]"), F("setTime(single values UINT8)"), F("OK: Updated RTC"), String((uint16_t)(timeset.Year + 1970)), String(timeset.Month), String(timeset.Day));
 
 	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
 }
 
 void RealTimeClock::updateTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
 {
-	time_t timestamp = toEpochTime(year, month, day, hour, minute, second) + timezone_offset;
+	time_t timestamp = toEpochTime(year - 1970, month, day, hour, minute, second) + timezone_offset;
 
 	tmElements_t timeset;
 	
 	breakTime(timestamp, timeset);
 
 	//Update RTC with Values from Data Model
-	setDate(timeset.Day, timeset.Month, timeset.Year);
+	setDate(timeset.Day, timeset.Month, (uint16_t)(timeset.Year + 1970));
 	setTime(timeset.Hour, timeset.Minute, timeset.Second);
 	
-	LOGDEBUG2(F("[RealTimeClock]"), F("updateTime(single values)"), F("OK: Updated RTC"), "", "", "");
+	LOGDEBUG2(F("[RealTimeClock]"), F("setTime(single values INT)"), F("OK: Updated RTC"), String((uint16_t)(timeset.Year + 1970)), String(timeset.Month), String(timeset.Day));
 
 	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
 }
@@ -64,30 +88,36 @@ void RealTimeClock::updateTime(int year, uint8_t month, uint8_t day, uint8_t hou
 void RealTimeClock::setDefaultTime()
 {
 	char month[12];
+	int year, day, hour, minute, second;
 
 	const char *monthName[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-	uint8_t monthIndex = 0;
+	uint8_t monthIndex = 1;
 
-
-	sscanf(__TIME__, "%d:%d:%d", &defaulttime.Hour, &defaulttime.Minute, &defaulttime.Second);
-	sscanf(__DATE__, "%s %d %d", month, &defaulttime.Day, &defaulttime.Year);
+	sscanf(__TIME__, "%d:%d:%d", &hour, &minute, &second);
+	sscanf(__DATE__, "%s %d %d", month, &day, &year);
 
 	for (monthIndex = 0; monthIndex < 12; monthIndex++) {
 		if (strcmp(month, monthName[monthIndex]) == 0) break;
 	}
+	defaulttime.Day = day;
 	defaulttime.Month = monthIndex + 1;
+	defaulttime.Year = year - 1970;
 
-	setDate(defaulttime.Day, defaulttime.Month, defaulttime.Year);
+	defaulttime.Hour = hour;
+	defaulttime.Minute = minute;
+	defaulttime.Second = second;
+	
+	setDate(defaulttime.Day, defaulttime.Month, (uint16_t)(defaulttime.Year + 1970));
 	setTime(defaulttime.Hour, defaulttime.Minute, defaulttime.Second);
 
-	LOGDEBUG2(F("[RealTimeClock]"), F("setDefaultTime()"), String(defaulttime.Year), String(defaulttime.Month), String(defaulttime.Day), String(defaulttime.Hour));
+	LOGDEBUG2(F("[RealTimeClock]"), String(defaulttime.Year), String(defaulttime.Month), String(defaulttime.Day), String(defaulttime.Hour), String(defaulttime.Minute));
 
 	syncSensorCycles(defaulttime.Year, defaulttime.Month, defaulttime.Day, defaulttime.Hour, defaulttime.Minute);
 }
 
 
-time_t RealTimeClock::toEpochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
+time_t RealTimeClock::toEpochTime(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
 {
 	tmElements_t timeset;
 
@@ -101,6 +131,39 @@ time_t RealTimeClock::toEpochTime(int year, uint8_t month, uint8_t day, uint8_t 
 	timeset.Second = second;
 	
 	return makeTime(timeset);
+}
+
+time_t RealTimeClock::toEpochTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
+{
+	tmElements_t timeset;
+
+	//Update Data Model with Values from input
+	timeset.Year = year - 1970;
+	timeset.Month = month;
+	timeset.Day = day;
+
+	timeset.Hour = hour;
+	timeset.Minute = minute;
+	timeset.Second = second;
+
+	return makeTime(timeset);
+}
+
+long RealTimeClock::getEpochTime()
+{
+	tmElements_t timeset;
+
+	timeset.Year = getYear() - 1970;
+	timeset.Month = getMonth();
+	timeset.Day = getDay();
+
+	timeset.Hour = getHours();
+	timeset.Minute = getMinutes();
+	timeset.Second = getSeconds();
+
+	//LOGDEBUG2(F("[RealTimeClock]"), String(timeset.Year), String(timeset.Month), String(timeset.Day), String(timeset.Hour), String(timeset.Minute));
+	
+	return long(makeTime(timeset));
 }
 
 
@@ -133,7 +196,7 @@ void RealTimeClock::syncSensorCycles()
 	tmElements_t timeset;
 
 	//Update Data Model with Values from RTC
-	timeset.Year = getYear();
+	timeset.Year = getYear() - 1970;
 	timeset.Month = getMonth();
 	timeset.Day = getDay();
 
@@ -145,10 +208,16 @@ void RealTimeClock::syncSensorCycles()
 	LOGDEBUG2(F("[RealTimeClock]"), F("syncSensorCycles()"), F("OK: Set new sensor cycle"), String(sensor_cycles), "", "");
 }
 
+void RealTimeClock::syncSensorCycles(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute)
+{
+	sensor_cycles = toEpochTime(year, month, day, hour, minute, 0) / SENS_FRQ_SEC;
+	LOGDEBUG2(F("[RealTimeClock]"), F("syncSensorCycles(single values UINT8)"), F("OK: Set new sensor cycle"), String(sensor_cycles), "", "");
+}
+
 void RealTimeClock::syncSensorCycles(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute)
 {
-	sensor_cycles = toEpochTime(year, month, day, hour, minute, 0);
-	LOGDEBUG2(F("[RealTimeClock]"), F("syncSensorCycles(single values)"), F("OK: Set new sensor cycle"), String(sensor_cycles), "", "");
+	sensor_cycles = toEpochTime(year - 1970, month, day, hour, minute, 0) / SENS_FRQ_SEC;
+	LOGDEBUG2(F("[RealTimeClock]"), F("syncSensorCycles(single values INT)"), F("OK: Set new sensor cycle"), String(sensor_cycles), "", "");
 }
 
 void RealTimeClock::syncSensorCycles(time_t timestamp)

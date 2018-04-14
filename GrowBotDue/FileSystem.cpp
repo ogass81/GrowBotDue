@@ -54,8 +54,9 @@ bool FileSystem::saveSettings(const char* filename)
 	int bytes;
 	bool complete;
 	bool success = true;
-		
+
 	if (file.open(filename, O_CREAT | O_TRUNC | O_WRITE)) {
+		//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("File Open"), "", "", "");
 		led[2]->turnOn();
 		//Settings
 		Setting::serializeJSON(json, 2500);

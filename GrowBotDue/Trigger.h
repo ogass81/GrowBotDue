@@ -28,18 +28,9 @@ public:
 	bool active;
 	TriggerTypes type;
 
-	//Trigger valid timeframe
-	uint8_t start_minute;
-	uint8_t start_hour;
-	uint8_t start_day;
-	uint8_t start_month;
-	short start_year;
-
-	uint8_t end_minute;
-	uint8_t end_hour;
-	uint8_t end_day;
-	uint8_t end_month;
-	short end_year;
+	//Time
+	time_t start_time;
+	time_t end_time;
 
 	//Sensor and Thresholds
 	//Threshold
