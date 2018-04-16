@@ -215,7 +215,7 @@ void setup() {
 	long timestamp = ntpclient->getWebTime();
 
 	if (timestamp > 0) {
-		internalRTC.updateTime(timestamp);
+		internalRTC.updateTime(timestamp, true);
 	}
 
 

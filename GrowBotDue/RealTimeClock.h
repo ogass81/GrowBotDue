@@ -20,15 +20,15 @@ public:
 	//Name
 	String source;
 
-	time_t timezone_offset;
+	int timezone_offset;
 	tmElements_t defaulttime;
 
 	RealTimeClock(int src);
 
-	void updateTime(tmElements_t timeset);
-	void updateTime(time_t timestamp);
-	void updateTime(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
-	void updateTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
+	void updateTime(tmElements_t timeset, bool adjust);
+	void updateTime(time_t timestamp, bool adjust);
+	void updateTime(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, bool adjust);
+	void updateTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, bool adjust);
 
 	void setDefaultTime();
 

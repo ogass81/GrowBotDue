@@ -160,8 +160,8 @@ bool TimeTrigger::checkState()
 	bool state = false;
 	
 	//Transform Timestamp in Sensor Cycles as common base
-	sensor_start = start_time / SENS_FRQ_SEC;
-	sensor_end = end_time / SENS_FRQ_SEC;
+	sensor_start = start_time + internalRTC.timezone_offset / SENS_FRQ_SEC;
+	sensor_end = end_time + internalRTC.timezone_offset / SENS_FRQ_SEC;
 
 	if (active == true) {
 		if (sensor_cycles > sensor_start && sensor_cycles < sensor_end) {
@@ -205,7 +205,7 @@ bool SensorTrigger::checkState()
 {
 	bool state = false;
 
-	if (active == true && interval != NULL) state = sens_ptr->compareWithValue(relop, interval, threshold);
+	if (active == true) state = sens_ptr->compareWithValue(relop, interval, threshold);
 	else state = false;
 
 	LOGMSG(F("[Trigger]"), String("OK: Sensor Trigger Checked " + getTitle()), threshold, interval, state);

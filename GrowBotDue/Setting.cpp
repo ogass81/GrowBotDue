@@ -62,7 +62,8 @@ void Setting::serializeJSON(char * json, size_t maxSize)
 	settings["wifi_SSID"] = wifi_ssid;
 	settings["wifi_pw"] = wifi_pw;
 	settings["api_secret"] = api_secret;
-	settings["time"] = internalRTC.getEpochTime();
+	settings["time"] = internalRTC.getEpochTime() - internalRTC.timezone_offset; //UTC
+	settings["timezone"] = internalRTC.timezone_offset;
 	settings.printTo(json, maxSize);
 	LOGDEBUG(F("[Setting]"), F("serializeJSON()"), F("OK: Serialized Overall Settings"), String(settings.measureLength()), String(maxSize), "");
 }
@@ -97,15 +98,26 @@ bool Setting::deserializeJSON(JsonObject & data)
 			LOGMSG(F("[Setting]"), F("WARNING: No API secret loaded"), "", "", "");
 		}
 
+		if (data["timezone"] != "") {
+			//Set RTC
+			internalRTC.timezone_offset = data["timezone"];
+
+			LOGMSG(F("[Setting]"), F("OK: Updated Timezone from Settings"), String(internalRTC.timezone_offset), "", "");
+		}
+
+		else {
+			LOGMSG(F("[Setting]"), F("WARNING: No Timestamp loaded"), "", "", "");
+		}
+
 		if (data["time"] != "") {
 			//Set RTC
 			time_t timestamp = data["time"];
-			internalRTC.updateTime(timestamp);
+			internalRTC.updateTime(timestamp, true);
 
 			LOGMSG(F("[Setting]"), F("OK: Updated Time from Settings"), String(timestamp), String(sensor_cycles), "");
 		}
 		else {
-			LOGMSG(F("[Setting]"), F("WARNING: No Timestamp loaded"), "", "", "");
+			LOGMSG(F("[Setting]"), F("WARNING: No Timezone Offset loaded"), "", "", "");
 		}
 	}
 	else {

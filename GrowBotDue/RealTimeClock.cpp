@@ -18,10 +18,11 @@ RealTimeClock::RealTimeClock(int src)
 
 }
 
-void RealTimeClock::updateTime(tmElements_t timeset)
+void RealTimeClock::updateTime(tmElements_t timeset, bool adjust)
 {
 	time_t timestamp = makeTime(timeset);
-	timestamp += timezone_offset;
+	
+	if(adjust == true) timestamp += timezone_offset;
 	
 	breakTime(timestamp, timeset);
 		
@@ -34,14 +35,14 @@ void RealTimeClock::updateTime(tmElements_t timeset)
 	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
 }
 
-void RealTimeClock::updateTime(time_t timestamp)
+void RealTimeClock::updateTime(time_t timestamp, bool adjust)
 {
 	tmElements_t timeset; 
 
-	timestamp += timezone_offset;
+	if (adjust == true) timestamp += timezone_offset;
 
 	breakTime(timestamp, timeset);
-
+	
 	//Update RTC with Values from Data Model
 	setDate(timeset.Day, timeset.Month, (uint16_t)(timeset.Year + 1970));
 	setTime(timeset.Hour, timeset.Minute, timeset.Second);
@@ -51,9 +52,10 @@ void RealTimeClock::updateTime(time_t timestamp)
 	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
 }
 
-void RealTimeClock::updateTime(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
+void RealTimeClock::updateTime(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, bool adjust)
 {
-	time_t timestamp = toEpochTime(year, month, day, hour, minute, second) + timezone_offset;
+	time_t timestamp = toEpochTime(year, month, day, hour, minute, second);
+	if (adjust == true) timestamp += timezone_offset;
 
 	tmElements_t timeset;
 
@@ -68,9 +70,10 @@ void RealTimeClock::updateTime(uint8_t year, uint8_t month, uint8_t day, uint8_t
 	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
 }
 
-void RealTimeClock::updateTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
+void RealTimeClock::updateTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, bool adjust)
 {
-	time_t timestamp = toEpochTime(year - 1970, month, day, hour, minute, second) + timezone_offset;
+	time_t timestamp = toEpochTime(year - 1970, month, day, hour, minute, second);
+	if (adjust == true) timestamp += timezone_offset;
 
 	tmElements_t timeset;
 	
@@ -111,7 +114,7 @@ void RealTimeClock::setDefaultTime()
 	setDate(defaulttime.Day, defaulttime.Month, (uint16_t)(defaulttime.Year + 1970));
 	setTime(defaulttime.Hour, defaulttime.Minute, defaulttime.Second);
 
-	LOGDEBUG2(F("[RealTimeClock]"), String(defaulttime.Year), String(defaulttime.Month), String(defaulttime.Day), String(defaulttime.Hour), String(defaulttime.Minute));
+	LOGDEBUG2(F("[RealTimeClock]"), F("setdefaultTime()"), String(defaulttime.Year), String(defaulttime.Month), String(defaulttime.Day), String(__TIME__));
 
 	syncSensorCycles(defaulttime.Year, defaulttime.Month, defaulttime.Day, defaulttime.Hour, defaulttime.Minute);
 }
