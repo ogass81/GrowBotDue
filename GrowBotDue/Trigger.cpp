@@ -214,7 +214,7 @@ bool SensorTrigger::checkState()
 
 void SensorTrigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t maxSize, Scope scope)
 {
-	StaticJsonBuffer<500> jsonBuffer;
+	StaticJsonBuffer<JSONBUFFER_SIZE> jsonBuffer;
 
 	JsonObject& trigger = jsonBuffer.createObject();
 
@@ -309,13 +309,11 @@ void SensorTrigger::reset()
 
 void TriggerCategory::serializeJSON(Trigger * trigger[TRIGGER_TYPES][TRIGGER_SETS], char * json, size_t maxSize, Scope scope)
 {
-	StaticJsonBuffer<5000> jsonBuffer;
+	DynamicJsonBuffer jsonBuffer;
 
 	JsonObject& container = jsonBuffer.createObject();
 	container["obj"] = "TCAT";
 	JsonArray& categories = container.createNestedArray("list");
-
-
 
 		if (scope == LIST) {
 			for (uint8_t i = 0; i < TRIGGER_TYPES; i++) {

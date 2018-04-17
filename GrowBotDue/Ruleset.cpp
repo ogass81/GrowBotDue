@@ -76,7 +76,7 @@ void RuleSet::reset()
 
 void RuleSet::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
 {
-	StaticJsonBuffer<1000> jsonBuffer;
+	StaticJsonBuffer<JSONBUFFER_SIZE> jsonBuffer;
 
 	JsonObject& rules = jsonBuffer.createObject();
 

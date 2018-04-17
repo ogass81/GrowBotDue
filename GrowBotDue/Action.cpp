@@ -77,7 +77,7 @@ ParameterizedSimpleAction<ActionType>::ParameterizedSimpleAction(String title, A
 template<class ActionType>
 void ParameterizedSimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
 {
-	StaticJsonBuffer<500> jsonBuffer;
+	StaticJsonBuffer<JSONBUFFER_SIZE> jsonBuffer;
 
 	JsonObject& actions = jsonBuffer.createObject();
 

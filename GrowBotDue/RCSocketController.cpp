@@ -377,7 +377,7 @@ String RCSocketController::dec2binWzerofill(unsigned long Dec, unsigned int bitL
 
 void RCSocketController::serializeJSON(uint8_t set, char * json, size_t maxSize, Scope scope)
 {
-	StaticJsonBuffer<7000> jsonBuffer;
+	DynamicJsonBuffer jsonBuffer;
 
 	JsonObject& socket = jsonBuffer.createObject();
 	
@@ -389,7 +389,7 @@ void RCSocketController::serializeJSON(uint8_t set, char * json, size_t maxSize,
 
 void RCSocketController::serializeJSON(char * json, size_t maxSize, Scope scope)
 {
-	StaticJsonBuffer<5000> jsonBuffer;
+	DynamicJsonBuffer jsonBuffer;
 
 	JsonObject& controller = jsonBuffer.createObject();
 	

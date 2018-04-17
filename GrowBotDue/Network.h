@@ -21,6 +21,7 @@
 #include "Setting.h"
 #include "FileSystem.h"
 #include "TaskManager.h"
+#include "LogEngine.h"
 
 extern RealTimeClock internalRTC;
 extern Sensor *sensors[SENS_NUM];
@@ -31,6 +32,7 @@ extern ActionChain *actionchains[ACTIONCHAINS_NUM];
 extern RCSocketController *rcsocketcontroller;
 extern TaskManager *taskmanager;
 extern FileSystem filesystem;
+extern LogEngine logengine;
 
 
 template <class ObjectType>
@@ -41,8 +43,8 @@ public:
 	int8_t category_count;
 
 	ListGenerator(ObjectType **objects, int8_t num);
-	void generateList(String object_type, char *json);
-	void generateList(String object_type, uint8_t id, char *json);
+	void generateList(String object_type, char *json, int size);
+	void generateList(String object_type, uint8_t id, char *json, int size);
 };
 
 class WebTimeClient : public WiFiEspClient {

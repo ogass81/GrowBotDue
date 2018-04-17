@@ -737,7 +737,7 @@ void BaseSensor<ReturnType>::reset()
 template<class ReturnType>
 void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
 {
-	StaticJsonBuffer<8000> jsonBuffer;
+	DynamicJsonBuffer jsonBuffer;
 
 	JsonObject& sensor = jsonBuffer.createObject();
 

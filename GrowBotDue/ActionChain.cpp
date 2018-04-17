@@ -24,7 +24,7 @@ void ActionChain::reset()
 
 void ActionChain::serializeJSON(uint8_t id, char * json, size_t maxSize, Scope scope)
 {
-	StaticJsonBuffer<500> jsonBuffer;
+	StaticJsonBuffer<JSONBUFFER_SIZE> jsonBuffer;
 	String tmp_ptr, tmp_par;
 
 	JsonObject& actions = jsonBuffer.createObject();

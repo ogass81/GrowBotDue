@@ -50,7 +50,7 @@ bool FileSystem::saveSettings(const char* filename)
 {
 	File file;
 
-	char json[2500];
+	char json[JSONCHAR_SIZE];
 	int bytes;
 	bool complete;
 	bool success = true;
@@ -59,38 +59,38 @@ bool FileSystem::saveSettings(const char* filename)
 		//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("File Open"), "", "", "");
 		led[2]->turnOn();
 		//Settings
-		Setting::serializeJSON(json, 2500);
+		Setting::serializeJSON(json, JSONCHAR_SIZE);
 		file.println(json);
 		LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Overall Settings"), "", "", "");
 
 		for (uint8_t i = 0; i < TRIGGER_TYPES; i++) {
 			for (uint8_t j = 0; j < TRIGGER_SETS; j++) {
-				trigger[i][j]->serializeJSON(i, j, json, 2500, DETAILS);
+				trigger[i][j]->serializeJSON(i, j, json, JSONCHAR_SIZE, DETAILS);
 				led[2]->switchState();
 				file.println(json);
 				//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Trigger"), F("Cat | Id"), String(i), String(j));
 			}
 		}
 		for (uint8_t i = 0; i < RULESETS_NUM; i++) {
-			rulesets[i]->serializeJSON(i, json, 2500, DETAILS);
+			rulesets[i]->serializeJSON(i, json, JSONCHAR_SIZE, DETAILS);
 			led[2]->switchState();
 			file.println(json);
 			//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Rule"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < ACTIONCHAINS_NUM; i++) {
-			actionchains[i]->serializeJSON(i, json, 2500, DETAILS);
+			actionchains[i]->serializeJSON(i, json, JSONCHAR_SIZE, DETAILS);
 			led[2]->switchState();
 			file.println(json);
 			//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Actionschain"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < SENS_NUM; i++) {
-			sensors[i]->serializeJSON(i, json, 5000, DETAILS);
+			sensors[i]->serializeJSON(i, json, JSONCHAR_SIZE, DETAILS);
 			led[2]->switchState();
 			file.println(json);
 			//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Sensor"), F("Id"), String(i), "");
 		}
 		for (uint8_t i = 0; i < RC_SOCKETS; i++) {
-			rcsocketcontroller->serializeJSON(i, json, 2500, DETAILS);
+			rcsocketcontroller->serializeJSON(i, json, JSONCHAR_SIZE, DETAILS);
 			led[2]->switchState();
 			file.println(json);
 			//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("OK: Saved Remote Socket"), F("Id"), String(i), "");
@@ -119,7 +119,7 @@ bool FileSystem::loadSettings(const char* filename)
 		
 		while (file.available()) {
 			//Buffer Needs to be here ...
-			StaticJsonBuffer<6000> jsonBuffer;
+			DynamicJsonBuffer jsonBuffer;
 		
 			json = file.readStringUntil('\n');
 
@@ -219,10 +219,10 @@ bool FileSystem::copyFile(const char* source, const char* destination)
 	bool success = true;
 
 	if (current_file.open(source, O_READ)) {
-		LOGDEBUG(F("[FileSystem]"), F("copyFile()"), F("OK: Source File open"), F("Filename"), String(source), "");
+		LOGDEBUG2(F("[FileSystem]"), F("copyFile()"), F("OK: Source File open"), F("Filename"), String(source), "");
 		
 		if (backup_file.open(destination, O_CREAT | O_TRUNC | O_WRITE)) {
-			LOGDEBUG(F("[FileSystem]"), F("copyFile()"), F("OK: Target File open"), F("Filename"), String(destination), "");
+			LOGDEBUG2(F("[FileSystem]"), F("copyFile()"), F("OK: Target File open"), F("Filename"), String(destination), "");
 
 			led[2]->turnOn();
 			while ((current_file.read(buf, sizeof(buf))) > 0) {
@@ -248,4 +248,107 @@ bool FileSystem::copyFile(const char* source, const char* destination)
 	}
 
 	return success;
+}
+
+bool FileSystem::appendLinesToFile(const char * filename, String data[], uint8_t size)
+{
+	File file;
+
+	bool success = true;
+
+	if (file.open(filename, O_CREAT | O_APPEND | O_WRITE)) {
+		//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("File Open"), "", "", "");
+		led[2]->turnOn();
+		//Settings
+		for (uint8_t i = 0; i < size; i++) {
+			file.println(data[i]);
+		}
+
+		led[2]->turnOff();
+		file.close();
+		LOGDEBUG2(F("FileSystem"), F("appendLinesToFile()"), F("OK: Saved Log Entries to file"), String(filename), size, "");
+	}
+	else {
+		LOGMSG(F("[FileSystem]"), F("ERROR: Could not write to file"), String(filename), "", "");
+		success = false;
+	}
+	return success;
+}
+
+void FileSystem::readLinesFromFile(const char* filename, int end, int count, char * json, int size)
+{
+	File file;
+
+	DynamicJsonBuffer jsonBuffer;
+	JsonArray& list = jsonBuffer.createArray();
+
+	int start = 0;
+	int line_ptr = 0;
+	bool success = true;
+
+	if (end == 0) {
+		end = this->fileLength(filename);
+	}
+	start = end - count; 
+	if (start < 0) start = 0;
+
+	if (file.open(filename, O_READ)) {
+
+		while (file.available()) {
+			//Buffer Needs to be here ...
+			String line = file.readStringUntil('\n');
+			
+			if (line_ptr < end) {
+				if (line_ptr >= start) {
+					JsonObject& entry = jsonBuffer.parseObject(line);
+					list.add(entry);
+				}
+			}
+			else break;
+			line_ptr++;
+		}
+		file.close();
+		LOGDEBUG2(F("FileSystem"), F("readLinesFromFile()"), F("OK: Loading Logentries from File"), String(start), String(end), String(list.size()));
+	}
+	else {
+		LOGMSG(F("[FileSystem]"), F("ERROR: Could not read from file"), String(filename), "", "");
+		success = false;
+	}
+
+	list.prettyPrintTo(json, size);
+}
+
+int FileSystem::fileLength(const char * filename)
+{
+	File file;
+	
+	int counter = 0;
+	
+	if (file.open(filename, O_READ)) {
+		while (file.available()) {	
+			file.readStringUntil('\n');
+			counter++;
+		}
+		file.close();
+		LOGDEBUG2(F("FileSystem"), F("fileLength()"), F("OK: Determining file length"), String(filename), String(counter), "");
+	}
+	else {
+		LOGMSG(F("[FileSystem]"), F("ERROR: Could not determine length of file"), String(filename), "", "");
+	}
+	
+	return counter;
+}
+
+bool FileSystem::resetFile(const char * filename)
+{
+	File file;
+
+	if (file.remove()) {
+		LOGMSG(F("[FileSystem]"), F("OK: Reset log file"), String(filename), "", "");
+		return true;
+	}
+	else {
+		LOGMSG(F("[FileSystem]"), F("ERROR: Could not reset log file"), String(filename), "", "");
+		return false;
+	}
 }

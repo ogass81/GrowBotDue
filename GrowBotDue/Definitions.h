@@ -28,6 +28,8 @@
 
 //Arduino JSON
 #define ARDUINOJSON_ENABLE_PROGMEM 1
+#define JSONCHAR_SIZE 5000
+#define JSONBUFFER_SIZE 1000
 
 //Settings
 #define DEBUG_RESET false
@@ -85,10 +87,8 @@
 #define LED2 12
 #define LED3 13
 
-//NTP
-#define NTP_PORT 4241
-#define NTP_PACKET_SIZE 48
-#define UDP_TIMEOUT 3000
+//LogEngine
+#define LOGBUFFER_SIZE 5
 
 //REST API 
 #define REST_URI_DEPTH 4

@@ -37,7 +37,7 @@ void Setting::reset()
 
 void Setting::serializeJSON(char * json, size_t maxSize)
 {
-	StaticJsonBuffer<500> jsonBuffer;
+	StaticJsonBuffer<JSONBUFFER_SIZE> jsonBuffer;
 
 	JsonObject& settings = jsonBuffer.createObject();
 	settings["obj"] = "SETTING";

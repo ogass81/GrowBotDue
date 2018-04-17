@@ -213,38 +213,38 @@ void WebServer::checkConnection()
 
 		if (http_method == "GET") {
 			//Variable for Outgoing Data
-			char json[2500];
+			char json[JSONCHAR_SIZE];
 
 			//Send information about Growbot and statics
 			if (uri[0] == "") {
-				Setting::serializeJSON(json, 2500);
+				Setting::serializeJSON(json, JSONCHAR_SIZE);
 				LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Constants Action: GET"), "", "");
 				client.print(createPostRequest(json));
 			}
 			else if (uri[0] == "setting") {
 				if (uri[1] == "") {
-					Setting::serializeJSON(json, 2500);
+					Setting::serializeJSON(json, JSONCHAR_SIZE);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), "", "");
 					client.print(createPostRequest(json));
 				}
 				else if (uri[1] == "default") {
 					filesystem.loadDefaultConfig();
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: LOAD"), "Default Config", "");
-					Setting::serializeJSON(json, 2500);
+					Setting::serializeJSON(json, JSONCHAR_SIZE);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), "", "");
 					client.print(createPostRequest(json));
 				}
 				else if (uri[1] == "active") {
 					filesystem.loadActiveConfig();
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: LOAD"), "Active Config", "");
-					Setting::serializeJSON(json, 2500);
+					Setting::serializeJSON(json, JSONCHAR_SIZE);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), "", "");
 					client.print(createPostRequest(json));
 				}
 				else if (uri[1] == "reset") {
 					Setting::reset();
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: RESET"), "", "");
-					Setting::serializeJSON(json, 2500);
+					Setting::serializeJSON(json, JSONCHAR_SIZE);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), "", "");
 					client.print(createPostRequest(json));
 				}
@@ -256,20 +256,20 @@ void WebServer::checkConnection()
 			else if (uri[0] == "action") {
 				if (uri[1] == "") {
 					ListGenerator<Action> list(actions, ACTIONS_NUM);
-					list.generateList(F("ACTION"), json);
+					list.generateList(F("ACTION"), json, JSONCHAR_SIZE);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actions - Action: GET"), F("List View"), "");
 					client.print(createPostRequest(json));
 				}
 				else if (uri[1] != "" && uri[1].toInt() < ACTIONS_NUM) {
 					if (uri[2] == "") {
-						actions[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DETAILS);
+						actions[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DETAILS);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), String(uri[1]), "");
 						client.print(createPostRequest(json));
 					}
 					else if (uri[2] == "execute") {
 						actions[uri[1].toInt()]->execute();
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: EXECUTE"), String(uri[1]), "");
-						actions[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DETAILS);
+						actions[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DETAILS);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), String(uri[1]), "");
 						client.print(createPostRequest(json));
 					}
@@ -286,12 +286,12 @@ void WebServer::checkConnection()
 			else if (uri[0] == "actionchain") {
 				if (uri[1] == "") {
 					ListGenerator<ActionChain> list(actionchains, ACTIONCHAINS_NUM);
-					list.generateList(F("ACTIONCHAIN"), json);
+					list.generateList(F("ACTIONCHAIN"), json, JSONCHAR_SIZE);
 					client.print(createPostRequest(json));
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: GET"), F("List View"), "");
 				}
 				else if (uri[1] != "" && uri[1].toInt() < ACTIONCHAINS_NUM) {
-					actionchains[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DETAILS);
+					actionchains[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DETAILS);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Actionchain Action: GET"), String(uri[1]), "");
 					client.print(createPostRequest(json));
 				}
@@ -302,13 +302,13 @@ void WebServer::checkConnection()
 			}
 			else if (uri[0] == "rcsocket") {
 				if (uri[1] == "") {
-					rcsocketcontroller->serializeJSON(json, 2500, LIST);
+					rcsocketcontroller->serializeJSON(json, JSONCHAR_SIZE, LIST);
 					client.print(createPostRequest(json));
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: ### Action: GET"), F("List View"), "");
 				}
 				else if (uri[1] != "" && uri[1].toInt() < RC_SOCKETS) {
 					if (uri[2] == "") {
-						rcsocketcontroller->serializeJSON(uri[1].toInt(), json, 2500, DETAILS);
+						rcsocketcontroller->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DETAILS);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: GET"), String(uri[1]), "");
 						client.print(createPostRequest(json));
 					}
@@ -339,12 +339,12 @@ void WebServer::checkConnection()
 			else if (uri[0] == "ruleset") {
 				if (uri[1] == "") {
 					ListGenerator<RuleSet> list(rulesets, RULESETS_NUM);
-					list.generateList(F("RULE"), json);
+					list.generateList(F("RULE"), json, JSONCHAR_SIZE);
 					client.print(createPostRequest(json));
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: GET"), F("List View"), "");
 				}
 				else if (uri[1] != "" && uri[1].toInt() < RULESETS_NUM) {
-					rulesets[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DETAILS);
+					rulesets[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DETAILS);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Ruleset Action: GET"), String(uri[1]), "");
 					client.print(createPostRequest(json));
 				}
@@ -356,54 +356,54 @@ void WebServer::checkConnection()
 			else if (uri[0] == "sensor") {
 				if (uri[1] == "") {
 					ListGenerator<Sensor> list(sensors, SENS_NUM);
-					list.generateList(F("SENSOR"), json);
+					list.generateList(F("SENSOR"), json, JSONCHAR_SIZE);
 					client.print(createPostRequest(json));
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), F("List View"), "");
 				}
 				else if (uri[1] != "" && uri[1].toInt() < SENS_NUM) {
 					//Decide what kind of sensor data to send
 					if (uri[2] == "") {
-						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, HEADER);
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, HEADER);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: DETAILS"));
 						client.print(createPostRequest(json));
 					}
 					else if (uri[2] == "details") {
-						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DETAILS);
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DETAILS);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: AVG"));
 						client.print(createPostRequest(json));
 					}
 					else if (uri[2] == "avg") {
-						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, AVG);
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, AVG);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: AVG"));
 						client.print(createPostRequest(json));
 					}
 					else if (uri[2] == "date_minute") {
-						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DATE_MINUTE);
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DATE_MINUTE);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: MINUTE"));
 						client.print(createPostRequest(json));
 					}
 					else if (uri[2] == "date_hour") {
-						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DATE_HOUR);
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DATE_HOUR);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: HOUR"));
 						client.print(createPostRequest(json));
 					}
 					else if (uri[2] == "date_day") {
-						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DATE_DAY);
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DATE_DAY);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: DAY"));
 						client.print(createPostRequest(json));
 					}
 					else if (uri[2] == "date_month") {
-						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DATE_MONTH);
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DATE_MONTH);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: MONTH"));
 						client.print(createPostRequest(json));
 					}
 					else if (uri[2] == "date_year") {
-						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DATE_YEAR);
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DATE_YEAR);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: YEAR"));
 						client.print(createPostRequest(json));
 					}
 					else if (uri[2] == "date_all") {
-						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, 2500, DATE_ALL);
+						sensors[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DATE_ALL);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Sensor Action: GET"), String(uri[1]), F("Mode: ALL"));
 						client.print(createPostRequest(json));
 					}
@@ -435,24 +435,24 @@ void WebServer::checkConnection()
 			}
 			else if (uri[0] == "trigger") {
 				if (uri[1] == "") {
-					TriggerCategory::serializeJSON(trigger, json, 1000, LIST);
+					TriggerCategory::serializeJSON(trigger, json, JSONCHAR_SIZE, LIST);
 					client.print(createPostRequest(json));
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET Categories"), String(uri[1]), String(uri[2]));
 				}
 				else if (uri[1] == "all") {
-					TriggerCategory::serializeJSON(trigger, json, 2500, DETAILS);
+					TriggerCategory::serializeJSON(trigger, json, JSONCHAR_SIZE, DETAILS);
 					client.print(createPostRequest(json));
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET Flat List"), String(uri[1]), String(uri[2]));
 				}
 				else if (uri[1] != "" && uri[1].toInt() < TRIGGER_TYPES) {
 					if (uri[2] == "") {
 						ListGenerator<Trigger> list(trigger[uri[1].toInt()], TRIGGER_SETS);
-						list.generateList(F("TRIGGER"), uri[1].toInt(), json);
+						list.generateList(F("TRIGGER"), uri[1].toInt(), json, JSONCHAR_SIZE);
 						client.print(createPostRequest(json));
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET"), F("List View for category"), String(uri[1]));
 					}
 					else if (uri[2] != "" && uri[2].toInt() < TRIGGER_SETS) {
-						trigger[uri[1].toInt()][uri[2].toInt()]->serializeJSON(uri[1].toInt(), uri[2].toInt(), json, 2500, DETAILS);
+						trigger[uri[1].toInt()][uri[2].toInt()]->serializeJSON(uri[1].toInt(), uri[2].toInt(), json, JSONCHAR_SIZE, DETAILS);
 						client.print(createPostRequest(json));
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Trigger Action: GET"), String(uri[1]), String(uri[2]));
 					}
@@ -466,6 +466,30 @@ void WebServer::checkConnection()
 					client.print(createHtmlResponse("400 BAD REQUEST", "Unknown URI"));
 				}
 			}
+			else if (uri[0] == "log") {
+				if (uri[1] == "") {
+					logengine.serializeJSON(json, JSONCHAR_SIZE, 0, 0);
+					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Read Log file"), String(0), String(0));
+					client.print(createPostRequest(json));
+				}
+				else if (uri[1] == "reset") {
+					logengine.reset();
+					client.print(createHtmlResponse("200 OK", "Reset Log file"));
+					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Reset Log file"), "", "");
+				}
+				else {
+					if (uri[2] == "") {
+						logengine.serializeJSON(json, JSONCHAR_SIZE, uri[1].toInt(), 0);
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Read Log file"), String(uri[1].toInt()), String(0));
+						client.print(createPostRequest(json));
+					}
+					else {
+						logengine.serializeJSON(json, JSONCHAR_SIZE, uri[1].toInt(), uri[2].toInt());
+						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Read Log file"), String(uri[1].toInt()), String(uri[2].toInt()));
+						client.print(createPostRequest(json));
+					}
+				}
+			}
 			else {
 				LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: URI: UNKOWN"), "", "");
 				client.print(createHtmlResponse("400 BAD REQUEST", "Unknown URI"));
@@ -476,7 +500,7 @@ void WebServer::checkConnection()
 
 			if (payload.length() > 0 && content_type == true) {
 				//Incoming Data
-				StaticJsonBuffer<2000> jsonBuffer;
+				DynamicJsonBuffer jsonBuffer;
 				JsonObject& node = jsonBuffer.parseObject(payload);
 				if (node.success() == true) {
 
@@ -609,13 +633,13 @@ ListGenerator<ObjectType>::ListGenerator(ObjectType **objects, int8_t num)
 
 
 template<class ObjectType>
-inline void ListGenerator<ObjectType>::generateList(String object_type, char * json)
+inline void ListGenerator<ObjectType>::generateList(String object_type, char * json, int size)
 {
 	String jsonarray = "{\"obj\": \"" + object_type;
 	jsonarray += "\",\"list\":[";
 
 	for (uint8_t i = 0; i < object_count; i++) {
-		objectarray[i]->serializeJSON(i, json, 2500, LIST);
+		objectarray[i]->serializeJSON(i, json, size, LIST);
 		jsonarray += json;
 		if (object_count - i > 1) {
 			jsonarray += ",";
@@ -628,13 +652,13 @@ inline void ListGenerator<ObjectType>::generateList(String object_type, char * j
 }
 
 template<class ObjectType>
-void ListGenerator<ObjectType>::generateList(String object_type, uint8_t cat, char * json)
+void ListGenerator<ObjectType>::generateList(String object_type, uint8_t cat, char * json, int size)
 {
 	String jsonarray = "{\"obj\": \"" + object_type;
 	jsonarray += "\",\"list\":[";
 
 	for (uint8_t i = 0; i < object_count; i++) {
-		objectarray[i]->serializeJSON(cat, i, json, 2500, LIST);
+		objectarray[i]->serializeJSON(cat, i, json, size, LIST);
 		jsonarray += json;
 		if (object_count - i > 1) {
 			jsonarray += ",";

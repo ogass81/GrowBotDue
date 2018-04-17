@@ -8,6 +8,7 @@
 
 
 
+
 #include "Definitions.h"
 
 //Hardware Libaries
@@ -29,8 +30,7 @@
 #include "TaskManager.h"
 #include "RCSocketController.h"
 #include "Setting.h"
-#include <EasyNTPClient.h>
-
+#include "LogEngine.h"
 
 //Tact Generator
 long sensor_cycles = 0;
@@ -80,6 +80,8 @@ RuleSet *rulesets[RULESETS_NUM];
 
 //FileSystem
 FileSystem filesystem;
+
+LogEngine logengine;
 
 
 void setup() {
@@ -187,6 +189,9 @@ void setup() {
 	else Setting::reset();
 
 
+	//LogEngine
+	logengine.begin();
+
 	//Wifi ESP2866
 	pinMode(ESP_CONTROL_PIN, OUTPUT);
 	digitalWrite(ESP_CONTROL_PIN, HIGH);
@@ -258,6 +263,12 @@ void loop() {
 
 			//Cycles
 			sensor_cycles++;
+
+			String keys[] = { "abc", "xyz" };
+			String values[] = { "123", "456" };
+			logengine.addLogEntry(0, "[Loop]", "Cycle", keys, values, 2);
+
+
 			LOGMSG(F("[Loop]"), F("INFO: Sensor Cycle"), String(sensor_cycles), "@", String(RealTimeClock::printTime(SENS_FRQ_SEC*sensor_cycles)));
 
 			//Update Sensors

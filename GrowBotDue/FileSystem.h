@@ -54,6 +54,11 @@ public:
 	bool loadSettings(const char* filename);
 	bool saveSettings(const char* filename);
 	bool copyFile(const char* source, const char* destination);
+
+	bool appendLinesToFile(const char * filename, String data[], uint8_t size);
+	void readLinesFromFile(const char* filename, int start, int end, char * json, int size);
+	int fileLength(const char* filename);
+	bool resetFile(const char* filename);
 };
 
 #endif
