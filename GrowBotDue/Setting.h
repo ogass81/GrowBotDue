@@ -15,7 +15,6 @@
 #include "Trigger.h"
 #include "Ruleset.h"
 #include "ActionChain.h"
-#include "LogEngine.h"
 
 extern String wifi_ssid;
 extern String wifi_pw;
@@ -27,7 +26,6 @@ extern Sensor *sensors[SENS_NUM];
 extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 extern RuleSet *rulesets[RULESETS_NUM];
 extern ActionChain *actionchains[ACTIONCHAINS_NUM];
-extern LogEngine logengine;
 
 
 
