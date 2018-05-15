@@ -176,11 +176,11 @@ void setup() {
 	filesystem.init();
 	
 	if (DEBUG_RESET == false) {
-		if (filesystem.loadSettings("_CURRENTCONFIG.JSON") == false) {
+		if (Setting::loadSettings("_CURRENTCONFIG.JSON") == false) {
 			LOGMSG(F("[Setup]"), F("WARNING: Did not load primary config file"), F("Hardreset"), DEBUG_RESET, "");
-			if (filesystem.loadSettings("BACKUPCONFIG.JSON") == false) {
+			if (Setting::loadSettings("BACKUPCONFIG.JSON") == false) {
 				LOGMSG(F("[Setup]"), F("WARNING: Did not load backup config file"), F("Hardreset"), DEBUG_RESET, "");
-				if (filesystem.loadSettings("DEFAULTCONFIG.JSON") == false) {
+				if (Setting::loadSettings("DEFAULTCONFIG.JSON") == false) {
 					LOGMSG(F("[Setup]"), F("WARNING: Did not load default config file"), F("Hardreset"), DEBUG_RESET, "");
 					Setting::reset();
 				}
@@ -284,13 +284,12 @@ void loop() {
 			//Save Settings to SD Card
 			if ((sensor_cycles % (5 * SENS_VALUES_MIN)) == 0) {
 				LOGMSG(F("[Loop]"), F("SaveActive"), "", "", "");
-				filesystem.saveActiveConfig();
+				Setting::saveActiveConfig();
 			}
 
 			//Backup
 			if ((sensor_cycles % (15 * SENS_VALUES_MIN)) == 0) {
 				LOGMSG(F("[Loop]"), F("SaveActive"), "", "", "");
-				filesystem.copyFile("_CURRENTCONFIG.JSON", "BACKUPCONFIG.JSON");
 			}		
 		}
 
