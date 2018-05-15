@@ -22,14 +22,14 @@ LogEntry::LogEntry(int id, uint8_t type, String origin, String message, uint8_t 
 
 LogEntry::~LogEntry()
 {
-	LOGDEBUG2(F("LogEntry"), F("~LogEntry()"), F("Freed memory for Key->Value"), "", "", "")
+	//LOGDEBUG2(F("LogEntry"), F("~LogEntry()"), F("Freed memory for Key->Value"), "", "", "")
 	delete[] this->keys;
 	delete[] this->values;
 }
 
 void LogEntry::addParameter(String key, String value)
 {
-	LOGDEBUG2(F("LogEntry"), F("addParameter()"), F("Adding Key->Value Pair"), String(key), String(value), "")
+	//LOGDEBUG2(F("LogEntry"), F("addParameter()"), F("Adding Key->Value Pair"), String(key), String(value), "")
 	if (para_ptr < this->para_size) {
 		this->keys[para_ptr] = key;
 		this->values[para_ptr] = value;
@@ -49,7 +49,7 @@ String LogEntry::serializeJSON()
 	log["typ"] = type;
 	log["time"] = internalRTC.getEpochTime();
 	log["src"] = origin;
-	log["mmsg"] = message;
+	log["msg"] = message;
 
 
 	JsonArray& keys = log.createNestedArray("keys");
@@ -88,7 +88,7 @@ void LogEngine::addLogEntry(uint8_t type, String origin, String message, String 
 	
 	for (uint8_t i = 0; i < size; i++) {
 		log_buffer[entry_ptr]->addParameter(keys[i], values[i]);
-		LOGDEBUG2(F("LogEngine"), F("addLogEntry()"), F("Adding Parameter"), String(keys[i]), String(values[i]), "");
+		//LOGDEBUG2(F("LogEngine"), F("addLogEntry()"), F("Adding Parameter"), String(keys[i]), String(values[i]), "");
 	}
 
 	this->entry_ptr++;
@@ -100,8 +100,8 @@ void LogEngine::serializeJSON(char * json, size_t maxSize, int end, int count)
 	saveToFile();
 
 	if (count == 0) count = LOGBUFFER_SIZE;
-
-	filesystem.readLinesFromFile("log.json", end, count, json, 2500);
+	
+	filesystem.readLinesFromFile("log.json", counter, end, count, json, JSONCHAR_SIZE);
 }
 
 void LogEngine::reset()
@@ -121,9 +121,10 @@ void LogEngine::saveToFile()
 	}
 	filesystem.appendLinesToFile("log.json", output, this->entry_ptr);
 
-	this->entry_ptr = 0;
+
 	//Free Memory
 	for (uint8_t i = 0; i < this->entry_ptr; i++) if (log_buffer[i] != nullptr) delete this->log_buffer[i];
+	this->entry_ptr = 0;
 
 	LOGDEBUG2(F("LogEngine"), F("addLogEntry()"), F("Reset LogBuffer"), String(entry_ptr), "", "")
 }

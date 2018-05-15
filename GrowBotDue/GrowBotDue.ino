@@ -21,6 +21,7 @@
 #include "RealTimeClock.h"
 #include "Led.h"
 #include "FileSystem.h"
+#include "LogEngine.h"
 #include "Network.h"
 #include "Sensor.h"
 #include "Trigger.h"
@@ -30,7 +31,7 @@
 #include "TaskManager.h"
 #include "RCSocketController.h"
 #include "Setting.h"
-#include "LogEngine.h"
+
 
 //Tact Generator
 long sensor_cycles = 0;
@@ -264,8 +265,8 @@ void loop() {
 			//Cycles
 			sensor_cycles++;
 
-			String keys[] = { "abc", "xyz" };
-			String values[] = { "123", "456" };
+			String keys[] = { "key1", "key2.44" };
+			String values[] = { "value243", "value4242342" };
 			logengine.addLogEntry(0, "[Loop]", "Cycle", keys, values, 2);
 
 

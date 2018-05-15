@@ -64,6 +64,7 @@ void Setting::serializeJSON(char * json, size_t maxSize)
 	settings["api_secret"] = api_secret;
 	settings["time"] = internalRTC.getEpochTime() - internalRTC.timezone_offset; //UTC
 	settings["timezone"] = internalRTC.timezone_offset;
+	settings["log_size"] = logengine.counter;
 	settings.printTo(json, maxSize);
 	LOGDEBUG(F("[Setting]"), F("serializeJSON()"), F("OK: Serialized Overall Settings"), String(settings.measureLength()), String(maxSize), "");
 }

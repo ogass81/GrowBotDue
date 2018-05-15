@@ -275,20 +275,23 @@ bool FileSystem::appendLinesToFile(const char * filename, String data[], uint8_t
 	return success;
 }
 
-void FileSystem::readLinesFromFile(const char* filename, int end, int count, char * json, int size)
+void FileSystem::readLinesFromFile(const char* filename, int counter, int end, int count, char * json, int size)
 {
 	File file;
 
 	DynamicJsonBuffer jsonBuffer;
-	JsonArray& list = jsonBuffer.createArray();
+	JsonObject& container = jsonBuffer.createObject();
+	container["num"] = counter;
+	JsonArray& list = container.createNestedArray("list");
 
 	int start = 0;
 	int line_ptr = 0;
 	bool success = true;
 
-	if (end == 0) {
-		end = this->fileLength(filename);
+	if (end <= 0) {
+		end = counter;
 	}
+
 	start = end - count; 
 	if (start < 0) start = 0;
 
@@ -315,7 +318,7 @@ void FileSystem::readLinesFromFile(const char* filename, int end, int count, cha
 		success = false;
 	}
 
-	list.prettyPrintTo(json, size);
+	container.printTo(json, size);
 }
 
 int FileSystem::fileLength(const char * filename)

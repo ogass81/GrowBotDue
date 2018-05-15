@@ -9,7 +9,6 @@
 	#include "WProgram.h"
 #endif
 #include <WiFiEsp.h>
-#include <WiFiEspUdp.h>
 #include <ArduinoJson.h>
 #include "RealTimeClock.h"
 #include "Sensor.h"
@@ -59,9 +58,16 @@ private:
 	String createPostRequest(char *json);
 	//Create HTTP Response with HTML Body
 	String createHtmlResponse(String code, String text);
+	//Breakup payload and send as packages
+	void sendPayload(WiFiEspClient client, String payload);
 
 public:
 	WebServer();
 	void checkConnection();
+};
+
+class ExtendedWebCliebt : public WiFiEspClient {
+
+
 };
 #endif

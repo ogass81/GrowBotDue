@@ -41,8 +41,6 @@ public:
 
 class LogEngine {
 private:
-	int counter;
-
 	uint8_t entry_ptr;
 	LogEntry *log_buffer[LOGBUFFER_SIZE];
 
@@ -50,7 +48,7 @@ public:
 	LogEngine();
 
 	void begin();
-	
+	int counter;
 	void addLogEntry(uint8_t type, String origin, String message, String keys[], String values[], uint8_t size);
 	void serializeJSON(char* json, size_t maxSize, int end, int count);
 	void reset();

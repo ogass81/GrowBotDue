@@ -28,8 +28,13 @@
 
 //Arduino JSON
 #define ARDUINOJSON_ENABLE_PROGMEM 1
-#define JSONCHAR_SIZE 5000
+#define JSONCHAR_SIZE 7500
 #define JSONBUFFER_SIZE 1000
+#define JSONBUFFER_SMALL 750
+#define JSONBUFFER_BIG 1500
+
+//Network
+#define PACKAGE_SIZE 1024
 
 //Settings
 #define DEBUG_RESET false
@@ -105,6 +110,7 @@ enum TriggerTypes { TIME, SENSOR };
 #define LOGMSG2(classname, msg, par1, par2, par3, par4)   if(LOGLEVEL >2) { Serial.print(classname); Serial.print(" "); Serial.print(msg); Serial.print(" "); Serial.print(par1); Serial.print(" "); Serial.print(par2); Serial.print(" "); Serial.print(par3);  }
 #define LOGDEBUG(classname, method, msg, par1, par2, par3)   if(LOGLEVEL >3) { Serial.print(classname); Serial.print(" "); Serial.print(method); Serial.print(" "); Serial.print(msg); Serial.print(" "); Serial.print(par1); Serial.print(" "); Serial.print(par2); Serial.print(" "); Serial.println(par3); }
 #define LOGDEBUG2(classname, method, msg, par1, par2, par3)   if(LOGLEVEL >4) { Serial.print(classname); Serial.print(" "); Serial.print(method); Serial.print(" "); Serial.print(msg); Serial.print(" "); Serial.print(par1); Serial.print(" "); Serial.print(par2); Serial.print(" "); Serial.println(par3); }
+#define LOGDEBUG3(classname, method)   if(LOGLEVEL >5) { Serial.print(classname); Serial.print(" "); Serial.print(method);}
 
 #endif
 

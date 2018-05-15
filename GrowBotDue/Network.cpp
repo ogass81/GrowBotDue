@@ -41,6 +41,27 @@ String WebServer::createHtmlResponse(String code, String text)
 	return String(request);
 }
 
+void WebServer::sendPayload(WiFiEspClient client, String payload)
+{
+	int size = payload.length();
+
+	if (size < PACKAGE_SIZE) {
+		client.print(payload);
+	}
+	else {
+		int package_count = size / PACKAGE_SIZE;
+		for (int i = 0; i <= package_count; i++) {
+			int lower_boundery = i * PACKAGE_SIZE;
+			int upper_boundery = (i + 1)*PACKAGE_SIZE;
+			if (upper_boundery > size) upper_boundery = size;
+
+			String package = payload.substring(lower_boundery, upper_boundery);
+			client.print(package);
+			delay(50);
+		}
+	}
+}
+
 WebServer::WebServer() : WiFiEspServer(80)
 {
 	// print your WiFi shield's IP address
@@ -470,7 +491,7 @@ void WebServer::checkConnection()
 				if (uri[1] == "") {
 					logengine.serializeJSON(json, JSONCHAR_SIZE, 0, 0);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Read Log file"), String(0), String(0));
-					client.print(createPostRequest(json));
+					sendPayload(client, createPostRequest(json));
 				}
 				else if (uri[1] == "reset") {
 					logengine.reset();
@@ -481,12 +502,13 @@ void WebServer::checkConnection()
 					if (uri[2] == "") {
 						logengine.serializeJSON(json, JSONCHAR_SIZE, uri[1].toInt(), 0);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Read Log file"), String(uri[1].toInt()), String(0));
-						client.print(createPostRequest(json));
+						sendPayload(client, createPostRequest(json));
 					}
 					else {
 						logengine.serializeJSON(json, JSONCHAR_SIZE, uri[1].toInt(), uri[2].toInt());
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Read Log file"), String(uri[1].toInt()), String(uri[2].toInt()));
-						client.print(createPostRequest(json));
+						sendPayload(client, createPostRequest(json));
+						//client.print(createPostRequest(json));
 					}
 				}
 			}
