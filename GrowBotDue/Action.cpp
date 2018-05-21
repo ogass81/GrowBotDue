@@ -61,6 +61,10 @@ void SimpleAction<ActionType>::execute()
 	if (actionObject != NULL && callback != NULL) {
 		LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), title, "", "");
 		(actionObject->*callback)();
+
+		String keys[] = { "Action" };
+		String values[] = { title };
+		logengine.addLogEntry(0, "Action", "OK: Execute Action", keys, values, 1);
 	}
 }
 
@@ -105,16 +109,24 @@ void ParameterizedSimpleAction<ActionType>::execute()
 		if (callback != NULL) {
 			if (parameter >= 0) {
 				LOGDEBUG(F("[Action]"), F("execute()"), F("OK: Execute Action"), title, "", "");
+				String keys[] = { "Action" };
+				String values[] = { title };
+				logengine.addLogEntry(0, "Action", "OK: Execute Action", keys, values, 1);
+
 				(actionObject->*callback)(parameter);
 			}
-			else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Argument missing"), title, "", "");
+			else {
+				LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Argument missing"), title, "", "");
+
+				String keys[] = { "Action" };
+				String values[] = { title };
+				logengine.addLogEntry(0, "Action", "ERROR: Argument missing", keys, values, 1);
+			}
 		}
 		else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Callback missing"), title, "", "");
 	}
 	else LOGDEBUG(F("[Action]"), F("execute()"), F("ERROR: Action Object missing"), title, "", "");
 }
 //All Types of Templates used:
-template class SimpleAction<RelaisBoard>;
-template class SimpleAction<DigitalSwitch>;
 template class SimpleAction<RCSocketController>;
 template class ParameterizedSimpleAction<RCSocketController>;

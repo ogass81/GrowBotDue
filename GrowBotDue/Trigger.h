@@ -12,6 +12,8 @@
 #include <ArduinoJson.h>
 #include "RealTimeClock.h"
 #include "Sensor.h"
+#include "LogEngine.h"
+extern LogEngine logengine;
 
 //Globals
 extern String debug;

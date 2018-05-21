@@ -11,6 +11,8 @@
 #include "Definitions.h"
 #include "Action.h"
 #include "ActionChain.h"
+#include "LogEngine.h"
+extern LogEngine logengine;
 
 //Pre Declared for Compiler
 class ActionChain;

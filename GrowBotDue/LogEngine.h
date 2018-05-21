@@ -8,12 +8,20 @@
 #else
 	#include "WProgram.h"
 #endif
+//Helper
 #include "Definitions.h"
-#include "FileSystem.h"
+#include <ArduinoJson.h>
+
+//Hardware
+#include "SdFat.h"
+#include "Led.h"
 #include "RealTimeClock.h"
 
+//Global Settings
 extern long sensor_cycles;
-extern FileSystem filesystem;
+
+//Hardware Globals
+extern Led *led[3];
 extern RealTimeClock internalRTC;
 
 class LogEntry {
@@ -54,6 +62,11 @@ public:
 	void reset();
 private:
 	void saveToFile();
+
+	bool appendLinesToFile(const char * filename, String data[], uint8_t size);
+	void readLinesFromFile(const char* filename, int counter, int start, int end, char * json, int size);
+	int fileLength(const char* filename);
+	bool resetFile(const char* filename);
 };
 
 #endif

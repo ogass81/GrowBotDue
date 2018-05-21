@@ -13,7 +13,9 @@
 #include <ArduinoJson.h>
 #include <RCSwitch.h>
 #include "RealTimeClock.h"
+#include "LogEngine.h"
 
+extern LogEngine logengine;
 extern RealTimeClock internalRTC;
 extern bool haltstate;
 

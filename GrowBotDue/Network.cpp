@@ -249,14 +249,14 @@ void WebServer::checkConnection()
 					client.print(createPostRequest(json));
 				}
 				else if (uri[1] == "default") {
-					filesystem.loadDefaultConfig();
+					Setting::loadSettings("DEFAULTCONFIG.JSON");
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: LOAD"), "Default Config", "");
 					Setting::serializeJSON(json, JSONCHAR_SIZE);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), "", "");
 					client.print(createPostRequest(json));
 				}
 				else if (uri[1] == "active") {
-					filesystem.loadActiveConfig();
+					Setting::loadSettings("_CURRENTCONFIG.JSON");
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: LOAD"), "Active Config", "");
 					Setting::serializeJSON(json, JSONCHAR_SIZE);
 					LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), "", "");
@@ -537,14 +537,14 @@ void WebServer::checkConnection()
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SET"), "", "");
 							client.print(createHtmlResponse("200 OK", "JSON received"));
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SAVE to Default"), "", "");
-							filesystem.saveDefaultConfig();
+							Setting::saveSettings("DEFAULTCONFIG.JSON");
 						}
 						else if (uri[1] == "active") {
 							success = Setting::deserializeJSON(node);
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SET"), "", "");
 							client.print(createHtmlResponse("200 OK", "JSON received"));
 							LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Settings Action: SAVE to Active"), "", "");
-							filesystem.saveActiveConfig();
+							Setting::saveSettings("_CURRENTCONFIG.JSON");
 						}
 						else {
 							LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: URI: UNKOWN"), "", "");

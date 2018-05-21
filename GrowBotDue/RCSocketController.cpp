@@ -217,10 +217,15 @@ void RCSocketController::transmitter_off()
 
 void RCSocketController::learningmode_on()
 {
+	LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set ON"), String(sensor_cycles), "@", String(RealTimeClock::printTime(sensor_cycles)));
+
+	String keys[] = { "" };
+	String values[] = { "" };
+	logengine.addLogEntry(0, "RCSocketController", "Halting System. Learning Mode On", keys, values, 0);
+
 	receiver_on();
 	learning = true;
 	haltstate = true;
-	LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set ON"), String(sensor_cycles), "@", String(RealTimeClock::printTime(sensor_cycles)));
 }
 
 void RCSocketController::learningmode_on(int set)
@@ -238,6 +243,10 @@ void RCSocketController::learningmode_off()
 	haltstate = false;
 	internalRTC.syncSensorCycles();
 	LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set OFF"), String(sensor_cycles), "@", String(RealTimeClock::printTime(sensor_cycles)));
+
+	String keys[] = { "" };
+	String values[] = { "" };
+	logengine.addLogEntry(0, "RCSocketController", "Resuming System. Learning Mode Off", keys, values, 0);
 }
 
 void RCSocketController::learnPattern()
@@ -405,9 +414,6 @@ void RCSocketController::serializeJSON(char * json, size_t maxSize, Scope scope)
 	controller.printTo(json, maxSize);
 	LOGDEBUG2(F("[RCSocketController]"), F("serializeJSON()"), F("OK: Serialized remote sockets"), String(controller.measureLength()), String(maxSize), "");
 }
-
-
-
 
 bool RCSocketController::deserializeJSON(uint8_t set, JsonObject & data)
 {

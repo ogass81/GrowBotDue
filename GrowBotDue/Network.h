@@ -18,7 +18,6 @@
 #include "ActionChain.h"
 #include "RCSocketController.h"
 #include "Setting.h"
-#include "FileSystem.h"
 #include "TaskManager.h"
 #include "LogEngine.h"
 
@@ -30,7 +29,6 @@ extern Action *actions[ACTIONS_NUM];
 extern ActionChain *actionchains[ACTIONCHAINS_NUM];
 extern RCSocketController *rcsocketcontroller;
 extern TaskManager *taskmanager;
-extern FileSystem filesystem;
 extern LogEngine logengine;
 
 

@@ -9,9 +9,13 @@
 	#include "WProgram.h"
 #endif
 
+//Helper
 #include <ArduinoJson.h>
-#include "Relais.h"
-#include "DigitalSwitch.h"
+
+#include "LogEngine.h"
+extern LogEngine logengine;
+
+//Controller Object
 #include "RCSocketController.h"
 
 //Abstract Class for Actions

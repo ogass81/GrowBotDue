@@ -15,6 +15,9 @@
 #include "Definitions.h"
 #include "SerializationInterface.h"
 
+#include "LogEngine.h"
+extern LogEngine logengine;
+
 extern DHT dht;
 extern long sensor_cycles;
 

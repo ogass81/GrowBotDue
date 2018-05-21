@@ -13,6 +13,9 @@
 #include "Trigger.h"
 #include "ActionChain.h"
 
+#include "LogEngine.h"
+extern LogEngine logengine;
+
 extern ActionChain *actionchains[ACTIONCHAINS_NUM];
 extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 

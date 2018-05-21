@@ -69,12 +69,12 @@ String LogEntry::serializeJSON()
 
 LogEngine::LogEngine()
 {
-	this->counter = 0; // filesystem.fileLength("log.json");
+	this->counter = 0; // fileLength("log.json");
 }
 
 void LogEngine::begin()
 {
-	this->counter = filesystem.fileLength("log.json");
+	this->counter = fileLength("log.json");
 }
 
 void LogEngine::addLogEntry(uint8_t type, String origin, String message, String keys[], String values[], uint8_t size)
@@ -101,14 +101,13 @@ void LogEngine::serializeJSON(char * json, size_t maxSize, int end, int count)
 
 	if (count == 0) count = LOGBUFFER_SIZE;
 	
-	filesystem.readLinesFromFile("log.json", counter, end, count, json, JSONCHAR_SIZE);
+	readLinesFromFile("log.json", counter, end, count, json, JSONCHAR_SIZE);
 }
 
 void LogEngine::reset()
 {
 	saveToFile();
-	filesystem.copyFile("log.json", "log.backup");
-	filesystem.resetFile("log.json");
+	resetFile("log.json");
 	this->counter = 0;
 }
 
@@ -119,7 +118,7 @@ void LogEngine::saveToFile()
 	for (uint8_t i = 0; i < this->entry_ptr; i++) {
 		if(log_buffer[i] != nullptr) output[i] = log_buffer[i]->serializeJSON();
 	}
-	filesystem.appendLinesToFile("log.json", output, this->entry_ptr);
+	appendLinesToFile("log.json", output, this->entry_ptr);
 
 
 	//Free Memory
@@ -127,4 +126,110 @@ void LogEngine::saveToFile()
 	this->entry_ptr = 0;
 
 	LOGDEBUG2(F("LogEngine"), F("addLogEntry()"), F("Reset LogBuffer"), String(entry_ptr), "", "")
+}
+
+bool LogEngine::appendLinesToFile(const char * filename, String data[], uint8_t size)
+{
+	File file;
+
+	bool success = true;
+
+	if (file.open(filename, O_CREAT | O_APPEND | O_WRITE)) {
+		//LOGDEBUG2(F("[FileSystem]"), F("saveSettings()"), F("File Open"), "", "", "");
+		led[2]->turnOn();
+		//Settings
+		for (uint8_t i = 0; i < size; i++) {
+			file.println(data[i]);
+		}
+
+		led[2]->turnOff();
+		file.close();
+		LOGDEBUG2(F("FileSystem"), F("appendLinesToFile()"), F("OK: Saved Log Entries to file"), String(filename), size, "");
+	}
+	else {
+		LOGMSG(F("[FileSystem]"), F("ERROR: Could not write to file"), String(filename), "", "");
+		success = false;
+	}
+	return success;
+}
+
+void LogEngine::readLinesFromFile(const char* filename, int counter, int end, int count, char * json, int size)
+{
+	File file;
+
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject& container = jsonBuffer.createObject();
+	container["num"] = counter;
+	JsonArray& list = container.createNestedArray("list");
+
+	int start = 0;
+	int line_ptr = 0;
+	bool success = true;
+
+	if (end <= 0) {
+		end = counter;
+	}
+
+	start = end - count;
+	if (start < 0) start = 0;
+
+	if (file.open(filename, O_READ)) {
+
+		while (file.available()) {
+			//Buffer Needs to be here ...
+			String line = file.readStringUntil('\n');
+
+			if (line_ptr < end) {
+				if (line_ptr >= start) {
+					JsonObject& entry = jsonBuffer.parseObject(line);
+					list.add(entry);
+				}
+			}
+			else break;
+			line_ptr++;
+		}
+		file.close();
+		LOGDEBUG2(F("FileSystem"), F("readLinesFromFile()"), F("OK: Loading Logentries from File"), String(start), String(end), String(list.size()));
+	}
+	else {
+		LOGMSG(F("[FileSystem]"), F("ERROR: Could not read from file"), String(filename), "", "");
+		success = false;
+	}
+
+	container.printTo(json, size);
+}
+
+int LogEngine::fileLength(const char * filename)
+{
+	File file;
+
+	int counter = 0;
+
+	if (file.open(filename, O_READ)) {
+		while (file.available()) {
+			file.readStringUntil('\n');
+			counter++;
+		}
+		file.close();
+		LOGDEBUG2(F("FileSystem"), F("fileLength()"), F("OK: Determining file length"), String(filename), String(counter), "");
+	}
+	else {
+		LOGMSG(F("[FileSystem]"), F("ERROR: Could not determine length of file"), String(filename), "", "");
+	}
+
+	return counter;
+}
+
+bool LogEngine::resetFile(const char * filename)
+{
+	File file;
+
+	if (file.remove()) {
+		LOGMSG(F("[FileSystem]"), F("OK: Reset log file"), String(filename), "", "");
+		return true;
+	}
+	else {
+		LOGMSG(F("[FileSystem]"), F("ERROR: Could not reset log file"), String(filename), "", "");
+		return false;
+	}
 }

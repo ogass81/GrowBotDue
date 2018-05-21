@@ -4,33 +4,32 @@
  Author:	ogass
 */
 
-//Contants
-
-
-
-
+////Helper
 #include "Definitions.h"
 
 //Hardware Libaries
 #include <memorysaver.h>
+#include <SdFat.h>
+#include <SPI.h>
 #include <RTCDue.h>
 #include <DHT_U.h>
 #include <DHT.h>
-
-//Modules
 #include "RealTimeClock.h"
 #include "Led.h"
-#include "FileSystem.h"
+
+//Core Features
+#include "Action.h"
 #include "LogEngine.h"
+#include "TaskManager.h"
 #include "Network.h"
+#include "Setting.h"
+
+//Controller Objects
 #include "Sensor.h"
 #include "Trigger.h"
-#include "Action.h"
 #include "ActionChain.h"
 #include "Ruleset.h"
-#include "TaskManager.h"
 #include "RCSocketController.h"
-#include "Setting.h"
 
 
 //Tact Generator
@@ -80,7 +79,7 @@ Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 RuleSet *rulesets[RULESETS_NUM];
 
 //FileSystem
-FileSystem filesystem;
+SdFat sd;
 
 LogEngine logengine;
 
@@ -88,6 +87,11 @@ LogEngine logengine;
 void setup() {
 	// initialize serial for debugging
 	Serial.begin(115200);
+
+	//Initialize FileSystem / SD Card
+	if (!sd.begin(SD_CONTROL_PIN, SPI_EIGHTH_SPEED)) {
+		sd.initErrorHalt();
+	}
 
 	// initialize RTC
 	internalRTC.begin();
@@ -97,7 +101,14 @@ void setup() {
 	led[0] = new Led(LED1, false);
 	led[1] = new Led(LED2, false);
 	led[2] = new Led(LED3, false);
-	
+
+	//LogEngine
+	logengine.begin();
+
+	String keys[] = { "" };
+	String values[] = { "" };
+	logengine.addLogEntry(0, "Main", "Starting Bot", keys, values, 0);
+
 	//Start Temp/Humidity Sensor
 	dht.begin();
 
@@ -171,28 +182,39 @@ void setup() {
 	for (uint8_t k = 0; k < RULESETS_NUM; k++) {
 		rulesets[k] = new RuleSet(k);
 	}
-
-	//Initialize FileSystem / SD Card
-	filesystem.init();
 	
 	if (DEBUG_RESET == false) {
-		if (filesystem.loadSettings("_CURRENTCONFIG.JSON") == false) {
+		if (Setting::loadSettings("_CURRENTCONFIG.JSON") == false) {
 			LOGMSG(F("[Setup]"), F("WARNING: Did not load primary config file"), F("Hardreset"), DEBUG_RESET, "");
-			if (filesystem.loadSettings("BACKUPCONFIG.JSON") == false) {
+			String keys[] = { "" };
+			String values[] = { "" };
+			logengine.addLogEntry(0, "Main", "WARNING: Did not load primary config file", keys, values, 0);
+
+			if (Setting::loadSettings("BACKUPCONFIG.JSON") == false) {
 				LOGMSG(F("[Setup]"), F("WARNING: Did not load backup config file"), F("Hardreset"), DEBUG_RESET, "");
-				if (filesystem.loadSettings("DEFAULTCONFIG.JSON") == false) {
+				String keys[] = { "" };
+				String values[] = { "" };
+				logengine.addLogEntry(0, "Main", "WARNING: Did not load backup config file", keys, values, 0);
+
+				if (Setting::loadSettings("DEFAULTCONFIG.JSON") == false) {
 					LOGMSG(F("[Setup]"), F("WARNING: Did not load default config file"), F("Hardreset"), DEBUG_RESET, "");
+					String keys[] = { "" };
+					String values[] = { "" };
+					logengine.addLogEntry(0, "Main", "WARNING: Did not load default config file. Setting hard coded values", keys, values, 0);
+
 					Setting::reset();
 				}
 			}
 		}
 	}
-	else Setting::reset();
+	else {
+		LOGMSG(F("[Setup]"), F("WARNING: Hard Reset Flag set. Setting hard coded values"), F("Hardreset"), DEBUG_RESET, "");
+		String keys[] = { "" };
+		String values[] = { "" };
+		logengine.addLogEntry(0, "Main", "WARNING: Hard Reset Flag set. Setting hard coded values", keys, values, 0);
 
-
-	//LogEngine
-	logengine.begin();
-
+		Setting::reset();
+	}
 	//Wifi ESP2866
 	pinMode(ESP_CONTROL_PIN, OUTPUT);
 	digitalWrite(ESP_CONTROL_PIN, HIGH);
@@ -215,12 +237,15 @@ void setup() {
 		failed++;
 	}
 
-
 	//Sync with Internet
 	ntpclient = new WebTimeClient();
 	long timestamp = ntpclient->getWebTime();
 
 	if (timestamp > 0) {
+		String keys[] = { "" };
+		String values[] = { "" };
+		logengine.addLogEntry(0, "Main", "Received Internet Time", keys, values, 0);
+
 		internalRTC.updateTime(timestamp, true);
 	}
 
@@ -248,7 +273,6 @@ void loop() {
 			if (rcsocketcontroller->available()) {
 				rcsocketcontroller->learnPattern();
 				rcsocketcontroller->resetAvailable();
-				//myUI.draw();
 			}
 		}
 		//more Hardware
@@ -265,11 +289,6 @@ void loop() {
 			//Cycles
 			sensor_cycles++;
 
-			String keys[] = { "key1", "key2.44" };
-			String values[] = { "value243", "value4242342" };
-			logengine.addLogEntry(0, "[Loop]", "Cycle", keys, values, 2);
-
-
 			LOGMSG(F("[Loop]"), F("INFO: Sensor Cycle"), String(sensor_cycles), "@", String(RealTimeClock::printTime(SENS_FRQ_SEC*sensor_cycles)));
 
 			//Update Sensors
@@ -283,14 +302,23 @@ void loop() {
 			}
 			//Save Settings to SD Card
 			if ((sensor_cycles % (5 * SENS_VALUES_MIN)) == 0) {
+				
 				LOGMSG(F("[Loop]"), F("SaveActive"), "", "", "");
-				filesystem.saveActiveConfig();
+				String keys[] = { "" };
+				String values[] = { "" };
+				logengine.addLogEntry(0, "Main", "Saved Active Configuration", keys, values, 0);
+
+				Setting::saveSettings("_CURRENTCONFIG.JSON");
 			}
 
 			//Backup
 			if ((sensor_cycles % (15 * SENS_VALUES_MIN)) == 0) {
 				LOGMSG(F("[Loop]"), F("SaveActive"), "", "", "");
-				filesystem.copyFile("_CURRENTCONFIG.JSON", "BACKUPCONFIG.JSON");
+				String keys[] = { "" };
+				String values[] = { "" };
+				logengine.addLogEntry(0, "Main", "Backup Configuration", keys, values, 0);
+
+				Setting::copyFile("_CURRENTCONFIG.JSON", "BACKUPCONFIG.JSON");
 			}		
 		}
 

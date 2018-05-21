@@ -681,7 +681,7 @@ void BaseSensor<ReturnType>::update()
 		else hour_ptr = 0;
 
 		element_count = SENS_VALUES_MIN * 60 / SENS_VALUES_HOUR;
-		hour_values[hour_ptr] = average(minute_ptr, element_count, minute_values, SENS_VALUES_MIN);
+		hour_values[hour_ptr] = average(minute_ptr, element_count, minute_values, SENS_VALUES_MIN);	
 		LOGDEBUG(F("[Sensor]"), F("update()"), F("OK: Saved new HOUR Value for"), String(getTitle()), String(hour_ptr), String(hour_values[hour_ptr]));
 	}
 
