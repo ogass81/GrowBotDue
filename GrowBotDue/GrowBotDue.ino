@@ -211,7 +211,7 @@ void setup() {
 		LOGMSG(F("[Setup]"), F("WARNING: Hard Reset Flag set. Setting hard coded values"), F("Hardreset"), DEBUG_RESET, "");
 		String keys[] = { "" };
 		String values[] = { "" };
-		logengine.addLogEntry(0, "Main", "WARNING: Hard Reset Flag set. Setting hard coded values", keys, values, 0);
+		logengine.addLogEntry(0, "Main", "WARNING: Reset Flag set. Setting hard coded values", keys, values, 0);
 
 		Setting::reset();
 	}

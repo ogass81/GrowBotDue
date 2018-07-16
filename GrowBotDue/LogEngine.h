@@ -24,6 +24,8 @@ extern long sensor_cycles;
 extern Led *led[3];
 extern RealTimeClock internalRTC;
 
+extern SdFat sd;
+
 class LogEntry {
 private:
 	int id;

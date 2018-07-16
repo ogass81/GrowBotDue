@@ -47,7 +47,7 @@ String LogEntry::serializeJSON()
 	
 	log["id"] = id;
 	log["typ"] = type;
-	log["time"] = internalRTC.getEpochTime();
+	log["time"] = internalRTC.getEpochTime() - internalRTC.timezone_offset;
 	log["src"] = origin;
 	log["msg"] = message;
 
@@ -222,9 +222,7 @@ int LogEngine::fileLength(const char * filename)
 
 bool LogEngine::resetFile(const char * filename)
 {
-	File file;
-
-	if (file.remove()) {
+	if (sd.remove(filename)) {
 		LOGMSG(F("[FileSystem]"), F("OK: Reset log file"), String(filename), "", "");
 		return true;
 	}
