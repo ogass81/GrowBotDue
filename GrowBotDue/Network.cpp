@@ -290,9 +290,9 @@ void WebServer::checkConnection()
 					else if (uri[2] == "execute") {
 						actions[uri[1].toInt()]->execute();
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: EXECUTE"), String(uri[1]), "");
-						actions[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DETAILS);
+						//actions[uri[1].toInt()]->serializeJSON(uri[1].toInt(), json, JSONCHAR_SIZE, DETAILS);
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Action Object Action: GET"), String(uri[1]), "");
-						client.print(createPostRequest(json));
+						client.print(createHtmlResponse("200 OK", "Action executed"));
 					}
 					else {
 						LOGMSG(F("[WebServer]"), F("ERROR: Invalid HTTP Request"), F("Type: URI: UNKOWN"), "", "");
@@ -346,9 +346,9 @@ void WebServer::checkConnection()
 						client.print(createHtmlResponse("200 OK", "Learning mode off"));
 					}
 					else if (uri[2] != "" && uri[2] == "reset") {
-						rcsocketcontroller->resetSettings(uri[1].toInt());
+						//rcsocketcontroller->resetSettings(uri[1].toInt());
+						Serial.println(uri[1].toInt());
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: RESET"), String(uri[1]), "");
-						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: GET"), String(uri[1]), "");
 						client.print(createHtmlResponse("200 OK", "Reset signals"));
 					}
 					else {
