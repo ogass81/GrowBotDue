@@ -336,17 +336,15 @@ void WebServer::checkConnection()
 					else if (uri[2] != "" && uri[2] == "learn_on") {
 						rcsocketcontroller->learningmode_on(uri[1].toInt());
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: Learning mode activated"), String(uri[1]), "");
-						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: GET"), String(uri[1]), "");
 						client.print(createHtmlResponse("200 OK", "Learning mode on"));
 					}
 					else if (uri[2] != "" && uri[2] == "learn_off") {
 						rcsocketcontroller->learningmode_off();
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: Learning mode deactivated"), String(uri[1]), "");
-						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: GET"), String(uri[1]), "");
 						client.print(createHtmlResponse("200 OK", "Learning mode off"));
 					}
 					else if (uri[2] != "" && uri[2] == "reset") {
-						//rcsocketcontroller->resetSettings(uri[1].toInt());
+						rcsocketcontroller->resetSettings(uri[1].toInt());
 						Serial.println(uri[1].toInt());
 						LOGMSG(F("[WebServer]"), F("OK: Valid HTTP Request"), F("Type: Remote Socket Action: RESET"), String(uri[1]), "");
 						client.print(createHtmlResponse("200 OK", "Reset signals"));

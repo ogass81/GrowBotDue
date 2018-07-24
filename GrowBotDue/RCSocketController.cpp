@@ -238,15 +238,17 @@ void RCSocketController::learningmode_on(int set)
 
 void RCSocketController::learningmode_off()
 {
-	receiver_off();
-	learning = false;
-	haltstate = false;
-	internalRTC.syncSensorCycles();
-	LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set OFF"), String(sensor_cycles), "@", String(RealTimeClock::printTime(sensor_cycles)));
+	if (learning == true) {
+		receiver_off();
+		learning = false;
+		haltstate = false;
+		internalRTC.syncSensorCycles();
+		LOGMSG(F("[RCSocketController]"), F("OK: Learning Mode set OFF"), String(sensor_cycles), "@", String(RealTimeClock::printTime(sensor_cycles)));
 
-	String keys[] = { "" };
-	String values[] = { "" };
-	logengine.addLogEntry(0, "RCSocketController", "Resuming System. Learning Mode Off", keys, values, 0);
+		String keys[] = { "" };
+		String values[] = { "" };
+		logengine.addLogEntry(0, "RCSocketController", "Resuming System. Learning Mode Off", keys, values, 0);
+	}
 }
 
 void RCSocketController::learnPattern()
@@ -256,7 +258,6 @@ void RCSocketController::learnPattern()
 
 void RCSocketController::learnPattern(uint8_t set)
 {
-	//REWORK Pointer Problem
 	if (socketcode[set]->isNewSignal(getReceivedValue()) == true) {
 		socketcode[set]->setCurrentValue(getReceivedValue());
 		socketcode[set]->setCurrentBitlength(getReceivedBitlength());
@@ -300,13 +301,16 @@ void RCSocketController::resetSettings(uint8_t set)
 {
 	learningmode_off();
 
+	
 	for (uint8_t i = 0; i < RC_SIGNALS; i++) {
 		socketcode[set]->nReceivedDelay[i] = 0;
 		socketcode[set]->nReceivedProtocol[i] = 0;
 		socketcode[set]->nReceivedValue[i] = 0;
 		socketcode[set]->nReceivedBitlength[i] = 0;
 	}
+
 	socketcode[set]->active = false;
+	
 }
 
 void RCSocketController::sendCode(int set)
