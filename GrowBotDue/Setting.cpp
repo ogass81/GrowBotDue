@@ -27,6 +27,14 @@ void Setting::reset()
 		actionchains[j]->reset();
 	}
 
+	//Initialize Actionchains
+	for (uint8_t j = 0; j < ACTIONCHAINS_NUM; j++) {
+		actionchains[j]->reset();
+	}
+
+	//Reset Sockets
+	rcsocketcontroller->resetSettings();
+
 	//Default Values
 	wifi_ssid = "wgempire";
 	wifi_pw = "ert456sdf233sa!!!";

@@ -60,6 +60,8 @@ public:
 	//Sensor Info
 	String title;
 	String unit;
+	uint8_t type;
+
 	ReturnType nan_val;
 	ReturnType min_val;
 	ReturnType max_val;
@@ -131,7 +133,7 @@ public:
 	void update();
 
 	//Settings
-	void reset();
+	virtual void reset();
 	
 	//Serialize
 	void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
@@ -151,6 +153,8 @@ public:
 	void setUpperThreshold();
 	void setLowerThreshold();
 
+	void reset();
+
 	bool compareWithValue(RelOp relop, Interval interval, int value);
 };
 
@@ -166,6 +170,8 @@ public:
 	void setUpperThreshold();
 	void setLowerThreshold();
 
+	void reset();
+
 	bool compareWithValue(RelOp relop, Interval interval, int value);
 };
 
@@ -180,6 +186,8 @@ public:
 
 	void setUpperThreshold();
 	void setLowerThreshold();
+
+	void reset();
 
 	bool compareWithValue(RelOp relop, Interval interval, int value);
 };

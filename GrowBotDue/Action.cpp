@@ -17,10 +17,11 @@ String Action::getTitle()
 	return String(title);
 }
 
-void Action::setAntagonist(Action * aObject)
+void Action::setAntagonist(String group_title, Action * aObject)
 {
 	//LOGDEBUG2(F("[Action]"), F("setAntagonist()"), F("OK: Setting Antagonist Object"), "", "", "");
-	antaObject = aObject;
+	this->group_title = group_title;
+	this->antaObject = aObject;
 }
 
 
@@ -28,6 +29,7 @@ template<class ActionType>
 SimpleAction<ActionType>::SimpleAction(String title, ActionType * actionObj, void(ActionType::*cFunct)(), bool visible)
 {
 	this->title = title;
+	this->group_title = "";
 	this->actionObject = actionObj;
 	this->callback = cFunct;
 	this->visible = visible;
@@ -42,7 +44,8 @@ void SimpleAction<ActionType>::serializeJSON(uint8_t id, char * json, size_t max
 
 	if (scope == LIST || scope == DETAILS) {
 		actions["tit"] = title;
-		actions["opp"] = antaObject->title;
+		actions["grp"] = group_title;
+		if(antaObject != NULL) actions["opp"] = antaObject->title;
 		actions["vis"] = visible;
 	}
 	
@@ -72,6 +75,7 @@ template<class ActionType>
 ParameterizedSimpleAction<ActionType>::ParameterizedSimpleAction(String title, ActionType * actionObj, void(ActionType::*cFunct)(int), int par, bool visible)
 {
 	this->title = title;
+	this->group_title = "";
 	this->actionObject = actionObj;
 	this->callback = cFunct;
 	this->visible = visible;
@@ -87,15 +91,16 @@ void ParameterizedSimpleAction<ActionType>::serializeJSON(uint8_t id, char * jso
 
 	if (scope == LIST || scope == DETAILS) {
 		actions["tit"] = title;
+		actions["grp"] = group_title;
+		if (antaObject != NULL) actions["anta"] = antaObject->title;
 		actions["vis"] = visible;
 		actions["par"] = parameter;
 	}
 
 
 	if (scope == DETAILS) {
-		actions["obj"] = "ACTION";
 		actions["id"] = id;
-		actions["opp"] = antaObject->title;
+		actions["obj"] = "ACTION";
 	}
 
 	actions.printTo(json, maxSize);

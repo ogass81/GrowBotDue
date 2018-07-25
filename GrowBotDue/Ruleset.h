@@ -22,6 +22,7 @@ extern Trigger *trigger[TRIGGER_TYPES][TRIGGER_SETS];
 //Rulesets are Touples of Triggers, Boolean Operators. If the whole expression is true the assigned action (callback function) is executed
 class RuleSet {
 public:
+	uint8_t id;
 	String title;
 	bool active = false;
 

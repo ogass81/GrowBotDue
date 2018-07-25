@@ -6,9 +6,13 @@
 
 RuleSet::RuleSet(int count)
 {
-	title = "Ruleset ";
-	title += String(count);
+	id = count;
 	reset();
+}
+
+String RuleSet::getTitle()
+{
+	return String(title);
 }
 
 bool RuleSet::checkState()
@@ -53,6 +57,8 @@ bool RuleSet::checkState()
 
 void RuleSet::reset()
 {
+	title = "Ruleset ";
+	title += String(id);
 	active = false;
 
 	assignedTrigger[0] = NULL;

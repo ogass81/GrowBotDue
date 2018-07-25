@@ -6,13 +6,13 @@
 
 ActionChain::ActionChain(int count)
 {
-	this->title = "Sequence ";
-	this->title += String(count);
+	this->id = count;
 	reset();
 }
 
 void ActionChain::reset()
 {
+	this->title = "Sequence " + String(this->id);
 	active = false;
 
 	for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {

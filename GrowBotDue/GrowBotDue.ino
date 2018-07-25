@@ -122,43 +122,29 @@ void setup() {
 	sensors[3] = new 	AnalogMoistureSensor<short>(IN_MOS_2, OUT_MOS_2, true, F("Soil 2"), F("%"), -1, 0, 1000, 150, 600);
 
 	//Intialize Actions
-	actions[0] = new ParameterizedSimpleAction<RCSocketController>("RC1 On", rcsocketcontroller, &RCSocketController::sendCode, 0, true);
-	actions[1] = new ParameterizedSimpleAction<RCSocketController>("RC1 Off", rcsocketcontroller, &RCSocketController::sendCode, 1, true);
-	actions[2] = new ParameterizedSimpleAction<RCSocketController>("RC2 On", rcsocketcontroller, &RCSocketController::sendCode, 2, true);
-	actions[3] = new ParameterizedSimpleAction<RCSocketController>("RC2 Off", rcsocketcontroller, &RCSocketController::sendCode, 3, true);
-	actions[4] = new ParameterizedSimpleAction<RCSocketController>("RC3 On", rcsocketcontroller, &RCSocketController::sendCode, 4, true);
-	actions[5] = new ParameterizedSimpleAction<RCSocketController>("RC3 Off", rcsocketcontroller, &RCSocketController::sendCode, 5, true);
-	actions[6] = new ParameterizedSimpleAction<RCSocketController>("RC4 On", rcsocketcontroller, &RCSocketController::sendCode, 6, true);
-	actions[7] = new ParameterizedSimpleAction<RCSocketController>("RC4 Off", rcsocketcontroller, &RCSocketController::sendCode, 7, true);
+	actions[0] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 0, true);
+	actions[1] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 1, true);
+	actions[2] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 2, true);
+	actions[3] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 3, true);
+	actions[4] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 4, true);
+	actions[5] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 5, true);
+	actions[6] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 6, true);
+	actions[7] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 7, true);
 	
 	//Define Opposite Action / Antagonist
-	//R1
-	actions[0]->setAntagonist(actions[1]);
-	actions[1]->setAntagonist(actions[0]);
-	//R2
-	actions[2]->setAntagonist(actions[3]);
-	actions[3]->setAntagonist(actions[2]);
-	//R3
-	actions[4]->setAntagonist(actions[5]);
-	actions[5]->setAntagonist(actions[4]);
-	//R4
-	actions[6]->setAntagonist(actions[7]);
-	actions[7]->setAntagonist(actions[6]);
 	//RC1
-	actions[8]->setAntagonist(actions[9]);
-	actions[9]->setAntagonist(actions[8]);
+	actions[0]->setAntagonist("Socket 1", actions[1]);
+	actions[1]->setAntagonist("Socket 1", actions[0]);
 	//RC2
-	actions[10]->setAntagonist(actions[11]);
-	actions[11]->setAntagonist(actions[10]);
+	actions[2]->setAntagonist("Socket 2", actions[3]);
+	actions[3]->setAntagonist("Socket 2", actions[2]);
 	//RC3
-	actions[12]->setAntagonist(actions[13]);
-	actions[13]->setAntagonist(actions[12]);
+	actions[4]->setAntagonist("Socket 3", actions[5]);
+	actions[5]->setAntagonist("Socket 3", actions[4]);
 	//RC4
-	actions[14]->setAntagonist(actions[15]);
-	actions[15]->setAntagonist(actions[14]);
-	//Learning Mode
-	actions[16]->setAntagonist(actions[17]);
-	actions[17]->setAntagonist(actions[16]);
+	actions[6]->setAntagonist("Socket 4", actions[7]);
+	actions[7]->setAntagonist("Socket 4", actions[6]);
+
 
 	//Initialize ActionChains
 	for (uint8_t i = 0; i < ACTIONCHAINS_NUM; i++) {

@@ -5,7 +5,7 @@
 #include "Sensor.h"
 int Sensor::getAvgInt(Interval interval)
 {
-
+	return 0;
 }
 
 float Sensor::getAvgFloat(Interval interval)
@@ -718,20 +718,7 @@ void BaseSensor<ReturnType>::update()
 template<class ReturnType>
 void BaseSensor<ReturnType>::reset()
 {
-	lower_threshold = 0;
-	upper_threshold = 0;
-	
-	minute_ptr = SENS_VALUES_MIN;
-	hour_ptr = SENS_VALUES_HOUR;
-	day_ptr = SENS_VALUES_DAY;
-	month_ptr = SENS_VALUES_MONTH;
-	year_ptr = SENS_VALUES_YEAR;
 
-	for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) minute_values[i] = nan_val;
-	for (uint8_t i = 0; i < SENS_VALUES_HOUR; i++) hour_values[i] = nan_val;
-	for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) day_values[i] = -5 + (rand() % static_cast<int>(35 - (-5) + 1));
-	for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) month_values[i] = -5 + (rand() % static_cast<int>(35 - (-5) + 1));
-	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) year_values[i] = -5 + (rand() % static_cast<int>(35 - (-5) + 1));
 }
 
 template<class ReturnType>
@@ -747,6 +734,7 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 
 		sensor["tit"] = title;
 		sensor["unit"] = unit;
+		sensor["typ"] = type;
 	}
 
 	//Sensor View
@@ -787,6 +775,7 @@ void BaseSensor<ReturnType>::serializeJSON(uint8_t id, char * json, size_t maxSi
 
 		sensor["id"] = id;
 		sensor["tit"] = title;
+		sensor["typ"] = type;
 		sensor["unit"] = unit;
 		sensor["nan"] = nan_val;
 		sensor["min"] = min_val;
@@ -897,6 +886,7 @@ AnalogMoistureSensor<ReturnType>::AnalogMoistureSensor(uint8_t pin, uint8_t powe
 	this->power_pin = power_pin;
 	this->active = active;
 	this->title = title;
+	this->type = 2;
 	this->unit = unit;
 	this->nan_val = nan_val;
 	this->min_val = min_val;
@@ -1041,6 +1031,25 @@ void AnalogMoistureSensor<ReturnType>::setLowerThreshold()
 }
 
 template<class ReturnType>
+void AnalogMoistureSensor<ReturnType>::reset()
+{
+	this->lower_threshold = 0;
+	this->upper_threshold = 0;
+
+	this->minute_ptr = SENS_VALUES_MIN;
+	this->hour_ptr = SENS_VALUES_HOUR;
+	this->day_ptr = SENS_VALUES_DAY;
+	this->month_ptr = SENS_VALUES_MONTH;
+	this->year_ptr = SENS_VALUES_YEAR;
+
+	for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) this->minute_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_HOUR; i++) this->hour_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) this->day_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) this->month_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) this->year_values[i] = this->nan_val;
+}
+
+template<class ReturnType>
 bool AnalogMoistureSensor<ReturnType>::compareWithValue(RelOp relop, Interval interval, int value)
 {
 	bool state;
@@ -1087,14 +1096,15 @@ DHTTemperature::DHTTemperature(DHT *hardware, bool active, String title, String 
 	this->dht = hardware;
 
 	this->title = title;
+	this->type = 0;
 	this->active = active;
 	this->unit = unit;
 	this->nan_val = nan_val;
 	this->max_val = max_val;
 	this->min_val = min_val;
 
-	this->lower_threshold = 0;
-	this->upper_threshold = 0;
+	this->lower_threshold = nan_val;
+	this->upper_threshold = nan_val;
 }
 
 int8_t DHTTemperature::readRaw()
@@ -1119,6 +1129,25 @@ void DHTTemperature::setUpperThreshold()
 
 void DHTTemperature::setLowerThreshold()
 {
+
+}
+
+void DHTTemperature::reset()
+{
+	this->lower_threshold = this->nan_val;
+	this->upper_threshold = this->nan_val;
+
+	this->minute_ptr = SENS_VALUES_MIN;
+	this->hour_ptr = SENS_VALUES_HOUR;
+	this->day_ptr = SENS_VALUES_DAY;
+	this->month_ptr = SENS_VALUES_MONTH;
+	this->year_ptr = SENS_VALUES_YEAR;
+
+	for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) this->minute_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_HOUR; i++) this->hour_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) this->day_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) this->month_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) this->year_values[i] = this->nan_val;
 }
 
 bool DHTTemperature::compareWithValue(RelOp relop, Interval interval, int value)
@@ -1142,14 +1171,15 @@ DHTHumidity::DHTHumidity(DHT *hardware, bool active, String title, String unit, 
 	this->dht = hardware;
 
 	this->title = title;
+	this->type = 1;
 	this->active = active;
 	this->unit = unit;
 	this->nan_val = nan_val;
 	this->max_val = max_val;
 	this->min_val = min_val;
 
-	this->lower_threshold = 0;
-	this->upper_threshold = 0;
+	this->lower_threshold = nan_val;
+	this->upper_threshold = nan_val;
 }
 
 int8_t DHTHumidity::readRaw()
@@ -1173,6 +1203,24 @@ void DHTHumidity::setUpperThreshold()
 
 void DHTHumidity::setLowerThreshold()
 {
+}
+
+void DHTHumidity::reset()
+{
+	this->lower_threshold = this->nan_val;
+	this->upper_threshold = this->nan_val;
+
+	this->minute_ptr = SENS_VALUES_MIN;
+	this->hour_ptr = SENS_VALUES_HOUR;
+	this->day_ptr = SENS_VALUES_DAY;
+	this->month_ptr = SENS_VALUES_MONTH;
+	this->year_ptr = SENS_VALUES_YEAR;
+
+	for (uint8_t i = 0; i < SENS_VALUES_MIN; i++) this->minute_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_HOUR; i++) this->hour_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_DAY; i++) this->day_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_MONTH; i++) this->month_values[i] = this->nan_val;
+	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) this->year_values[i] = this->nan_val;
 }
 
 bool DHTHumidity::compareWithValue(RelOp relop, Interval interval, int value)

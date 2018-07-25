@@ -3,9 +3,11 @@
 // 
 
 #include "RCSocketController.h"
-RCSocketCodeSet::RCSocketCodeSet(String title, int repeat)
+RCSocketCodeSet::RCSocketCodeSet(uint8_t id, int repeat)
 {
-	this->title = title;
+	this->id = id;
+	this->title = "";
+	this->active = false;
 	this->repeat = repeat;
 
 	for (uint8_t i = 0; i < RC_SIGNALS; i++) {
@@ -133,15 +135,14 @@ uint8_t RCSocketCodeSet::numberSignals()
 	return RC_SIGNALS;
 }
 
-void RCSocketCodeSet::serializeJSON(uint8_t id, JsonObject &codeset, Scope scope)
+void RCSocketCodeSet::serializeJSON(JsonObject &codeset, Scope scope)
 {
-	if(scope == LIST || scope == DETAILS) codeset["act"] = active;
+	if (scope == LIST || scope == DETAILS) codeset["id"] = id;
+	if (scope == LIST || scope == DETAILS) codeset["act"] = active;
 	if (scope == LIST || scope == DETAILS) codeset["tit"] = title;
+	
 	if (scope == DETAILS) {
-		codeset["id"] = id;
 		codeset["obj"] = "RCSOCKET";
-		codeset["tol"] = nReceiveTolerance;
-		codeset["tol"] = nReceiveTolerance;
 		codeset["rep"] = repeat;
 	}
 	
@@ -164,7 +165,6 @@ bool RCSocketCodeSet::deserializeJSON(JsonObject &data)
 	if (data.success() == true) {
 		if (data["tit"] != "") title = data["tit"].asString();
 		if (data["act"] != "") active = data["act"];
-		if (data["tol"] != "") nReceiveTolerance = data["tol"];
 		if (data["rep"] != "") repeat = data["rep"];
 
 		for (uint8_t j = 0; j < RC_SIGNALS; j++) if (data["value"][j] != "") nReceivedValue[j] = data["value"][j];
@@ -186,7 +186,7 @@ RCSocketController::RCSocketController(uint8_t transmitter, uint8_t receiver)
 	transmitter_pin = transmitter;
 
 	for (uint8_t i = 0; i < RC_SOCKETS; i++) {
-		socketcode[i] = new RCSocketCodeSet("Signal " + String(i), RC_REPEAT);
+		socketcode[i] = new RCSocketCodeSet(i, RC_REPEAT);
 	}
 	LOGMSG(F("[RCSocketController]"), F("OK: Started 433Mhz Controller."), F("Supported Sockets"), String(RC_SOCKETS), "");
 }
@@ -288,13 +288,9 @@ void RCSocketController::resetSettings()
 {
 	learningmode_off();
 	
-	for (uint8_t i = 0; i < RC_SIGNALS; i++) {
-		socketcode[code_set_ptr]->nReceivedDelay[i] = 0;
-		socketcode[code_set_ptr]->nReceivedProtocol[i] = 0;
-		socketcode[code_set_ptr]->nReceivedValue[i] = 0;
-		socketcode[code_set_ptr]->nReceivedBitlength[i] = 0;
+	for (uint8_t i = 0; i < RC_SOCKETS; i++) {
+		resetSettings(i);
 	}
-	socketcode[code_set_ptr]->active = false;
 }
 
 void RCSocketController::resetSettings(uint8_t set)
@@ -308,7 +304,7 @@ void RCSocketController::resetSettings(uint8_t set)
 		socketcode[set]->nReceivedValue[i] = 0;
 		socketcode[set]->nReceivedBitlength[i] = 0;
 	}
-
+	socketcode[set]->title = "";
 	socketcode[set]->active = false;
 	
 }
@@ -394,7 +390,7 @@ void RCSocketController::serializeJSON(uint8_t set, char * json, size_t maxSize,
 
 	JsonObject& socket = jsonBuffer.createObject();
 	
-	socketcode[set]->serializeJSON(set, socket, scope);
+	socketcode[set]->serializeJSON(socket, scope);
 	
 	socket.printTo(json, maxSize);
 	LOGDEBUG2(F("[RCSocketController]"), F("serializeJSON()"), F("OK: Serialized remote sockets"), String(socket.measureLength()), String(maxSize), "");
@@ -411,7 +407,7 @@ void RCSocketController::serializeJSON(char * json, size_t maxSize, Scope scope)
 
 	for (uint8_t i = 0; i < RC_SOCKETS; i++) {
 		JsonObject& socket = jsonBuffer.createObject();
-		socketcode[i]->serializeJSON(i, socket, scope);
+		socketcode[i]->serializeJSON(socket, scope);
 		list.add(socket);
 	}
 

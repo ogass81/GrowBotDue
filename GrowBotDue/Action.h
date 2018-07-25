@@ -23,10 +23,12 @@ class Action {
 public:
 	String title;
 	bool visible;
+	
 	//Pointer to Action that does the opposite
+	String group_title;
 	Action *antaObject = NULL;
 
-	void setAntagonist(Action *aObject);
+	void setAntagonist(String group_title, Action *aObject);
 	virtual void execute();
 	//Serialize
 	virtual void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);

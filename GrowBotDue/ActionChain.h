@@ -21,6 +21,7 @@ extern Action *actions[ACTIONS_NUM];
 
 class ActionChain {
 public:
+	uint8_t id;
 	bool active;
 	String title;
 

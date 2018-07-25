@@ -21,18 +21,20 @@ extern bool haltstate;
 
 class RCSocketCodeSet {
 public:
-	bool active = false;
+	uint8_t id;
+	bool active;
 	String title;
 	
-	int nReceiveTolerance = 0;
+	int repeat = 0;
+
 	unsigned long nReceivedValue[RC_SIGNALS];
 	unsigned int nReceivedDelay[RC_SIGNALS];
 	unsigned int nReceivedProtocol[RC_SIGNALS];
 	unsigned int nReceivedBitlength[RC_SIGNALS];
-	int repeat = 0;
+
 	uint8_t signal_ptr = 0;
 
-	RCSocketCodeSet(String title, int repeat);
+	RCSocketCodeSet(uint8_t id, int repeat);
 	void incSignalPtr();
 	void decSignalPtr();
 
@@ -57,7 +59,7 @@ public:
 	bool isNewSignal(long dec_val);
 	uint8_t numberSignals();
 
-	void serializeJSON(uint8_t id, JsonObject & codeset, Scope scope);
+	void serializeJSON(JsonObject & codeset, Scope scope);
 	bool deserializeJSON(JsonObject & data);
 };
 
