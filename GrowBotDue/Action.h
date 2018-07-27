@@ -29,12 +29,13 @@ public:
 	Action *antaObject = NULL;
 
 	void setAntagonist(String group_title, Action *aObject);
+
 	virtual void execute();
 	//Serialize
 	virtual void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
 
 	//UI Output
-	String getTitle();
+	virtual String getTitle();
 };
 // Wrapper for Simple Actions that include only one Callback Function
 template <class ActionType>
@@ -49,6 +50,7 @@ public:
 	void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
 
 	void execute();
+	String getTitle();
 };
 
 template <class ActionType>
@@ -64,5 +66,21 @@ public:
 	void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
 
 	void execute();
+	String getTitle();
 };
+
+template <class ActionType>
+class NamedParameterizedSimpleAction : public ParameterizedSimpleAction<ActionType> {
+public:
+	String (ActionType::*getForeignTitle)(int);
+
+	NamedParameterizedSimpleAction(String title, ActionType *actionObj, void (ActionType::*cFunct)(int), String (ActionType::*getTitle)(int), int par, bool visible = false);
+
+	//Overwrite
+	void serializeJSON(uint8_t id, char* json, size_t maxSize, Scope scope);
+	String getTitle();
+};
+
 #endif
+
+

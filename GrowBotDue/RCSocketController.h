@@ -96,6 +96,9 @@ public:
 	static const char * bin2tristate(const char * bin);
 	static String dec2binWzerofill(unsigned long Dec, unsigned int bitLength);
 
+	//UI
+	String getTitle(int set);
+
 	//Serialize
 	void serializeJSON(uint8_t set, char* json, size_t maxSize, Scope scope);
 	void serializeJSON(char * json, size_t maxSize, Scope scope);

@@ -122,14 +122,14 @@ void setup() {
 	sensors[3] = new 	AnalogMoistureSensor<short>(IN_MOS_2, OUT_MOS_2, true, F("Soil 2"), F("%"), -1, 0, 1000, 150, 600);
 
 	//Intialize Actions
-	actions[0] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 0, true);
-	actions[1] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 1, true);
-	actions[2] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 2, true);
-	actions[3] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 3, true);
-	actions[4] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 4, true);
-	actions[5] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 5, true);
-	actions[6] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 6, true);
-	actions[7] = new ParameterizedSimpleAction<RCSocketController>("Send Signal", rcsocketcontroller, &RCSocketController::sendCode, 7, true);
+	actions[0] = new NamedParameterizedSimpleAction<RCSocketController>("Send", rcsocketcontroller, &RCSocketController::sendCode, &RCSocketController::getTitle, 0, true);
+	actions[1] = new NamedParameterizedSimpleAction<RCSocketController>("Send", rcsocketcontroller, &RCSocketController::sendCode, &RCSocketController::getTitle, 1, true);
+	actions[2] = new NamedParameterizedSimpleAction<RCSocketController>("Send", rcsocketcontroller, &RCSocketController::sendCode, &RCSocketController::getTitle, 2, true);
+	actions[3] = new NamedParameterizedSimpleAction<RCSocketController>("Send", rcsocketcontroller, &RCSocketController::sendCode, &RCSocketController::getTitle, 3, true);
+	actions[4] = new NamedParameterizedSimpleAction<RCSocketController>("Send", rcsocketcontroller, &RCSocketController::sendCode, &RCSocketController::getTitle, 4, true);
+	actions[5] = new NamedParameterizedSimpleAction<RCSocketController>("Send", rcsocketcontroller, &RCSocketController::sendCode, &RCSocketController::getTitle, 5, true);
+	actions[6] = new NamedParameterizedSimpleAction<RCSocketController>("Send", rcsocketcontroller, &RCSocketController::sendCode, &RCSocketController::getTitle, 6, true);
+	actions[7] = new NamedParameterizedSimpleAction<RCSocketController>("Send", rcsocketcontroller, &RCSocketController::sendCode, &RCSocketController::getTitle, 7, true);
 	
 	//Define Opposite Action / Antagonist
 	//RC1

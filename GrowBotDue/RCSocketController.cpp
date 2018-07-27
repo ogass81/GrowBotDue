@@ -6,7 +6,7 @@
 RCSocketCodeSet::RCSocketCodeSet(uint8_t id, int repeat)
 {
 	this->id = id;
-	this->title = "";
+	this->title = String("Signal " + id);
 	this->active = false;
 	this->repeat = repeat;
 
@@ -304,7 +304,7 @@ void RCSocketController::resetSettings(uint8_t set)
 		socketcode[set]->nReceivedValue[i] = 0;
 		socketcode[set]->nReceivedBitlength[i] = 0;
 	}
-	socketcode[set]->title = "";
+	socketcode[set]->title = "Signal " + String(set);
 	socketcode[set]->active = false;
 	
 }
@@ -382,6 +382,11 @@ String RCSocketController::dec2binWzerofill(unsigned long Dec, unsigned int bitL
 	
 
 	return String(bin);
+}
+
+String RCSocketController::getTitle(int set)
+{
+	return String(socketcode[set]->title);
 }
 
 void RCSocketController::serializeJSON(uint8_t set, char * json, size_t maxSize, Scope scope)
