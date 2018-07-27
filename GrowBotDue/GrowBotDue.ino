@@ -133,17 +133,17 @@ void setup() {
 	
 	//Define Opposite Action / Antagonist
 	//RC1
-	actions[0]->setAntagonist("Socket 1", actions[1]);
-	actions[1]->setAntagonist("Socket 1", actions[0]);
+	actions[0]->setAntagonist("Group 1", actions[1]);
+	actions[1]->setAntagonist("Group 1", actions[0]);
 	//RC2
-	actions[2]->setAntagonist("Socket 2", actions[3]);
-	actions[3]->setAntagonist("Socket 2", actions[2]);
+	actions[2]->setAntagonist("Group 2", actions[3]);
+	actions[3]->setAntagonist("Group 2", actions[2]);
 	//RC3
-	actions[4]->setAntagonist("Socket 3", actions[5]);
-	actions[5]->setAntagonist("Socket 3", actions[4]);
+	actions[4]->setAntagonist("Group 3", actions[5]);
+	actions[5]->setAntagonist("Group 3", actions[4]);
 	//RC4
-	actions[6]->setAntagonist("Socket 4", actions[7]);
-	actions[7]->setAntagonist("Socket 4", actions[6]);
+	actions[6]->setAntagonist("Group 4", actions[7]);
+	actions[7]->setAntagonist("Group 4", actions[6]);
 
 
 	//Initialize ActionChains
