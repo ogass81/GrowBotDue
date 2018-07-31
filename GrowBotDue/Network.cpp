@@ -57,7 +57,7 @@ void WebServer::sendPayload(WiFiEspClient client, String payload)
 
 			String package = payload.substring(lower_boundery, upper_boundery);
 			client.print(package);
-			delay(50);
+			delay(25);
 		}
 	}
 }
@@ -636,7 +636,7 @@ void WebServer::checkConnection()
 
 
 		// give the web browser time to receive the data
-		delay(200);
+		delay(150);
 		// close the connection:
 		client.stop();
 		LOGMSG(F("[WebServer]"), F("OK: Client disconnected"), "@" + RealTimeClock::printTime(SENS_FRQ_SEC*sensor_cycles), F("IPV4"), client.remoteIP());

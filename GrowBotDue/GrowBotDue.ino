@@ -34,11 +34,17 @@
 
 //Tact Generator
 long sensor_cycles = 0;
-long cpu_current = 0;
-long sensor_last = 0;
-long task_last = 0;
+uint8_t current_seconds = 0;
+uint8_t sensor_last_seconds = 0;
+uint8_t task_last_seconds = 0;
+
+
+unsigned long cpu_current = 0;
+unsigned long  next_task = 0;
+unsigned long next_sensor = 0;
+
 bool haltstate = false;
-long haltstate_start;
+long haltstate_start = 0;
 
 //Wifi and Auth
 String wifi_ssid;
@@ -222,6 +228,9 @@ void setup() {
 		status = WiFi.begin(ssid, pw);
 		failed++;
 	}
+	//Start Webserver
+	webserver = new WebServer();
+	webserver->begin();
 
 	//Sync with Internet
 	ntpclient = new WebTimeClient();
@@ -234,26 +243,22 @@ void setup() {
 
 		internalRTC.updateTime(timestamp, true);
 	}
-
-
-	//Start Webserver
-	webserver = new WebServer();
-	webserver->begin();
+	sensor_last_seconds = internalRTC.getSeconds();
+	task_last_seconds = sensor_last_seconds;
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-	
-	//Get Current CPU tact
+	//Get Seconds from Clock
 	cpu_current = millis();
-	
-	//Webserver
-	webserver->checkConnection();
+	if (cpu_current % 25 == 0) {
+		//Webserver
+		webserver->checkConnection();
+	}
 	
 	//Freeze Sensor, Logic and Taskmanager
 	if (haltstate == true) {
-		//Led
-		led[1]->turnOn();
+		led[0]->turnOn();
 		//RC Socket Learning
 		if (rcsocketcontroller->learning == true) {
 			if (rcsocketcontroller->available()) {
@@ -265,17 +270,16 @@ void loop() {
 	}
 	//Regular Cycle
 	else {
-		led[1]->turnOff();
 		//Sensor
-		if (cpu_current - sensor_last >= (SENS_FRQ_SEC * 1000)) {
-			led[0]->switchState();
-
-			sensor_last = cpu_current;
-
+		if (cpu_current >= next_sensor) {
 			//Cycles
+			next_sensor = 5 * MILLIS_SEC - (cpu_current - next_sensor) + cpu_current;
+
 			sensor_cycles++;
 
-			LOGMSG(F("[Loop]"), F("INFO: Sensor Cycle"), String(sensor_cycles), "@", String(RealTimeClock::printTime(SENS_FRQ_SEC*sensor_cycles)));
+			led[0]->switchState();
+			LOGMSG(F("[Loop]"), F("INFO: Sensor Cycle"), String(sensor_cycles), String(RealTimeClock::printTime(sensor_cycles * SENS_FRQ_SEC)), String(RealTimeClock::printTime(internalRTC.getEpochTime())));
+			//LOGDEBUG4(F("Millis Cycle"), String(sensor_cycles * SENS_FRQ_SEC), F("RTC Cycle"), String(internalRTC.getEpochTime()), F("Millis Clock"), String(RealTimeClock::printTime(sensor_cycles * SENS_FRQ_SEC)), F("RTC Clock"), String(RealTimeClock::printTime(internalRTC.getEpochTime())));
 
 			//Update Sensors
 			for (uint8_t i = 0; i < SENS_NUM; i++) {
@@ -285,14 +289,16 @@ void loop() {
 			//Check RuleSets
 			for (uint8_t i = 0; i < RULESETS_NUM; i++) {
 				rulesets[i]->execute();
+
 			}
+			
 			//Save Settings to SD Card
 			if ((sensor_cycles % (5 * SENS_VALUES_MIN)) == 0) {
 				
 				LOGMSG(F("[Loop]"), F("SaveActive"), "", "", "");
-				String keys[] = { "" };
-				String values[] = { "" };
-				logengine.addLogEntry(0, "Main", "Saved Active Configuration", keys, values, 0);
+				String keys[] = { "cycle", "Cycle Time", "cycle time", "RTC millis"};
+				String values[] = { String(sensor_cycles), String(RealTimeClock::printTime(sensor_cycles * SENS_FRQ_SEC)), String(internalRTC.getEpochTime() - internalRTC.timezone_offset)};
+				logengine.addLogEntry(0, "Main", "Saved Active Configuration", keys, values, 4);
 
 				Setting::saveSettings("_CURRENTCONFIG.JSON");
 			}
@@ -308,9 +314,14 @@ void loop() {
 			}		
 		}
 
+		//Get Seconds from Clock
+		cpu_current = millis();
 		//Task Manager
-		if (cpu_current - task_last >= (TASK_FRQ_SEC * 1000)) {
-			task_last = cpu_current;
+		if (cpu_current >= next_task) {
+			//Cycles
+			next_task = 1 * MILLIS_SEC - (cpu_current - next_task) + cpu_current;
+			
+			//Do
 			taskmanager->execute();
 		}
 	}

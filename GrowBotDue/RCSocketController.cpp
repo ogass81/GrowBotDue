@@ -194,24 +194,28 @@ RCSocketController::RCSocketController(uint8_t transmitter, uint8_t receiver)
 void RCSocketController::receiver_on()
 {
 	enableReceive(receiver_pin);
+	led[1]->turnOn();
 	LOGDEBUG(F("[RCSocketController]"), F("receiver_on()"), F("OK: Turning on Receiver"), F("Pin"), String(receiver_pin), "");
 }
 
 void RCSocketController::receiver_off()
 {
 	disableReceive();
+	led[1]->turnOff();
 	LOGDEBUG(F("[RCSocketController]"), F("receiver_off()"), F("OK: Turning off Receiver"), F("Pin"), String(receiver_pin), "");
 }
 
 void RCSocketController::transmitter_on()
 {
 	enableTransmit(transmitter_pin);
+	led[1]->turnOn();
 	LOGDEBUG(F("[RCSocketController]"), F("transmitter_on()"), F("OK: Turning on Transmitter"), F("Pin"), String(transmitter_pin), "");
 }
 
 void RCSocketController::transmitter_off()
 {
 	disableTransmit();
+	led[1]->turnOff();
 	LOGDEBUG(F("[RCSocketController]"), F("transmitter_off()"), F("OK: Turning off Transmitter"), F("Pin"), String(transmitter_pin), "");
 }
 

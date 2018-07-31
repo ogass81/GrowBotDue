@@ -76,7 +76,9 @@ void Setting::serializeJSON(char * json, size_t maxSize)
 	settings["wifi_SSID"] = wifi_ssid;
 	settings["wifi_pw"] = wifi_pw;
 	settings["api_secret"] = api_secret;
-	settings["time"] = internalRTC.getEpochTime() - internalRTC.timezone_offset; //UTC
+	//RTC problem 	settings["time"] = internalRTC.getEpochTime() - internalRTC.timezone_offset; //UTC
+	settings["time"] = sensor_cycles * SENS_FRQ_SEC - internalRTC.timezone_offset;
+
 	settings["timezone"] = internalRTC.timezone_offset;
 	settings["log_size"] = logengine.counter;
 	settings.printTo(json, maxSize);

@@ -32,7 +32,7 @@ void RealTimeClock::updateTime(tmElements_t timeset, bool adjust)
 
 	LOGDEBUG2(F("[RealTimeClock]"), F("setTime(timeset)"), F("OK: Updated RTC"), String((uint16_t)(timeset.Year + 1970)), String(timeset.Month), String(timeset.Day));
 
-	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
+	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute, timeset.Second);
 }
 
 void RealTimeClock::updateTime(time_t timestamp, bool adjust)
@@ -49,7 +49,7 @@ void RealTimeClock::updateTime(time_t timestamp, bool adjust)
 
 	LOGDEBUG2(F("[RealTimeClock]"), F("setTime(timestamp)"), F("OK: Updated RTC"), String((uint16_t)(timeset.Year + 1970)), String(timeset.Month), String(timeset.Day));
 
-	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
+	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute, timeset.Second);
 }
 
 void RealTimeClock::updateTime(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, bool adjust)
@@ -67,7 +67,7 @@ void RealTimeClock::updateTime(uint8_t year, uint8_t month, uint8_t day, uint8_t
 
 	LOGDEBUG2(F("[RealTimeClock]"), F("setTime(single values UINT8)"), F("OK: Updated RTC"), String((uint16_t)(timeset.Year + 1970)), String(timeset.Month), String(timeset.Day));
 
-	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
+	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute, timeset.Second);
 }
 
 void RealTimeClock::updateTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, bool adjust)
@@ -85,7 +85,7 @@ void RealTimeClock::updateTime(int year, uint8_t month, uint8_t day, uint8_t hou
 	
 	LOGDEBUG2(F("[RealTimeClock]"), F("setTime(single values INT)"), F("OK: Updated RTC"), String((uint16_t)(timeset.Year + 1970)), String(timeset.Month), String(timeset.Day));
 
-	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute);
+	syncSensorCycles(timeset.Year, timeset.Month, timeset.Day, timeset.Hour, timeset.Minute, timeset.Second);
 }
 
 void RealTimeClock::setDefaultTime()
@@ -116,7 +116,7 @@ void RealTimeClock::setDefaultTime()
 
 	LOGDEBUG2(F("[RealTimeClock]"), F("setdefaultTime()"), String(defaulttime.Year), String(defaulttime.Month), String(defaulttime.Day), String(__TIME__));
 
-	syncSensorCycles(defaulttime.Year, defaulttime.Month, defaulttime.Day, defaulttime.Hour, defaulttime.Minute);
+	syncSensorCycles(defaulttime.Year, defaulttime.Month, defaulttime.Day, defaulttime.Hour, defaulttime.Minute, defaulttime.Second);
 }
 
 
@@ -170,6 +170,7 @@ long RealTimeClock::getEpochTime()
 }
 
 
+
 String RealTimeClock::printDate(time_t timestamp)
 {
 	tmElements_t timeset;
@@ -205,21 +206,21 @@ void RealTimeClock::syncSensorCycles()
 
 	timeset.Hour = getHours();
 	timeset.Minute = getMinutes();
-	timeset.Second = 0;
+	timeset.Second = getSeconds();
 
 	sensor_cycles =  makeTime(timeset) / SENS_FRQ_SEC;
 	LOGDEBUG2(F("[RealTimeClock]"), F("syncSensorCycles()"), F("OK: Set new sensor cycle"), String(sensor_cycles), "", "");
 }
 
-void RealTimeClock::syncSensorCycles(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute)
+void RealTimeClock::syncSensorCycles(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
 {
-	sensor_cycles = toEpochTime(year, month, day, hour, minute, 0) / SENS_FRQ_SEC;
+	sensor_cycles = toEpochTime(year, month, day, hour, minute, second) / SENS_FRQ_SEC;
 	LOGDEBUG2(F("[RealTimeClock]"), F("syncSensorCycles(single values UINT8)"), F("OK: Set new sensor cycle"), String(sensor_cycles), "", "");
 }
 
-void RealTimeClock::syncSensorCycles(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute)
+void RealTimeClock::syncSensorCycles(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
 {
-	sensor_cycles = toEpochTime(year - 1970, month, day, hour, minute, 0) / SENS_FRQ_SEC;
+	sensor_cycles = toEpochTime(year - 1970, month, day, hour, minute, second) / SENS_FRQ_SEC;
 	LOGDEBUG2(F("[RealTimeClock]"), F("syncSensorCycles(single values INT)"), F("OK: Set new sensor cycle"), String(sensor_cycles), "", "");
 }
 

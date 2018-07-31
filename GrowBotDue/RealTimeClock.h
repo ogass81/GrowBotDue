@@ -43,8 +43,8 @@ public:
 	String static printTime(time_t timestamp);
 
 	void syncSensorCycles();
-	void syncSensorCycles(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute);
-	void syncSensorCycles(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute);
+	void syncSensorCycles(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
+	void syncSensorCycles(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
 	void syncSensorCycles(time_t timestamp);
 };
 #endif

@@ -14,6 +14,7 @@
 #include <RCSwitch.h>
 #include "RealTimeClock.h"
 #include "LogEngine.h"
+#include "Led.h"
 
 extern LogEngine logengine;
 extern RealTimeClock internalRTC;

@@ -47,7 +47,8 @@ String LogEntry::serializeJSON()
 	
 	log["id"] = id;
 	log["typ"] = type;
-	log["time"] = internalRTC.getEpochTime() - internalRTC.timezone_offset;
+	//RTC problem log["time"] = internalRTC.getEpochTime() - internalRTC.timezone_offset;
+	log["time"] = sensor_cycles * SENS_FRQ_SEC - internalRTC.timezone_offset;
 	log["src"] = origin;
 	log["msg"] = message;
 

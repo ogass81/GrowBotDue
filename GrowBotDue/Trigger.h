@@ -28,6 +28,8 @@ public:
 	String title;
 	String source;
 	bool active;
+	bool fired;
+
 	TriggerTypes type;
 
 	//Time
@@ -38,6 +40,7 @@ public:
 	//Threshold
 	RelOp relop;
 	short threshold;
+	short tolerance; //Percent
 
 	//Trigger repeat interval or trigger time windows for average
 	Interval interval;
@@ -70,6 +73,8 @@ public:
 	bool deserializeJSON(JsonObject& data);
 
 	void reset();
+private:
+	bool checkStateInterval(long sensor_start, uint8_t length);
 };
 
 //Specialization of Trigger with predefined methods for generic sensors

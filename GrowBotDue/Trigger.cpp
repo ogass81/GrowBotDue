@@ -59,8 +59,10 @@ void TimeTrigger::serializeJSON(uint8_t cat, uint8_t id, char * json, size_t max
 		trigger["start_time"] = start_time;
 		trigger["end_time"] = end_time;
 		trigger["relop"] = static_cast<int>(relop);
+		trigger["fire"] = fired;
 		trigger["val"] = threshold;
 		trigger["intv"] = static_cast<int>(interval);
+		trigger["tol"] = tolerance;
 	}
 
 	trigger.printTo(json, maxSize);
@@ -72,9 +74,11 @@ bool TimeTrigger::deserializeJSON(JsonObject& data)
 	if (data.success() == true) {
 		if (data["tit"] != "") title = data["tit"].asString();
 		if (data["act"] != "") active = data["act"];
+		if (data["fire"] != "") fired = data["fire"];
 		if (data["start_time"] != "") start_time = data["start_time"];
 		if (data["end_time"] != "") end_time = data["end_time"];	
 		if (data["val"] != "") threshold = data["val"];
+		if (data["tol"] != "") tolerance = data["tol"];
 
 		if (data["typ"] != "") {
 			if (data["typ"] == 0) type = TIME;
@@ -89,6 +93,7 @@ bool TimeTrigger::deserializeJSON(JsonObject& data)
 			if (data["relop"] == 0) relop = SMALLER;
 			else if (data["relop"] == 1) relop = EQUAL;
 			else if (data["relop"] == 2) relop = GREATER;
+			else if (data["relop"] == 3) relop = NOTEQUAL;
 			else {
 				relop = EQUAL;
 				active = false;
@@ -134,6 +139,7 @@ void TimeTrigger::reset()
 	title += String(id);
 
 	active = false;
+	fired = false;
 
 	start_time = RealTimeClock::toEpochTime(internalRTC.defaulttime.Year, internalRTC.defaulttime.Month, internalRTC.defaulttime.Day, 0, 0, 0);
 	end_time = RealTimeClock::toEpochTime(internalRTC.defaulttime.Year, internalRTC.defaulttime.Month + 1, internalRTC.defaulttime.Day, 0, 0, 0);
@@ -141,7 +147,9 @@ void TimeTrigger::reset()
 	interval = ONEMIN;
 	relop = EQUAL;
 	threshold = 0;
+	tolerance = 0;
 }
+
 
 TimeTrigger::TimeTrigger(int id)
 	: Trigger()
@@ -160,35 +168,206 @@ bool TimeTrigger::checkState()
 	bool state = false;
 	
 	//Transform Timestamp in Sensor Cycles as common base
-	sensor_start = start_time + internalRTC.timezone_offset / SENS_FRQ_SEC;
-	sensor_end = end_time + internalRTC.timezone_offset / SENS_FRQ_SEC;
+	sensor_start = (start_time + internalRTC.timezone_offset) / SENS_FRQ_SEC;
+	sensor_end = (end_time + internalRTC.timezone_offset) / SENS_FRQ_SEC;
 
 	if (active == true) {
 		if (sensor_cycles > sensor_start && sensor_cycles < sensor_end) {
-			if (interval == REALTIME) state = true;
-			else if (interval == TENSEC && ((sensor_cycles - sensor_start) % (10 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == TWENTYSEC && ((sensor_cycles - sensor_start) % (20 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == THIRTYSEC && ((sensor_cycles - sensor_start) % (30 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == ONEMIN && ((sensor_cycles - sensor_start) % (60 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == TWOMIN && ((sensor_cycles - sensor_start) % (120 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == FIVEMIN && ((sensor_cycles - sensor_start) % (300 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == QUARTER && ((sensor_cycles - sensor_start) % (900 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == HALF && ((sensor_cycles - sensor_start) % (1800 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == ONE && ((sensor_cycles - sensor_start) % (3600 / SENS_FRQ_SEC)) == 0)  state = true;
-			else if (interval == TWO && ((sensor_cycles - sensor_start) % (7200 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == THREE && ((sensor_cycles - sensor_start) % (10800 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == FOUR && ((sensor_cycles - sensor_start) % (14400 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == SIX && ((sensor_cycles - sensor_start) % (21600 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == TWELVE && ((sensor_cycles - sensor_start) % (43200 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == DAILY && ((sensor_cycles - sensor_start) % (86400 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == BIDAILY && ((sensor_cycles - sensor_start) % (172800 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == WEEKLY && ((sensor_cycles - sensor_start) % (604800 / SENS_FRQ_SEC)) == 0) state = true;
-			else if (interval == BIWEEKLY && ((sensor_cycles - sensor_start) % (1209600 / SENS_FRQ_SEC)) == 0) state = true;
-			LOGMSG(F("[Trigger]"), F("OK: Time Trigger Checked"), String(getTitle()), F("Time Constraint"), state);
+			switch (interval) {
+			case REALTIME:
+				state = true;
+				break;
+			case TENSEC:
+				if (checkStateInterval(sensor_start, 10)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 15)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case TWENTYSEC:
+				if (checkStateInterval(sensor_start, 20))	{
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 25)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case THIRTYSEC:
+				if (checkStateInterval(sensor_start, 30)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 40)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case ONEMIN:
+				if (checkStateInterval(sensor_start, 60)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 75)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case TWOMIN:
+				if (checkStateInterval(sensor_start, 120)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 150)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case FIVEMIN:
+				if (checkStateInterval(sensor_start, 300)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 375)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case QUARTER:
+				if (checkStateInterval(sensor_start, 900)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 1125)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case HALF:
+				if (checkStateInterval(sensor_start, 1800)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 2250)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case ONE:
+				if (checkStateInterval(sensor_start, 3600)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 4500)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case TWO:
+				if (checkStateInterval(sensor_start, 7200)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 8100)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case THREE:
+				if (checkStateInterval(sensor_start, 10800)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 11700)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case FOUR:
+				if (checkStateInterval(sensor_start, 14400)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 15300)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case SIX:
+				if (checkStateInterval(sensor_start, 21600)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 22500)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case TWELVE:
+				if (checkStateInterval(sensor_start, 43200)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 44100)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case DAILY:
+				if (checkStateInterval(sensor_start, 86400)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 90000)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case BIDAILY:
+				if (checkStateInterval(sensor_start, 172800)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 176400)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case WEEKLY:
+				if (checkStateInterval(sensor_start, 604800)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 608400)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			case BIWEEKLY:
+				if (checkStateInterval(sensor_start, 1209600)) {
+					fired = true;
+					state = true;
+				}
+				else if (checkStateInterval(sensor_start, 1213200)) {
+					if (fired != true) state = true;
+					else fired = false;
+				}
+				break;
+			}
 		}
 	}
 	return state;
 }
+
+bool TimeTrigger::checkStateInterval(long sensor_start, uint8_t length)
+{
+	return 	((sensor_cycles - sensor_start) % (length / SENS_FRQ_SEC) == 0);
+}
+
 
 SensorTrigger::SensorTrigger(int id, Sensor *ptr)
 	: Trigger()
@@ -205,7 +384,7 @@ bool SensorTrigger::checkState()
 {
 	bool state = false;
 
-	if (active == true) state = sens_ptr->compareWithValue(relop, interval, threshold);
+	if (active == true) state = sens_ptr->compareWithValue(relop, interval, threshold, tolerance);
 	else state = false;
 
 	LOGMSG(F("[Trigger]"), String("OK: Sensor Trigger Checked " + getTitle()), threshold, interval, state);
@@ -234,6 +413,7 @@ if (scope == DETAILS) {
 	trigger["intv"] = static_cast<int>(interval);
 	trigger["relop"] = static_cast<int>(relop);
 	trigger["val"] = threshold;
+	trigger["tol"] = tolerance;
 }
 
 trigger.printTo(json, maxSize);
@@ -248,11 +428,13 @@ bool SensorTrigger::deserializeJSON(JsonObject& data)
 		if (data["start_time"] != "") start_time = data["start_time"];
 		if (data["end_time"] != "") end_time = data["end_time"];
 		if (data["val"] != "") threshold = data["val"];
+		if (data["tol"] != "") tolerance = data["tol"];
 
 		if (data["relop"] != "") {
 			if (data["relop"] == 0) relop = SMALLER;
 			else if (data["relop"] == 1) relop = EQUAL;
 			else if (data["relop"] == 2) relop = GREATER;
+			else if (data["relop"] == 3) relop = NOTEQUAL;
 			else {
 				relop = EQUAL;
 				active = false;
@@ -298,6 +480,7 @@ void SensorTrigger::reset()
 	title += String(id);
 
 	active = false;
+	fired = false;
 	
 	start_time = RealTimeClock::toEpochTime(internalRTC.defaulttime.Year, internalRTC.defaulttime.Month, internalRTC.defaulttime.Day, 0, 0, 0);
 	end_time = RealTimeClock::toEpochTime(internalRTC.defaulttime.Year, internalRTC.defaulttime.Month + 1, internalRTC.defaulttime.Day, 0, 0, 0);
@@ -305,6 +488,7 @@ void SensorTrigger::reset()
 	interval = ONEMIN;
 	relop = EQUAL;
 	threshold = 0;
+	tolerance = 0;
 }
 
 void TriggerCategory::serializeJSON(Trigger * trigger[TRIGGER_TYPES][TRIGGER_SETS], char * json, size_t maxSize, Scope scope)
