@@ -67,13 +67,20 @@ bool ActionChain::deserializeJSON(JsonObject & data)
 			//Assign Pointers to Action using Index to Action
 			if (data["actptr"][i] != "") {
 				actionPtr[i] = data["actptr"][i];
-				assignedAction[i] = actions[actionPtr[i]];
 			}
 			else {
 				actionPtr[i] = ACTIONS_NUM;
-				assignedAction[i] = NULL;
 			}
-			//Assign Action Parameter to Member
+
+			for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) {
+				if (actionPtr[i] != ACTIONS_NUM) {
+					assignedAction[i] = actions[actionPtr[i]];
+				} 
+				else {
+					assignedAction[i] = NULL;
+				}
+			}		
+			//Assign Action Parameter to Member		
 			if (data["actpar"][i] != "") actionPar[i] = data["actpar"][i];
 			else actionPar[i] = 0;
 		}

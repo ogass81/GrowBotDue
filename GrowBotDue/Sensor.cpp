@@ -13,7 +13,7 @@ float Sensor::getAvgFloat(Interval interval)
 	return 0.0f;
 }
 
-bool Sensor::compareWithValue(RelOp relop, Interval interval, int value, uint8_t tolerance)
+bool Sensor::compareWithValue(RelOp relop, Interval interval, int value, int8_t tolerance)
 {
 	return false;
 }
@@ -1050,7 +1050,7 @@ void AnalogMoistureSensor<ReturnType>::reset()
 }
 
 template<class ReturnType>
-bool AnalogMoistureSensor<ReturnType>::compareWithValue(RelOp relop, Interval interval, int value, uint8_t tolerance)
+bool AnalogMoistureSensor<ReturnType>::compareWithValue(RelOp relop, Interval interval, ReturnType value, int8_t tolerance)
 {
 	bool state;
 	int current_value = this->getAvgInt(interval);
@@ -1063,19 +1063,32 @@ bool AnalogMoistureSensor<ReturnType>::compareWithValue(RelOp relop, Interval in
 	LOGDEBUG2(F("[Sensor]"), F("compareWithValue()"), F("Info: Set Bounderies"), lower_boundery, upper_boundery, current_value);
 
 	if (current_value != this->nan_val) {
-		if (relop == EQUAL && current_value > lower_boundery && current_value < upper_boundery) state = true;
-		else if (relop == GREATER && current_value > upper_boundery) state = true;
-		else if (relop == SMALLER && current_value < lower_boundery) state = true;
-		else if (relop == NOTEQUAL && current_value < lower_boundery && current_value > upper_boundery) state = true;
-		else state = false;
+		switch (relop) {
+		case EQUAL:
+			if (lower_boundery < upper_boundery && current_value >= lower_boundery && current_value <= upper_boundery) state = true;
+			else if (current_value <= lower_boundery && current_value >= upper_boundery) state = true;
+			else state = false;
+			break;
+		case NOTEQUAL:
+			if (lower_boundery < upper_boundery && current_value < lower_boundery && current_value > upper_boundery) state = true;
+			else if (current_value > lower_boundery && current_value < upper_boundery) state = true;
+			else state = false;
+			break;
+		case SMALLER:
+			if (current_value <= lower_boundery);
+			break;
+		case GREATER:
+			if (current_value > upper_boundery);
+			break;
+		}
 	}
-	else false;
+	else state = false;
 
 	return state;
 }
 
 template<>
-bool AnalogMoistureSensor<float>::compareWithValue(RelOp relop, Interval interval, int value, uint8_t tolerance)
+bool AnalogMoistureSensor<float>::compareWithValue(RelOp relop, Interval interval, float value, int8_t tolerance)
 {
 	bool state;
 	float current_value = getAvgFloat(interval);
@@ -1089,13 +1102,26 @@ bool AnalogMoistureSensor<float>::compareWithValue(RelOp relop, Interval interva
 	LOGDEBUG2(F("[Sensor]"), F("compareWithValue()"), F("Info: Set Bounderies"), lower_boundery, upper_boundery, current_value);
 
 	if (current_value != this->nan_val) {
-		if (relop == EQUAL && current_value > lower_boundery && current_value < upper_boundery) state = true;
-		else if (relop == GREATER && current_value > upper_boundery) state = true;
-		else if (relop == SMALLER && current_value < lower_boundery) state = true;
-		else if (relop == NOTEQUAL && current_value < lower_boundery && current_value > upper_boundery) state = true;
-		else state = false;
+		switch (relop) {
+		case EQUAL:
+			if (lower_boundery < upper_boundery && current_value >= lower_boundery && current_value <= upper_boundery) state = true;
+			else if (current_value <= lower_boundery && current_value >= upper_boundery) state = true;
+			else state = false;
+			break;
+		case NOTEQUAL:
+			if (lower_boundery < upper_boundery && current_value < lower_boundery && current_value > upper_boundery) state = true;
+			else if (current_value > lower_boundery && current_value < upper_boundery) state = true;
+			else state = false;
+			break;
+		case SMALLER:
+			if (current_value <= lower_boundery);
+			break;
+		case GREATER:
+			if (current_value > upper_boundery);
+			break;
+		}
 	}
-	else false;
+	else state = false;
 
 	return state;
 }
@@ -1167,7 +1193,7 @@ void DHTTemperature::reset()
 	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) this->year_values[i] = this->nan_val;
 }
 
-bool DHTTemperature::compareWithValue(RelOp relop, Interval interval, int value, uint8_t tolerance)
+bool DHTTemperature::compareWithValue(RelOp relop, Interval interval, int value, int8_t tolerance)
 {
 	bool state;
 	int current_value = this->getAvgInt(interval);
@@ -1181,13 +1207,26 @@ bool DHTTemperature::compareWithValue(RelOp relop, Interval interval, int value,
 	LOGDEBUG2(F("[Sensor]"), F("compareWithValue()"), F("Info: Set Bounderies"), lower_boundery, upper_boundery, current_value);
 	
 	if (current_value != this->nan_val) {
-		if (relop == EQUAL && current_value > lower_boundery && current_value < upper_boundery) state = true;
-		else if (relop == GREATER && current_value > upper_boundery) state = true;
-		else if (relop == SMALLER && current_value < lower_boundery) state = true;
-		else if (relop == NOTEQUAL && current_value < lower_boundery && current_value > upper_boundery) state = true;
-		else state = false;
+		switch (relop) {
+		case EQUAL:
+			if (lower_boundery < upper_boundery && current_value >= lower_boundery && current_value <= upper_boundery) state = true;
+			else if(current_value <= lower_boundery && current_value >= upper_boundery) state = true;
+			else state = false;
+			break;
+		case NOTEQUAL:
+			if (lower_boundery < upper_boundery && current_value < lower_boundery && current_value > upper_boundery) state = true;
+			else if (current_value > lower_boundery && current_value < upper_boundery) state = true;
+			else state = false;
+			break;
+		case SMALLER:
+			if (current_value <= lower_boundery);
+			break;
+		case GREATER:
+			if (current_value > upper_boundery);
+			break;
+		}
 	}
-	else false;
+	else state = false;
 	
 
 	return state;
@@ -1250,24 +1289,37 @@ void DHTHumidity::reset()
 	for (uint8_t i = 0; i < SENS_VALUES_YEAR; i++) this->year_values[i] = this->nan_val;
 }
 
-bool DHTHumidity::compareWithValue(RelOp relop, Interval interval, int value, uint8_t tolerance)
+bool DHTHumidity::compareWithValue(RelOp relop, Interval interval, int value, int8_t tolerance)
 {
 	bool state;
 	int current_value = this->getAvgInt(interval);
 
 	int lower_boundery = (int)((float)(100.0f - tolerance / 100.0f) * value);
-	LOGDEBUG(F("[Sensor]"), F("compareWithValue()"), F("Info: Set Lower Boundery to "), lower_boundery, current_value, tolerance);
 	int upper_boundery = (int)((float)(100.0f + tolerance / 100.0f) * value);
-	LOGDEBUG(F("[Sensor]"), F("compareWithValue()"), F("Info: Set Upper Boundery to "), upper_boundery, current_value, tolerance);
+	
+	LOGDEBUG2(F("[Sensor]"), F("compareWithValue()"), F("Info: Set Bounderies"), lower_boundery, upper_boundery, current_value);
 
 	if (current_value != this->nan_val) {
-		if (relop == EQUAL && current_value > lower_boundery && current_value < upper_boundery) state = true;
-		else if (relop == GREATER && current_value > upper_boundery) state = true;
-		else if (relop == SMALLER && current_value < lower_boundery) state = true;
-		else if (relop == NOTEQUAL && current_value < lower_boundery && current_value > upper_boundery) state = true;
-		else state = false;
+		switch (relop) {
+		case EQUAL:
+			if (lower_boundery < upper_boundery && current_value >= lower_boundery && current_value <= upper_boundery) state = true;
+			else if (current_value <= lower_boundery && current_value >= upper_boundery) state = true;
+			else state = false;
+			break;
+		case NOTEQUAL:
+			if (lower_boundery < upper_boundery && current_value < lower_boundery && current_value > upper_boundery) state = true;
+			else if (current_value > lower_boundery && current_value < upper_boundery) state = true;
+			else state = false;
+			break;
+		case SMALLER:
+			if (current_value <= lower_boundery);
+			break;
+		case GREATER:
+			if (current_value > upper_boundery);
+			break;
+		}
 	}
-	else false;
+	else state = false;
 
 
 	return state;

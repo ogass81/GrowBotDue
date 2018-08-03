@@ -28,7 +28,7 @@ public:
 	virtual int getAvgInt(Interval interval);
 	virtual float getAvgFloat(Interval interval);
 
-	virtual bool compareWithValue(RelOp relop, Interval interval, int value, uint8_t tolerance);
+	virtual bool compareWithValue(RelOp relop, Interval interval, int value, int8_t tolerance);
 	
 	virtual String getTitle();
 	virtual String getValue();
@@ -155,7 +155,7 @@ public:
 
 	void reset();
 
-	bool compareWithValue(RelOp relop, Interval interval, int value, uint8_t tolerance);
+	bool compareWithValue(RelOp relop, Interval interval, ReturnType value, int8_t tolerance);
 };
 
 class DHTTemperature : public BaseSensor<int8_t> {
@@ -172,7 +172,7 @@ public:
 
 	void reset();
 
-	bool compareWithValue(RelOp relop, Interval interval, int value, uint8_t tolerance);
+	bool compareWithValue(RelOp relop, Interval interval, int value, int8_t tolerance);
 };
 
 class DHTHumidity : public BaseSensor<int8_t> {
@@ -189,6 +189,6 @@ public:
 
 	void reset();
 
-	bool compareWithValue(RelOp relop, Interval interval, int value, uint8_t tolerance);
+	bool compareWithValue(RelOp relop, Interval interval, int value, int8_t tolerance);
 };
 #endif

@@ -185,17 +185,21 @@ void TaskManager::addAction(Action * action, uint8_t duration)
 							queue[current_ptr][k] = action->antaObject;
 							LOGMSG(F("[TaskManager]"), F("OK: Added action to queue @"), String(current_ptr), String(action->antaObject->getTitle()), "");
 
+							/*
 							String keys[] = { "Position", "Action" };
 							String values[] = { (String)current_ptr, action->antaObject->getTitle() };
 							logengine.addLogEntry(0, "TaskManager", "OK: Added action to queue", keys, values, 2);
+						*/
 						}
 						else {
 							queue[start_ptr][start_task] = NULL;
 							LOGMSG(F("[TaskManager]"), F("ERROR: Antagonist Object missing"), F("Removed Start Action from"), start_ptr, start_task);
 
+							/*
 							String keys[] = { "Position", "Start Task" };
 							String values[] = { (String)start_ptr, (String)start_task };
 							logengine.addLogEntry(0, "TaskManager", "ERROR: Antagonist Object missing", keys, values, 2);
+						*/
 						}
 						current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
 						break;
@@ -223,17 +227,25 @@ void TaskManager::addActions(ActionChain *actionchain)
 
 	if (offset < TASK_QUEUE_LENGTH) {
 		current_ptr = getNextPositionFrom(task_ptr, offset);
-
+		
 		for (uint8_t i = 0; i < ACTIONCHAIN_LENGTH; i++) { //Iterate all Tasks in Chain
 			if (actionchain->assignedAction[i] != NULL) {
-				if (actionchain->actionPar[i] == 0) {  //Simple Action - only Start, no End
-															 //Empty Spot for Start of Action
+					if (actionchain->actionPar[i] == 0) {  //Simple Action - only Start, no End
+														 //Empty Spot for Start of Action
 					for (uint8_t j = 0; j < TASK_PARALLEL_SEC; j++) {
 						if (queue[current_ptr][j] == NULL) {
-							LOGMSG(F("[TaskManager]"), F("OK: Added action to queue @"), String(current_ptr), String(actionchain->assignedAction[i]->getTitle()), "");
 							queue[current_ptr][j] = actionchain->assignedAction[i];
 							current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
+														
+							LOGMSG(F("[TaskManager]"), F("OK: Added action to queue @"), String(current_ptr), String(actionchain->assignedAction[i]->getTitle()), "");
+
+							/*
+							String keys[] = { "Position", "Action" };
+							String values[] = { (String)current_ptr, actionchain->assignedAction[i]->getTitle() };
+							logengine.addLogEntry(0, "TaskManager", "OK: Added action to queue", keys, values, 2);
+							*/
 							break;
+
 						}
 					}
 				}
@@ -262,17 +274,21 @@ void TaskManager::addActions(ActionChain *actionchain)
 										queue[current_ptr][k] = actionchain->assignedAction[i]->antaObject;
 										LOGMSG(F("[TaskManager]"), F("OK: Added action to queue @"), String(current_ptr), String(actionchain->assignedAction[i]->antaObject->getTitle()), "");
 
+										/*
 										String keys[] = { "Position", "Action" };
 										String values[] = { (String)current_ptr, actionchain->assignedAction[i]->antaObject->getTitle() };
 										logengine.addLogEntry(0, "TaskManager", "OK: Added action to queue", keys, values, 2);
+										*/
 									}
 									else {
 										queue[start_ptr][start_task] = NULL;
 										LOGMSG(F("[TaskManager]"), F("ERROR: Antagonist Object missing."), F("Removed Start Action from"), start_ptr, start_task);
 
+										/*
 										String keys[] = { "Position", "Start Task" };
 										String values[] = { (String)start_ptr, (String)start_task };
 										logengine.addLogEntry(0, "TaskManager", "ERROR: Antagonist Object missing", keys, values, 2);
+										*/
 									}
 									current_ptr = getNextPositionFrom(current_ptr, 0); //Allow Parallel Tasks -> 0
 									break;
@@ -284,7 +300,7 @@ void TaskManager::addActions(ActionChain *actionchain)
 				}
 			}
 			else break; //No Action No Effort -> Break
-		}
+		} 
 	}
 	else {
 		LOGMSG(F("[TaskManager]"), F("ERROR: Could not find spot for all tasks of Actionchain."), String(actionchain->getTitle()), F("Current # of parallel tasks"), String(TASK_PARALLEL_SEC));
